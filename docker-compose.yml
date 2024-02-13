@@ -1,0 +1,41 @@
+version: '3.8'
+services:
+    pg-db:
+        image: postgres
+        container_name: ${COMPOSE_PROJECT_NAME?}-pg-db
+        restart: always
+
+        environment:
+            POSTGRES_DB: ${POSTGRES_DB_NAME?}
+            POSTGRES_USER: ${POSTGRES_USER?}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD?}
+
+        ports:
+            - '${POSTGRES_PORT?}:5432'
+
+        volumes:
+            - pg-db-data:/var/lib/postgresql/data
+
+    pg-admin:
+        image: dpage/pgadmin4
+        container_name: pgadmin4_container
+        restart: always
+
+        environment:
+            PGADMIN_DEFAULT_EMAIL: user-name@domain-name.com
+            PGADMIN_DEFAULT_PASSWORD: strong-password
+
+        ports:
+            - '${PGDMIN_PORT?}:80'
+
+        volumes:
+            - pg-admin-data:/var/lib/pgadmin
+
+        depends_on:
+            - pg-db
+
+volumes:
+    pg-db-data:
+        driver: local
+    pg-admin-data:
+        driver: local
