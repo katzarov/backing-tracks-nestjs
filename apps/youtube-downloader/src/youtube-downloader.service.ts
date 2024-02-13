@@ -7,6 +7,8 @@ import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class YoutubeDownloaderService {
+  private downloadsFolderName: string;
+
   // constructor(@Inject('YTDL_LIB') private ytdl) {}
   constructor(
     private localDiskStorageService: LocalDiskFileStorageService,
@@ -16,7 +18,6 @@ export class YoutubeDownloaderService {
       'storage.localDisk.downloadsFolder',
     );
   }
-  private downloadsFolderName: string;
 
   async getYouTubeVideoInfo(url: string) {
     const info = await ytdl.getInfo(url);

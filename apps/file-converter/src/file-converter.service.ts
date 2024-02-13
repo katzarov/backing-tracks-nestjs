@@ -7,6 +7,9 @@ import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class FileConverterService {
+  private downloadsFolderName: string;
+  private convertedFolderName: string;
+
   constructor(
     private localDiskStorageService: LocalDiskFileStorageService,
     private configService: ConfigService,
@@ -18,8 +21,6 @@ export class FileConverterService {
       'storage.localDisk.convertedFolder',
     );
   }
-  private downloadsFolderName: string;
-  private convertedFolderName: string;
 
   async convertFile(name: string) {
     const readableVideoInMp4 = this.localDiskStorageService.getReadableStream(
