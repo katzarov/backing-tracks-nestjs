@@ -14,10 +14,10 @@ export class FileConverterService {
     private localDiskStorageService: LocalDiskFileStorageService,
     private configService: ConfigService,
   ) {
-    this.downloadsFolderName = this.configService.get<string>(
+    this.downloadsFolderName = this.configService.getOrThrow<string>(
       'storage.localDisk.downloadsFolder',
     );
-    this.convertedFolderName = this.configService.get<string>(
+    this.convertedFolderName = this.configService.getOrThrow<string>(
       'storage.localDisk.convertedFolder',
     );
   }

@@ -14,7 +14,7 @@ export class YoutubeDownloaderService {
     private localDiskStorageService: LocalDiskFileStorageService,
     private configService: ConfigService,
   ) {
-    this.downloadsFolderName = this.configService.get<string>(
+    this.downloadsFolderName = this.configService.getOrThrow<string>(
       'storage.localDisk.downloadsFolder',
     );
   }

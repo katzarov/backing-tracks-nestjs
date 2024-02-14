@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { AcquireTracksModule } from './acquire-tracks/acquire-tracks.module';
 import configuration from 'config/configuration';
+import { AuthGuard } from './auth/auth.guard';
 
 @Module({
   imports: [
@@ -28,6 +30,11 @@ import configuration from 'config/configuration';
     AcquireTracksModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
+  ],
 })
 export class AppModule {}

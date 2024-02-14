@@ -3,7 +3,6 @@ import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
-import { AuthGuard } from './auth/auth.guard';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -13,7 +12,6 @@ async function bootstrap() {
   // cors
   // morgan ? - write log to file ?
 
-  app.useGlobalGuards(new AuthGuard(configService));
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -24,7 +22,7 @@ async function bootstrap() {
   );
   // todo, need to configure exceptions better, & log these
 
-  const port = configService.getOrThrow('apiPort'); // TODO; swithc all to getOrThrow
+  const port = configService.getOrThrow<number>('apiPort');
   await app.listen(port);
 }
 bootstrap();
