@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import configuration from 'config/configuration';
+import { DatabaseModule } from 'database/database.module'; // keep this above all other user modules
 import { AcquireTracksModule } from './acquire-tracks/acquire-tracks.module';
 import configuration from 'config/configuration';
 import { AuthGuard } from './auth/auth.guard';
@@ -27,6 +29,7 @@ import { AuthGuard } from './auth/auth.guard';
       ],
       isGlobal: true,
     }),
+    DatabaseModule,
     AcquireTracksModule,
   ],
   controllers: [],
