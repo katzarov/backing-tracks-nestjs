@@ -5,7 +5,8 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import configuration from 'config/configuration';
 import { DatabaseModule } from 'database/database.module'; // keep this above all other user modules
 import { AcquireTracksModule } from './acquire-tracks/acquire-tracks.module';
-import configuration from 'config/configuration';
+import { UserModule } from './user/user.module';
+import { TracksModule } from './tracks/tracks.module';
 import { AuthGuard } from './auth/auth.guard';
 
 @Module({
@@ -31,6 +32,8 @@ import { AuthGuard } from './auth/auth.guard';
     }),
     DatabaseModule,
     AcquireTracksModule,
+    UserModule,
+    TracksModule,
   ],
   controllers: [],
   providers: [
