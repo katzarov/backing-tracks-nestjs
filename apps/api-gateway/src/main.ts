@@ -58,4 +58,6 @@ bootstrap();
  *
  * generate waveforms service
  *
+ * g spotify service and think about to what extent do depend on the spotify api (when it comes to db schema as well)
+ *
  */
