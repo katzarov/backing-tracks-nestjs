@@ -19,6 +19,7 @@ export class UserService {
     return this.usersRepository.findOneBy({ id });
   }
 
+  // TODO abstractify the auth provider as I will likely change to another
   findOneByAuth0Id(auth0Id: string) {
     return this.usersRepository.findOneBy({ auth0Id });
   }

@@ -27,11 +27,6 @@ async function bootstrap() {
 }
 bootstrap();
 
-// const app = await NestFactory.create(AppModule, express, {
-//   bufferLogs: true,
-//   abortOnError: false, // create a nest module and rethrow an error, instead of aborting the startup
-// }).catch(console.error) as INestApplication
-
 /**
  * TODO:
  *
@@ -41,13 +36,9 @@ bootstrap();
  * obserbavble fails when no value returned
  * more abstract storage
  *
- * setup an ORM
- * start the crud parts
  *
- * add an auth provider
- * guards
+ * another guard to check if user is authzed to access a given resouce..? - shouldnt be necessary.
  *
- * do the whole flow : download track and save per user & default playlist
  *
  * do s3 file storage
  * give client presigned urls
