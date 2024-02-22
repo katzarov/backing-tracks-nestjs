@@ -21,6 +21,7 @@ async function bootstrap() {
     }),
   );
   // todo, need to configure exceptions better, & log these
+  app.enableCors({ origin: 'http://localhost:8080' });
 
   const port = configService.getOrThrow<number>('apiPort');
   await app.listen(port);
@@ -38,6 +39,7 @@ bootstrap();
  * rate limit https://docs.nestjs.com/security/rate-limiting
  * obserbavble fails when no value returned
  * more abstract storage
+ * sentry(or similar) for both this and FE
  *
  *
  * another guard to check if user is authzed to access a given resouce..? - shouldnt be necessary.
@@ -50,7 +52,7 @@ bootstrap();
  *
  * prob check via node dev/prod env for some flags
  *
- * generate waveforms service
+ * generate waveforms service - await exec('audiowaveform -i /tmp/data.mp3 -o /tmp/data.json --pixels-per-second 20 --bits 8');
  *
  * g spotify service and think about to what extent do depend on the spotify api (when it comes to db schema as well)
  * when initally cataloguing a track, find it on spotify and use spotifies ids for the artist/track.
@@ -63,5 +65,9 @@ bootstrap();
  *
  * track versions - bass, guitar, drums
  * support (generic) backing tracks that are not by a (spotify) artist
+ *
+ * ytdl also save video thumb image, uploader info and image as well - just for UI presentation pursposes, as we will be doing the same for spotiy
+ *
+ * mp3 file upload - check the builtin multer
  *
  */
