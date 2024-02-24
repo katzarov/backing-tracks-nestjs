@@ -51,7 +51,10 @@ export class AcquireTracksService {
 
     const msg = `new track acquired: ${name}, id: ${resourceId}, for user: ${userId}`;
     console.log(msg);
+    const newTrackInfo = {
+      msg,
+    };
 
-    return msg;
+    return newTrackInfo;
   }
 }

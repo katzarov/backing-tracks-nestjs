@@ -22,10 +22,11 @@ export class YoutubeDownloaderService {
   async getYouTubeVideoInfo(url: string) {
     const info = await ytdl.getInfo(url);
 
-    const { title, author, lengthSeconds } = info.videoDetails;
+    const { title, author, lengthSeconds, thumbnails } = info.videoDetails;
     const { name } = author;
+    const thumbnailUrl = thumbnails[0].url;
 
-    return { title, name, lengthSeconds };
+    return { title, channel: name, length: lengthSeconds, thumbnailUrl };
   }
 
   async downloadYouTubeVideo(url: string, name: string) {
