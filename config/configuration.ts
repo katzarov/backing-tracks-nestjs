@@ -8,6 +8,11 @@ export default () => ({
     audience: process.env.AUTH0_AUDIENCE,
   },
 
+  spotify: {
+    clientId: process.env.SPOTIFY_CLIENT_ID,
+    clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
+  },
+
   database: {
     name: process.env.POSTGRES_DB_NAME,
     host: process.env.POSTGRES_HOST,
