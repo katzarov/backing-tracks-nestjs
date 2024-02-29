@@ -1,18 +1,26 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
+import * as fs from 'node:fs/promises';
 import { randomUUID } from 'crypto';
 import { lastValueFrom, Observable } from 'rxjs';
 import { DownloadYouTubeVideoDto } from './dto/download-youtube-video.dto';
 import { TracksService } from '../tracks/tracks.service';
 import { Track } from '../tracks/track.entity';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AcquireTracksService {
+  private tracksFolder;
   constructor(
     @Inject('YOUTUBE_DOWNLOADER_SERVICE') private youtubeService: ClientProxy,
     @Inject('FILE_CONVERTER_SERVICE') private fileConverterService: ClientProxy,
     private tracksService: TracksService,
-  ) {}
+    configService: ConfigService,
+  ) {
+    this.tracksFolder = configService.getOrThrow<string>(
+      'storage.localDisk.convertedFolder',
+    );
+  }
 
   private download(url: string, name: string): Observable<string> {
     const pattern = { cmd: 'downloadYouTubeVideo' };
@@ -24,6 +32,19 @@ export class AcquireTracksService {
     const pattern = { cmd: 'convertFile' };
     const payload = { name };
     return this.fileConverterService.send(pattern, payload);
+  }
+
+  private async createTrackEntry(
+    userId: number,
+    resourceId: string,
+    trackName: string,
+  ) {
+    // TODO: not (type) safe
+    const newTrack = new Track({ resourceId, name: trackName });
+    // TODO: cleanup files if this fails
+    await this.tracksService.create(userId, newTrack);
+
+    return `new track acquired: ${trackName}, id: ${resourceId}, for user: ${userId}`;
   }
 
   getYouTubeVideoInfo(url: string) {
@@ -44,17 +65,18 @@ export class AcquireTracksService {
     await lastValueFrom(this.download(url, resourceId));
     await lastValueFrom(this.convert(resourceId));
 
-    // TODO: not (type) safe
-    const newTrack = new Track({ resourceId, name });
-    // TODO: cleanup files if this fails
-    await this.tracksService.create(userId, newTrack);
+    const newTrackInfo = await this.createTrackEntry(userId, resourceId, name);
+    console.log(newTrackInfo);
+    return { msg: newTrackInfo };
+  }
 
-    const msg = `new track acquired: ${name}, id: ${resourceId}, for user: ${userId}`;
-    console.log(msg);
-    const newTrackInfo = {
-      msg,
-    };
+  async uploadTrack(userId: number, name: string, file: Express.Multer.File) {
+    const resourceId = randomUUID();
+    // TODO: temp, will later switch to streams
+    await fs.writeFile(`${this.tracksFolder}/${resourceId}.mp3`, file.buffer);
 
-    return newTrackInfo;
+    const newTrackInfo = await this.createTrackEntry(userId, resourceId, name);
+    console.log(newTrackInfo);
+    return { msg: newTrackInfo };
   }
 }

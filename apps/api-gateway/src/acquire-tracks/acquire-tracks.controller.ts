@@ -1,11 +1,27 @@
-import { Controller, Get, Body, Post, Param, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Body,
+  Post,
+  Param,
+  Query,
+  UseInterceptors,
+  UploadedFile,
+  ParseFilePipe,
+  MaxFileSizeValidator,
+  FileTypeValidator,
+} from '@nestjs/common';
 import { AcquireTracksService } from './acquire-tracks.service';
 import { DownloadYouTubeVideoDto } from './dto/download-youtube-video.dto';
 import { AuthenticatedUser } from '../auth/authenticated-user.decorator';
 import { GetYoutubeVideoInfoDto } from './dto/get-youtube-video-info.dto';
 import { SpotifyService } from './spotify.service';
 import { SeachForTrackInSpotifyDto } from './dto/search-for-track-in-spotify.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { FileMagicNumberValidator } from './file-magic-number.validator';
+import { UploadTrackDto } from './dto/upload-track.dto';
 
+// TODO: Rate limit this whole controller
 @Controller('acquire-tracks')
 export class AcquireTracksController {
   constructor(
@@ -36,5 +52,30 @@ export class AcquireTracksController {
   ) {
     return this.spotifyService.search(query, limit, offset);
   }
-  // TODO: File upload
+
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('file'))
+  uploadTrack(
+    @AuthenticatedUser() userId: number,
+    @Body() { name }: UploadTrackDto,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 20000000 }), // in bytes
+          new FileTypeValidator({ fileType: 'audio/mpeg' }),
+          new FileMagicNumberValidator({
+            fileExtension: 'mp3',
+            mimeType: 'audio/mpeg',
+          }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
+  ) {
+    // TODO: whole file is in memory, not great => switch to streaming file to a tmp folder for example.
+    // https://github.com/expressjs/multer?tab=readme-ov-file#diskstorage
+    // https://github.com/sindresorhus/file-type?tab=readme-ov-file#filetypefromstreamstream
+
+    return this.acquireTracksService.uploadTrack(userId, name, file);
+  }
 }
