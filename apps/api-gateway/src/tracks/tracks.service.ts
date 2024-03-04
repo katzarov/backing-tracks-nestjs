@@ -16,9 +16,9 @@ export class TracksService {
     private tracksRepository: Repository<Track>,
     private readonly entityManager: EntityManager,
     private usersService: UserService,
-    private configService: ConfigService,
+    configService: ConfigService,
   ) {
-    this.convertedFolderName = this.configService.getOrThrow<string>(
+    this.convertedFolderName = configService.getOrThrow<string>(
       'storage.localDisk.convertedFolder',
     );
   }
@@ -32,9 +32,16 @@ export class TracksService {
 
   findAll(userId: number) {
     return this.tracksRepository.find({
-      // relations: { user: true },
+      relations: { meta: { artist: true } },
       where: { user: Equal(userId) },
-      select: ['resourceId', 'name'],
+      select: {
+        resourceId: true,
+        duration: true,
+        trackType: true,
+        trackInstrument: true,
+        meta: { trackName: true, artist: { artistName: true } },
+      },
+      order: { id: 'ASC' },
     });
 
     // return this.tracksRepository.findBy({ user: Equal(userId) });
@@ -44,11 +51,18 @@ export class TracksService {
     // TODO: should actually return a presigned s3 url for the resource
 
     return this.tracksRepository.find({
+      relations: { meta: { artist: true } },
       where: {
         user: Equal(userId),
         resourceId: Equal(resourceId),
       },
-      select: ['resourceId', 'name'],
+      select: {
+        resourceId: true,
+        duration: true,
+        trackType: true,
+        trackInstrument: true,
+        meta: { trackName: true, artist: { artistName: true } },
+      },
     });
 
     // https://typeorm.io/find-options#basic-options

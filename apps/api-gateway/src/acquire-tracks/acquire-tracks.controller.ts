@@ -76,6 +76,6 @@ export class AcquireTracksController {
     // https://github.com/expressjs/multer?tab=readme-ov-file#diskstorage
     // https://github.com/sindresorhus/file-type?tab=readme-ov-file#filetypefromstreamstream
 
-    return this.acquireTracksService.uploadTrack(userId, name, file);
+    return this.acquireTracksService.uploadTrack(userId, uploadTrackDto, file);
   }
 }

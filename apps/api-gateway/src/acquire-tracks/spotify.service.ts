@@ -1,10 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import {
-  MaxInt,
-  PartialSearchResult,
-  SpotifyApi,
-} from '@spotify/web-api-ts-sdk';
+import type { MaxInt, PartialSearchResult } from '@spotify/web-api-ts-sdk';
+import { SpotifyApi } from '@spotify/web-api-ts-sdk';
+
+const spotifyMarket = 'US';
 
 @Injectable()
 export class SpotifyService {
@@ -52,12 +51,20 @@ export class SpotifyService {
     const result = await this.spotifyApi.search(
       query,
       ['track'],
-      'US',
+      spotifyMarket,
       limit === undefined ? defaultLimit : limit,
       offset,
     );
+
+    // TODO: if user already has the same track in their collection, mark it as such & display on UI
     const resultForClient = this.buildResponseForClient(result);
 
     return resultForClient;
+  }
+
+  async getTrack(spotifyId: string) {
+    const result = await this.spotifyApi.tracks.get(spotifyId, spotifyMarket);
+
+    return result;
   }
 }

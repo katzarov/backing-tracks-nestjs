@@ -1,12 +1,18 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
+import { EntityManager } from 'typeorm';
 import * as fs from 'node:fs/promises';
 import { randomUUID } from 'crypto';
 import { lastValueFrom, Observable } from 'rxjs';
+import { SpotifyService } from './spotify.service';
 import { DownloadYouTubeVideoDto } from './dto/download-youtube-video.dto';
 import { TracksService } from '../tracks/tracks.service';
-import { Track } from '../tracks/track.entity';
+import { Track, TrackInstrument, TrackType } from '../tracks/track.entity';
 import { ConfigService } from '@nestjs/config';
+import { UploadTrackDto } from './dto/upload-track.dto';
+import { TrackMeta } from '../meta/trackMeta.entity';
+import { Artist } from '../meta/artist.entity';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class AcquireTracksService {
@@ -14,7 +20,10 @@ export class AcquireTracksService {
   constructor(
     @Inject('YOUTUBE_DOWNLOADER_SERVICE') private youtubeService: ClientProxy,
     @Inject('FILE_CONVERTER_SERVICE') private fileConverterService: ClientProxy,
+    private entityManager: EntityManager,
     private tracksService: TracksService,
+    private usersService: UserService,
+    private spotifyService: SpotifyService,
     configService: ConfigService,
   ) {
     this.tracksFolder = configService.getOrThrow<string>(
@@ -34,15 +43,43 @@ export class AcquireTracksService {
     return this.fileConverterService.send(pattern, payload);
   }
 
-  private async createTrackEntry(
+  private async createAndSaveTrackEntry(
     userId: number,
     resourceId: string,
-    trackName: string,
+    spotifyId: string,
+    trackType: TrackType,
+    trackInstrument: TrackInstrument,
   ) {
-    // TODO: not (type) safe
-    const newTrack = new Track({ resourceId, name: trackName });
+    const trackInfo = await this.spotifyService.getTrack(spotifyId);
+    const trackName = trackInfo.name;
+    const trackDuration = trackInfo.duration_ms; // TODO get duration from the actiual track file itself.
+
+    const artistId = trackInfo.artists[0].id;
+    const artistName = trackInfo.artists[0].name;
+
+    const artist = new Artist({ spotifyUri: artistId, artistName });
+    const trackMeta = new TrackMeta({ spotifyUri: spotifyId, trackName });
+    const track = new Track({
+      resourceId,
+      duration: trackDuration,
+      trackType,
+      trackInstrument,
+    });
+
+    const user = await this.usersService.findOne(userId);
+    track.user = user;
+
+    await this.entityManager.transaction(async (transactionalEntityManager) => {
+      const newArtist = await transactionalEntityManager.save(artist);
+      trackMeta.artist = newArtist;
+
+      const newTrackMeta = await transactionalEntityManager.save(trackMeta);
+      track.meta = newTrackMeta;
+
+      await transactionalEntityManager.save(track);
+    });
+
     // TODO: cleanup files if this fails
-    await this.tracksService.create(userId, newTrack);
 
     return `new track acquired: ${trackName}, id: ${resourceId}, for user: ${userId}`;
   }
@@ -53,7 +90,7 @@ export class AcquireTracksService {
 
   async downloadYouTubeVideo(
     userId: number,
-    { url, name }: DownloadYouTubeVideoDto,
+    { url, spotifyId, trackType, trackInstrument }: DownloadYouTubeVideoDto,
   ) {
     const resourceId = randomUUID();
     // BIG TODO here: probably want some job/tracker service instead of doing it like this here.
@@ -65,17 +102,33 @@ export class AcquireTracksService {
     await lastValueFrom(this.download(url, resourceId));
     await lastValueFrom(this.convert(resourceId));
 
-    const newTrackInfo = await this.createTrackEntry(userId, resourceId, name);
+    const newTrackInfo = await this.createAndSaveTrackEntry(
+      userId,
+      resourceId,
+      spotifyId,
+      trackType,
+      trackInstrument,
+    );
     console.log(newTrackInfo);
     return { msg: newTrackInfo };
   }
 
-  async uploadTrack(userId: number, name: string, file: Express.Multer.File) {
+  async uploadTrack(
+    userId: number,
+    { spotifyId, trackType, trackInstrument }: UploadTrackDto,
+    file: Express.Multer.File,
+  ) {
     const resourceId = randomUUID();
     // TODO: temp, will later switch to streams
     await fs.writeFile(`${this.tracksFolder}/${resourceId}.mp3`, file.buffer);
 
-    const newTrackInfo = await this.createTrackEntry(userId, resourceId, name);
+    const newTrackInfo = await this.createAndSaveTrackEntry(
+      userId,
+      resourceId,
+      spotifyId,
+      trackType,
+      trackInstrument,
+    );
     console.log(newTrackInfo);
     return { msg: newTrackInfo };
   }
