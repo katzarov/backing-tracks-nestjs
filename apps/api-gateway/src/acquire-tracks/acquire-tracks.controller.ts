@@ -18,7 +18,7 @@ import { GetYoutubeVideoInfoDto } from './dto/get-youtube-video-info.dto';
 import { SpotifyService } from './spotify.service';
 import { SeachForTrackInSpotifyDto } from './dto/search-for-track-in-spotify.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { FileMagicNumberValidator } from './file-magic-number.validator';
+import { FileMagicNumberValidator } from './dto/utils/file-magic-number.validator';
 import { UploadTrackDto } from './dto/upload-track.dto';
 
 // TODO: Rate limit this whole controller
@@ -57,7 +57,7 @@ export class AcquireTracksController {
   @UseInterceptors(FileInterceptor('file'))
   uploadTrack(
     @AuthenticatedUser() userId: number,
-    @Body() { name }: UploadTrackDto,
+    @Body() uploadTrackDto: UploadTrackDto,
     @UploadedFile(
       new ParseFilePipe({
         validators: [

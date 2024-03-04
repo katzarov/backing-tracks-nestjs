@@ -1,7 +1,3 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { TrackInfoDto } from './utils/track-info.dto';
 
-export class UploadTrackDto {
-  @IsNotEmpty()
-  @IsString()
-  name: string;
-}
+export class UploadTrackDto extends TrackInfoDto {}

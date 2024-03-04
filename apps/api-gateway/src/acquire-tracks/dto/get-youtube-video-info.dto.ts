@@ -1,10 +1,7 @@
 import { IsUrl } from 'class-validator';
+import { youTubeUrlValidationOptions } from './utils/youtube-url.validation-options';
 
 export class GetYoutubeVideoInfoDto {
-  // TODO: there is also IsFQDN ?, I might write a new custom validation pipe anyway, but this should be fine for now.
-  @IsUrl({
-    protocols: ['https'],
-    host_whitelist: ['www.youtube.com', 'youtube.com', 'youtu.be'],
-  })
+  @IsUrl(youTubeUrlValidationOptions)
   url: string;
 }

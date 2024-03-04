@@ -7,7 +7,7 @@ import {
   Max,
   MinLength,
 } from 'class-validator';
-import { MaxInt } from '@spotify/web-api-ts-sdk';
+import type { MaxInt } from '@spotify/web-api-ts-sdk';
 import { Transform } from 'class-transformer';
 
 // TODO: should trim white space at client and validate here as well.
