@@ -7,6 +7,7 @@ import { DatabaseModule } from 'database/database.module'; // keep this above al
 import { AcquireTracksModule } from './acquire-tracks/acquire-tracks.module';
 import { UserModule } from './user/user.module';
 import { TracksModule } from './tracks/tracks.module';
+import { MetaModule } from './meta/meta.module';
 import { AuthGuard } from './auth/auth.guard';
 
 @Module({
@@ -34,6 +35,7 @@ import { AuthGuard } from './auth/auth.guard';
     AcquireTracksModule,
     UserModule,
     TracksModule,
+    MetaModule,
   ],
   controllers: [],
   providers: [
