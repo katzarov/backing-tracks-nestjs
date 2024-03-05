@@ -43,9 +43,6 @@ export class SpotifyService {
     }));
   }
 
-  // TODO strip "backing track" from search.. 'jam' as well.. "by", "high quality"
-  // BUT again check if the google music tag in the video (or keywords) or other metadata can be used.
-
   async search(query: string, limit?: MaxInt<10>, offset?: number) {
     const defaultLimit = 10;
     const result = await this.spotifyApi.search(

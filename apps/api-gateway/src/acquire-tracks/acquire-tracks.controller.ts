@@ -61,7 +61,7 @@ export class AcquireTracksController {
     @UploadedFile(
       new ParseFilePipe({
         validators: [
-          new MaxFileSizeValidator({ maxSize: 20000000 }), // in bytes
+          new MaxFileSizeValidator({ maxSize: 20000000 }), // in bytes TODO: put in config
           new FileTypeValidator({ fileType: 'audio/mpeg' }),
           new FileMagicNumberValidator({
             fileExtension: 'mp3',

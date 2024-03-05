@@ -20,6 +20,8 @@ export enum TrackInstrument {
   BASS = 'BASS',
 }
 
+// TODO take into account track versioning https://typeorm.io/decorator-reference#generated https://github.com/typeorm/typeorm/issues/1517
+// TODO rethink primary columns: https://typeorm.io/entities#primary-columns
 @Entity()
 @Unique(['resourceId'])
 export class Track {
@@ -34,6 +36,13 @@ export class Track {
 
   @Column({ type: 'uuid' })
   resourceId: string; // TODO: resourceId => https://stackoverflow.com/questions/176264/what-is-the-difference-between-a-uri-a-url-and-a-urn
+
+  // @Column()
+  // @Generated('increment')
+  // version: number;
+
+  // @Column({ nullable: true })
+  // comment?: string;
 
   @Column({
     type: 'enum',

@@ -96,6 +96,8 @@ export class AcquireTracksService {
     // BIG TODO here: probably want some job/tracker service instead of doing it like this here.
     // some hybrid microservice that also does ss3 with the client to show the download/converter progress, and show all currnet jobs and blah blah..
     // i,e job tracking/execution/notification service(s), will also need a queue, look into rabbitmq
+    // put a message broker inbetween all instead of this method call all microservices like that.
+    // + notification service that will listen also to all messages and track the result + will notify the client
 
     // TODO v2, these two microserices will probably end up being lambdas again.. I will need to rethink a bit how the notification/job tracking for the FE client, will be done in this case.
 
