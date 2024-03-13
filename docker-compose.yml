@@ -1,41 +1,129 @@
 version: '3.8'
 services:
-    pg-db:
-        image: postgres
-        container_name: ${COMPOSE_PROJECT_NAME?}-pg-db
-        restart: always
-
-        environment:
-            POSTGRES_DB: ${POSTGRES_DB_NAME?}
-            POSTGRES_USER: ${POSTGRES_USER?}
-            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD?}
-
+    api-gateway:
+        container_name: ${COMPOSE_PROJECT_NAME}-api-gateway
+        build:
+            context: .
+            target: dev
+            dockerfile: ./Dockerfile
+        # for prod
+        # command: ["node", "dist/apps/api-gateway/main"]
         ports:
-            - '${POSTGRES_PORT?}:5432'
+            - '${API_PORT}:${API_PORT}'
+        volumes:
+            # https://medium.com/hackernoon/a-better-way-to-develop-node-js-with-docker-cd29d3a0093
+            # https://www.docker.com/blog/containerizing-test-tooling-creating-your-dockerfile-and-makefile/
+            - nodemodules:/usr/src/app/node_modules
+            - .:/usr/src/app
+        env_file:
+            - .env
+        environment:
+            # env overrides
+            POSTGRES_HOST: pg-db
+            # POSTGRES_HOST: host.docker.internal
+            # API_HOST: api-gateway
+            YOUTUBE_DOWNLOADER_HOST: youtube-downloader
+            FILE_CONVERTER_HOST: file-converter
+            # rest
+            TARGET_APP: api-gateway
+        depends_on:
+            - pg-db
+            - youtube-downloader
+            - file-converter
+        networks:
+            - db
+            - microservices
 
+    youtube-downloader:
+        container_name: ${COMPOSE_PROJECT_NAME}-youtube-downloader
+        build:
+            context: .
+            target: dev
+            dockerfile: ./Dockerfile
+        # for prod
+        # command: ["node", "dist/apps/youtube-downloader/main"]
+        ports:
+            - '${YOUTUBE_DOWNLOADER_PORT}:${YOUTUBE_DOWNLOADER_PORT}'
+        volumes:
+            - nodemodules:/usr/src/app/node_modules
+            - .:/usr/src/app
+        env_file:
+            - .env
+        environment:
+            # overrides
+            YOUTUBE_DOWNLOADER_HOST: youtube-downloader
+            # rest
+            TARGET_APP: youtube-downloader
+        networks:
+            - microservices
+
+    file-converter:
+        container_name: ${COMPOSE_PROJECT_NAME}-file-converter
+        build:
+            context: .
+            target: dev
+            dockerfile: ./Dockerfile
+        # for prod
+        # command: ["node", "dist/apps/file-converter/main"]
+        ports:
+            - '${FILE_CONVERTER_PORT}:${FILE_CONVERTER_PORT}'
+        volumes:
+            - nodemodules:/usr/src/app/node_modules
+            - .:/usr/src/app
+        env_file:
+            - .env
+        environment:
+            # overrides
+            FILE_CONVERTER_HOST: file-converter
+            # rest
+            TARGET_APP: file-converter
+        networks:
+            - microservices
+
+    pg-db:
+        # TODO: specify ver
+        image: postgres
+        container_name: ${COMPOSE_PROJECT_NAME}-pg-db
+        restart: always
+        environment:
+            POSTGRES_DB: ${POSTGRES_DB_NAME}
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+        ports:
+            - '${POSTGRES_PORT}:5432'
         volumes:
             - pg-db-data:/var/lib/postgresql/data
+        networks:
+            - db
 
     pg-admin:
         image: dpage/pgadmin4
         container_name: pgadmin4_container
         restart: always
-
         environment:
             PGADMIN_DEFAULT_EMAIL: user-name@domain-name.com
             PGADMIN_DEFAULT_PASSWORD: strong-password
-
         ports:
-            - '${PGDMIN_PORT?}:80'
-
+            - '${PGDMIN_PORT}:80'
         volumes:
             - pg-admin-data:/var/lib/pgadmin
-
         depends_on:
             - pg-db
+        networks:
+            - db
 
 volumes:
     pg-db-data:
         driver: local
     pg-admin-data:
         driver: local
+    nodemodules:
+        external: true
+
+networks:
+    db:
+        name: db
+        driver: bridge
+    microservices:
+        name: microservices
+        driver: bridge

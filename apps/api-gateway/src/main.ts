@@ -36,6 +36,7 @@ bootstrap();
  * - link the TS of this repo and the React repo ?
  * - prob check via node dev/prod env for some flags
  * - put injection tokens in consts
+ * - better dockerignore
  *
  *
  * SECURITY:
