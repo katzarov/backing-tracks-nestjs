@@ -19,7 +19,7 @@ async function bootstrap() {
   );
   app.enableCors({ origin: 'http://localhost:8080' });
 
-  const port = configService.getOrThrow<number>('apiPort');
+  const port = configService.getOrThrow<number>('api.port');
   await app.listen(port);
 }
 bootstrap();
@@ -35,6 +35,7 @@ bootstrap();
  * - add swagger
  * - link the TS of this repo and the React repo ?
  * - prob check via node dev/prod env for some flags
+ * - put injection tokens in consts
  *
  *
  * SECURITY:

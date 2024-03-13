@@ -1,7 +1,18 @@
 export default () => ({
-  apiPort: parseInt(process.env.API_PORT, 10),
-  youtubeDownloaderPort: parseInt(process.env.YOUTUBE_DOWNLOADER_PORT, 10),
-  fileConverterPort: parseInt(process.env.FILE_CONVERTER_PORT, 10),
+  api: {
+    host: process.env.API_HOST,
+    port: parseInt(process.env.API_PORT, 10),
+  },
+
+  youtubeDownloader: {
+    host: process.env.YOUTUBE_DOWNLOADER_HOST,
+    port: parseInt(process.env.YOUTUBE_DOWNLOADER_PORT, 10),
+  },
+
+  fileConverter: {
+    host: process.env.FILE_CONVERTER_HOST,
+    port: parseInt(process.env.FILE_CONVERTER_PORT, 10),
+  },
 
   auth: {
     domain: process.env.AUTH0_DOMAIN,
