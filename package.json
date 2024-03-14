@@ -6,11 +6,9 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "nest build & nest build youtube-downloader & nest build file-converter",
     "build-api-gateway": "nest build",
     "build-youtube-downloader": "nest build youtube-downloader",
     "build-file-converter": "nest build file-converter",
-    "start:dev": "nest start --watch & nest start --watch youtube-downloader & nest start --watch file-converter",
     "start:dev-api-gateway": "nest start --watch",
     "start:dev-youtube-downloader": "nest start --watch youtube-downloader",
     "start:dev-file-converter": "nest start --watch file-converter",

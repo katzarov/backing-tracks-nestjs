@@ -6,33 +6,28 @@ services:
             context: .
             target: dev
             dockerfile: ./Dockerfile
+            args:
+                - TARGET_APP=api-gateway
         # for prod
-        # command: ["node", "dist/apps/api-gateway/main"]
+        # command: [ "node", "dist/apps/api-gateway/main" ]
         ports:
             - '${API_PORT}:${API_PORT}'
         volumes:
-            # https://medium.com/hackernoon/a-better-way-to-develop-node-js-with-docker-cd29d3a0093
-            # https://www.docker.com/blog/containerizing-test-tooling-creating-your-dockerfile-and-makefile/
             - nodemodules:/usr/src/app/node_modules
             - .:/usr/src/app
         env_file:
             - .env
         environment:
-            # env overrides
             POSTGRES_HOST: pg-db
-            # POSTGRES_HOST: host.docker.internal
-            # API_HOST: api-gateway
             YOUTUBE_DOWNLOADER_HOST: youtube-downloader
             FILE_CONVERTER_HOST: file-converter
-            # rest
-            TARGET_APP: api-gateway
+        networks:
+            - db
+            - microservices
         depends_on:
             - pg-db
             - youtube-downloader
             - file-converter
-        networks:
-            - db
-            - microservices
 
     youtube-downloader:
         container_name: ${COMPOSE_PROJECT_NAME}-youtube-downloader
@@ -40,8 +35,10 @@ services:
             context: .
             target: dev
             dockerfile: ./Dockerfile
+            args:
+                - TARGET_APP=youtube-downloader
         # for prod
-        # command: ["node", "dist/apps/youtube-downloader/main"]
+        # command: [ "node", "dist/apps/youtube-downloader/main" ]
         ports:
             - '${YOUTUBE_DOWNLOADER_PORT}:${YOUTUBE_DOWNLOADER_PORT}'
         volumes:
@@ -50,10 +47,7 @@ services:
         env_file:
             - .env
         environment:
-            # overrides
             YOUTUBE_DOWNLOADER_HOST: youtube-downloader
-            # rest
-            TARGET_APP: youtube-downloader
         networks:
             - microservices
 
@@ -63,8 +57,10 @@ services:
             context: .
             target: dev
             dockerfile: ./Dockerfile
+            args:
+                - TARGET_APP=file-converter
         # for prod
-        # command: ["node", "dist/apps/file-converter/main"]
+        # command: [ "node", "dist/apps/file-converter/main" ]
         ports:
             - '${FILE_CONVERTER_PORT}:${FILE_CONVERTER_PORT}'
         volumes:
@@ -73,10 +69,7 @@ services:
         env_file:
             - .env
         environment:
-            # overrides
             FILE_CONVERTER_HOST: file-converter
-            # rest
-            TARGET_APP: file-converter
         networks:
             - microservices
 

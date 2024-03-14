@@ -4,6 +4,7 @@
 # https://github.com/nodejs/docker-node/blob/main/docs/BestPractices.md
 # https://github.com/krallin/tini#using-tini
 
+# TODO: ffmpeg is huge, lets see if we can minimize it, also, lets only inlcude it in the images where it is needed and not all!
 
 FROM node:20.11.1-bookworm-slim as base
 WORKDIR /usr/src/app
@@ -12,9 +13,6 @@ RUN \
     --mount=type=cache,target=/var/cache/apt \
     apt-get update && \
     apt-get install tini ffmpeg -y
-# && apt-get install TODO: when it comes to making the dockerfile for the file-converter and waveform generator will need to install some packages at this stage.
-ARG TARGET_APP
-ENV TARGET_APP $TARGET_APP
 # node is not designed to be pid 1
 # we need something else to be the parent process, and also needs to be able to handle and pass all the signals to the node process => Tini or dumb-init
 # need to remap the exit code 143 to 0
@@ -25,7 +23,6 @@ ENTRYPOINT ["/usr/bin/tini", "-v", "-e", "143", "--"]
 
 
 FROM base as prod_node_deps
-# need to set DIR again cause this is a multistage build and this here is essentially a fresh image
 WORKDIR /usr/src/app
 # create a layer for this specific package.json and package-lock.json so we can use the cache for subsequent layers (when no changes in this layer).
 COPY package*.json ./
@@ -39,16 +36,19 @@ COPY package*.json ./
 RUN npm ci --include=dev
 # copy over all app src
 COPY . .
-RUN npm run build
+RUN npm run build-api-gateway && \
+    npm run build-youtube-downloader && \
+    npm run build-file-converter
 
 
 FROM base as prod
+ARG TARGET_APP
 WORKDIR /usr/src/app
 ENV NODE_ENV production
 # Run the app as a non-root user.
 USER node
 # while copying, change files' ownership to node user as well
-COPY --chown=node:node --from=prod_app_build /usr/src/app/dist/$TARGET_APP /usr/src/app/dist/$TARGET_APP
+COPY --chown=node:node --from=prod_app_build /usr/src/app/dist/apps/${TARGET_APP} /usr/src/app/dist/apps/${TARGET_APP}
 COPY --chown=node:node --from=prod_node_deps /usr/src/app/node_modules /usr/src/app/node_modules
 # we want to use execform and not shellform - RUN node blah/blah - which spawns a shell.
 # seems like no good easy way to pass the TARGET_APP to the CMD in execform, so for now, will be overriding this where needed later.
@@ -56,11 +56,8 @@ COPY --chown=node:node --from=prod_node_deps /usr/src/app/node_modules /usr/src/
 CMD ["node", "dist/apps/api-gateway/main"]
 
 
-# ARG APP_VERSION=master
-# ENV APP_VERSION $APP_VERSION
-
-
 FROM base as dev
+ARG TARGET_APP
 # for the devserver to work need to install some extra deps / or use a diff starting image
 RUN apt-get update && \
     apt-get install -y procps
@@ -71,9 +68,11 @@ RUN npm ci --include=dev
 # copy all app src
 COPY . .
 # VOLUME [".", "/usr/src/app"]
+# seems like I need to make an env of the arg to be able to pass it to the shell.. fine for now. TODO: revisit later
+ENV _internal_TARGET_APP ${TARGET_APP}
 # need to run it in a shell in order to be able pass the signals to npm - and be able to terminate the process without waiting for the timeout :P. This is fine for dev.
-CMD npm run start:dev-$TARGET_APP
-# TODO - actually try to use nest istead of npm
+CMD npm run start:dev-${_internal_TARGET_APP}
+
 
 # TODO check if analogous to first copying the package json approach
 # RUN --mount=type=bind,source=package.json,target=package.json \
