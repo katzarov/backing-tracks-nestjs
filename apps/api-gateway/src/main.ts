@@ -88,9 +88,7 @@ bootstrap();
  * Current idea is:
  * - this app is responsible for track acquisition, playslists, tags, sections on tracks, daw user prefrences. etc.
  * - artist db - artist name, year, band history, artist music catalogue and stuff like that should be of no concern.
- * - so maybe when a track is matched with spotify we dump all the spotify data for this track to dynamodb.
- *   And we basically only model in our db how to get to the dump
- *   + right now we also copy a few fields like artist name + track name.. essentially going against db normalization.. So maybe lets not. (And if unhappy with perf, cache between our app and dynamodb.)
+ * - so maybe when a track is matched with spotify we dump all the spotify data for this track to a jsonb column.
  *
  * - if no track is matched with spotify user needs to enter manually. So they will enter artist & track name and thats it. We will model this in our db.
  *   (will already need to have the db search implemented though - cause will be trying to find an artist with the same name so as to not duplicate it)
