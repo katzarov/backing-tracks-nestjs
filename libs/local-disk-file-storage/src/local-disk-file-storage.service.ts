@@ -4,21 +4,22 @@ import { existsSync, mkdirSync, createReadStream, createWriteStream } from 'fs';
 
 @Injectable()
 export class LocalDiskFileStorageService implements AbstractFileStorage {
-  getReadableStream(folderName: string, fileName: string, fileFormat: string) {
-    return createReadStream(`${folderName}/${fileName}.${fileFormat}`);
+  getReadableStream(path: string, fileName: string, fileFormat: string) {
+    return createReadStream(`${path}/${fileName}.${fileFormat}`);
   }
 
-  getWritableStream(folderName: string, fileName: string, fileFormat: string) {
+  getWritableStream(path: string, fileName: string, fileFormat: string) {
     try {
-      if (!existsSync(folderName)) {
-        mkdirSync(folderName);
+      if (!existsSync(path)) {
+        mkdirSync(path, { recursive: true });
       }
     } catch (err) {
       console.error(err);
     }
 
+    // TODO: rename "folder" => "path" in rest of app.
     // TODO UP: process filename && escape / in names, etc
-    return createWriteStream(`${folderName}/${fileName}.${fileFormat}`, {
+    return createWriteStream(`${path}/${fileName}.${fileFormat}`, {
       encoding: 'utf-8',
     });
   }

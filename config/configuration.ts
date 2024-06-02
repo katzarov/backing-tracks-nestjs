@@ -35,8 +35,8 @@ export default () => ({
 
   storage: {
     localDisk: {
-      downloadsFolder: 'downloads',
-      convertedFolder: 'converted',
+      downloadsFolder: process.env.DOWNLOADED_TRACKS_PATH,
+      convertedFolder: process.env.CONVERTED_TRACKS_PATH,
     },
     s3: {
       bucket: 'todo',
