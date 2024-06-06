@@ -43,8 +43,15 @@ RUN npm run build-api-gateway && \
 
 FROM base as prod
 ARG TARGET_APP
+ARG DOWNLOADED_TRACKS_PATH
+ARG CONVERTED_TRACKS_PATH
 WORKDIR /usr/src/app
 ENV NODE_ENV production
+# make the necessary dirs and set the permission to use with the node user
+RUN mkdir ${DOWNLOADED_TRACKS_PATH} && \
+    chown -R node:node ${DOWNLOADED_TRACKS_PATH}
+RUN mkdir ${CONVERTED_TRACKS_PATH} && \
+    chown -R node:node ${CONVERTED_TRACKS_PATH}
 # Run the app as a non-root user.
 USER node
 # while copying, change files' ownership to node user as well
