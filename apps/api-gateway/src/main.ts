@@ -17,7 +17,17 @@ async function bootstrap() {
       enableDebugMessages: true,
     }),
   );
-  app.enableCors({ origin: 'http://localhost:8080' });
+
+  const allowedOrigins =
+    configService.getOrThrow<Array<string>>('api.allowedOrigins');
+
+  app.enableCors({
+    origin: allowedOrigins,
+    allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
+    // methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    credentials: true,
+    maxAge: 60 * 60,
+  });
 
   const port = configService.getOrThrow<number>('api.port');
   await app.listen(port);

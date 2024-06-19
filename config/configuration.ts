@@ -2,6 +2,7 @@ export default () => ({
   api: {
     host: process.env.API_HOST,
     port: parseInt(process.env.API_PORT, 10),
+    allowedOrigins: process.env.API_ALLOWED_ORIGINS.split(','),
   },
 
   youtubeDownloader: {
