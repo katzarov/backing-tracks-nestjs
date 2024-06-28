@@ -18,10 +18,8 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@app/local-disk-file-storage": ["libs/local-disk-file-storage/src"],
-      "@app/local-disk-file-storage/*": ["libs/local-disk-file-storage/src/*"],
-      "@app/s3-file-storage": ["libs/s3-file-storage/src"],
-      "@app/s3-file-storage/*": ["libs/s3-file-storage/src/*"]
+      "@app/track-storage": ["libs/track-storage/src"],
+      "@app/track-storage/*": ["libs/track-storage/src/*"]
     }
   }
 }

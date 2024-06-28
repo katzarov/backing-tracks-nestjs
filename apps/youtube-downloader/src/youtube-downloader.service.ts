@@ -1,23 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { pipeline } from 'node:stream/promises';
 import * as ytdl from 'ytdl-core';
 import { formatBytes } from './utils';
-import { LocalDiskFileStorageService } from '@app/local-disk-file-storage';
-import { ConfigService } from '@nestjs/config';
+import { TrackStorageService } from '@app/track-storage';
 
 @Injectable()
 export class YoutubeDownloaderService {
-  private downloadsFolderName: string;
-
   // constructor(@Inject('YTDL_LIB') private ytdl) {}
-  constructor(
-    private localDiskStorageService: LocalDiskFileStorageService,
-    private configService: ConfigService,
-  ) {
-    this.downloadsFolderName = this.configService.getOrThrow<string>(
-      'storage.localDisk.downloadsFolder',
-    );
-  }
+  constructor(private trackStorageService: TrackStorageService) {}
 
   async getYouTubeVideoInfo(url: string) {
     const info = await ytdl.getInfo(url);
@@ -53,13 +42,10 @@ export class YoutubeDownloaderService {
     //   console.log('end ');
     // });
 
-    const writableFileStream = this.localDiskStorageService.getWritableStream(
-      this.downloadsFolderName,
-      name,
-      'mp4',
-    );
+    const trackFile = this.trackStorageService.createTrackFromUri(name);
 
-    await pipeline(videoStream, writableFileStream);
+    await trackFile.saveMp4ToDisk(videoStream);
+
     console.log('downloaded');
 
     return name;

@@ -92,8 +92,7 @@
       "<rootDir>/libs/"
     ],
     "moduleNameMapper": {
-      "^@app/local-disk-file-storage(|/.*)$": "<rootDir>/libs/local-disk-file-storage/src/$1",
-      "^@app/s3-file-storage(|/.*)$": "<rootDir>/libs/s3-file-storage/src/$1"
+      "^@app/track-storage(|/.*)$": "<rootDir>/libs/track-storage/src/$1"
     }
   }
 }

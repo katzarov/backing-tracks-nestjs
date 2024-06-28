@@ -37,22 +37,13 @@
         "tsConfigPath": "apps/file-converter/tsconfig.app.json"
       }
     },
-    "local-disk-file-storage": {
+    "track-storage": {
       "type": "library",
-      "root": "libs/local-disk-file-storage",
+      "root": "libs/track-storage",
       "entryFile": "index",
-      "sourceRoot": "libs/local-disk-file-storage/src",
+      "sourceRoot": "libs/track-storage/src",
       "compilerOptions": {
-        "tsConfigPath": "libs/local-disk-file-storage/tsconfig.lib.json"
-      }
-    },
-    "s3-file-storage": {
-      "type": "library",
-      "root": "libs/s3-file-storage",
-      "entryFile": "index",
-      "sourceRoot": "libs/s3-file-storage/src",
-      "compilerOptions": {
-        "tsConfigPath": "libs/s3-file-storage/tsconfig.lib.json"
+        "tsConfigPath": "libs/track-storage/tsconfig.lib.json"
       }
     }
   }

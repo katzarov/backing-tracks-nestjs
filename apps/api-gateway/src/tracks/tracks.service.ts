@@ -1,27 +1,19 @@
 import { Injectable, StreamableFile } from '@nestjs/common';
-import { join } from 'node:path';
-import { createReadStream } from 'node:fs';
 import { Track } from './track.entity';
 import { EntityManager, Equal, Repository } from 'typeorm';
 import { UserService } from '../user/user.service';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ConfigService } from '@nestjs/config';
+import { TrackStorageService } from '@app/track-storage';
 
 @Injectable()
 export class TracksService {
-  private convertedFolderName: string;
-
   constructor(
     @InjectRepository(Track)
     private tracksRepository: Repository<Track>,
     private readonly entityManager: EntityManager,
     private usersService: UserService,
-    configService: ConfigService,
-  ) {
-    this.convertedFolderName = configService.getOrThrow<string>(
-      'storage.localDisk.convertedFolder',
-    );
-  }
+    private trackStorageService: TrackStorageService,
+  ) {}
 
   async create(userId: number, track: Track) {
     // TODO, there must be a better way
@@ -78,9 +70,9 @@ export class TracksService {
   }
 
   getFile(resourceId: string) {
-    const file = createReadStream(
-      join(process.cwd(), `${this.convertedFolderName}/${resourceId}.mp3`),
-    );
+    const file = this.trackStorageService
+      .createTrackFromUri(resourceId)
+      .getMp3ReadStreamFromDisk();
 
     return new StreamableFile(file);
   }

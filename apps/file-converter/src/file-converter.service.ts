@@ -1,35 +1,18 @@
-import { LocalDiskFileStorageService } from '@app/local-disk-file-storage';
 import { Injectable } from '@nestjs/common';
-import { pipeline } from 'node:stream/promises';
 import { PassThrough } from 'node:stream';
 import * as ffmpeg from 'fluent-ffmpeg';
-import { ConfigService } from '@nestjs/config';
+import { TrackStorageService } from '@app/track-storage';
 
 @Injectable()
 export class FileConverterService {
-  private downloadsFolderName: string;
-  private convertedFolderName: string;
-
-  constructor(
-    private localDiskStorageService: LocalDiskFileStorageService,
-    private configService: ConfigService,
-  ) {
-    this.downloadsFolderName = this.configService.getOrThrow<string>(
-      'storage.localDisk.downloadsFolder',
-    );
-    this.convertedFolderName = this.configService.getOrThrow<string>(
-      'storage.localDisk.convertedFolder',
-    );
-  }
+  constructor(private trackStorageService: TrackStorageService) {}
 
   async convertFile(name: string) {
-    const readableVideoInMp4 = this.localDiskStorageService.getReadableStream(
-      this.downloadsFolderName,
-      name,
-      'mp4',
-    );
+    const trackFile = this.trackStorageService.createTrackFromUri(name);
 
-    const transformedStream = ffmpeg(readableVideoInMp4)
+    const videoSteam = trackFile.getMp4ReadStreamFromDisk();
+
+    const transformedStream = ffmpeg(videoSteam)
       .format('mp3')
       .audioCodec('libmp3lame')
       .audioBitrate(160)
@@ -41,14 +24,7 @@ export class FileConverterService {
       // can also pass a writable stream here, but i don't cause then its easier to await the whole process in a promise based fashion.
       .pipe() as PassThrough;
 
-    const writableFileStream = this.localDiskStorageService.getWritableStream(
-      this.convertedFolderName,
-      name,
-      'mp3',
-    );
-
-    await pipeline(transformedStream, writableFileStream);
-
+    await trackFile.saveMp3ToDisk(transformedStream);
     console.log('converted');
 
     return 'DONE';

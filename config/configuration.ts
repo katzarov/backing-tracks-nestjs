@@ -35,12 +35,11 @@ export default () => ({
   },
 
   storage: {
-    localDisk: {
-      downloadsFolder: process.env.DOWNLOADED_TRACKS_PATH,
-      convertedFolder: process.env.CONVERTED_TRACKS_PATH,
-    },
-    s3: {
-      bucket: 'todo',
-    },
+    downloadedTracksPath: process.env.DOWNLOADED_TRACKS_PATH,
+    convertedTracksPath: process.env.CONVERTED_TRACKS_PATH,
+    // s3: {
+    //   isFeatEnabled:
+    //   bucketName:
+    // }
   },
 });

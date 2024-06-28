@@ -2,21 +2,20 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { EntityManager } from 'typeorm';
 import * as fs from 'node:fs/promises';
-import { randomUUID } from 'crypto';
 import { lastValueFrom, Observable } from 'rxjs';
 import { SpotifyService } from './spotify.service';
 import { DownloadYouTubeVideoDto } from './dto/download-youtube-video.dto';
 import { TracksService } from '../tracks/tracks.service';
 import { Track, TrackInstrument, TrackType } from '../tracks/track.entity';
-import { ConfigService } from '@nestjs/config';
 import { UploadTrackDto } from './dto/upload-track.dto';
 import { TrackMeta } from '../meta/trackMeta.entity';
 import { Artist } from '../meta/artist.entity';
 import { UserService } from '../user/user.service';
+import { TrackStorageService } from '@app/track-storage';
+import type { TrackFile } from '@app/track-storage';
 
 @Injectable()
 export class AcquireTracksService {
-  private tracksFolder;
   constructor(
     @Inject('YOUTUBE_DOWNLOADER_SERVICE') private youtubeService: ClientProxy,
     @Inject('FILE_CONVERTER_SERVICE') private fileConverterService: ClientProxy,
@@ -24,22 +23,18 @@ export class AcquireTracksService {
     private tracksService: TracksService,
     private usersService: UserService,
     private spotifyService: SpotifyService,
-    configService: ConfigService,
-  ) {
-    this.tracksFolder = configService.getOrThrow<string>(
-      'storage.localDisk.convertedFolder',
-    );
-  }
+    private trackStorageService: TrackStorageService,
+  ) {}
 
-  private download(url: string, name: string): Observable<string> {
+  private download(url: string, trackFile: TrackFile): Observable<string> {
     const pattern = { cmd: 'downloadYouTubeVideo' };
-    const payload = { url, name };
+    const payload = { url, name: trackFile.uri };
     return this.youtubeService.send(pattern, payload);
   }
 
-  private convert(name: string): Observable<string> {
+  private convert(trackFile: TrackFile): Observable<string> {
     const pattern = { cmd: 'convertFile' };
-    const payload = { name };
+    const payload = { name: trackFile.uri };
     return this.fileConverterService.send(pattern, payload);
   }
 
@@ -92,7 +87,7 @@ export class AcquireTracksService {
     userId: number,
     { url, spotifyId, trackType, trackInstrument }: DownloadYouTubeVideoDto,
   ) {
-    const resourceId = randomUUID();
+    const trackFile = this.trackStorageService.createTrack();
     // BIG TODO here: probably want some job/tracker service instead of doing it like this here.
     // some hybrid microservice that also does ss3 with the client to show the download/converter progress, and show all currnet jobs and blah blah..
     // i,e job tracking/execution/notification service(s), will also need a queue, look into rabbitmq
@@ -101,12 +96,12 @@ export class AcquireTracksService {
 
     // TODO v2, these two microserices will probably end up being lambdas again.. I will need to rethink a bit how the notification/job tracking for the FE client, will be done in this case.
 
-    await lastValueFrom(this.download(url, resourceId));
-    await lastValueFrom(this.convert(resourceId));
+    await lastValueFrom(this.download(url, trackFile));
+    await lastValueFrom(this.convert(trackFile));
 
     const newTrackInfo = await this.createAndSaveTrackEntry(
       userId,
-      resourceId,
+      trackFile.uri,
       spotifyId,
       trackType,
       trackInstrument,
@@ -120,13 +115,17 @@ export class AcquireTracksService {
     { spotifyId, trackType, trackInstrument }: UploadTrackDto,
     file: Express.Multer.File,
   ) {
-    const resourceId = randomUUID();
-    // TODO: temp, will later switch to streams
-    await fs.writeFile(`${this.tracksFolder}/${resourceId}.mp3`, file.buffer);
+    const trackFile = this.trackStorageService.createTrack();
+
+    // TODO: temp, will later switch to streams & use the lib storage module
+    await fs.writeFile(
+      `${trackFile.convertedTracksPath}/${trackFile.uri}.mp3`,
+      file.buffer,
+    );
 
     const newTrackInfo = await this.createAndSaveTrackEntry(
       userId,
-      resourceId,
+      trackFile.uri,
       spotifyId,
       trackType,
       trackInstrument,
