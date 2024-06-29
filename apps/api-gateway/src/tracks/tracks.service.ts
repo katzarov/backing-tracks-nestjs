@@ -72,7 +72,7 @@ export class TracksService {
   getFile(resourceId: string) {
     const file = this.trackStorageService
       .createTrackFromUri(resourceId)
-      .getMp3ReadStreamFromDisk();
+      .getTrackFromDisk();
 
     return new StreamableFile(file);
   }

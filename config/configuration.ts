@@ -35,11 +35,14 @@ export default () => ({
   },
 
   storage: {
-    downloadedTracksPath: process.env.DOWNLOADED_TRACKS_PATH,
-    convertedTracksPath: process.env.CONVERTED_TRACKS_PATH,
-    // s3: {
-    //   isFeatEnabled:
-    //   bucketName:
-    // }
+    disk: {
+      downloadedTracksPath: process.env.DOWNLOADED_TRACKS_PATH,
+      convertedTracksPath: process.env.CONVERTED_TRACKS_PATH,
+    },
+    s3: {
+      isEnabled: process.env.S3_ENABLED.toLowerCase() === 'true',
+      region: process.env.S3_REGION,
+      bucket: process.env.S3_BUCKET,
+    },
   },
 });

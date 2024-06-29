@@ -44,7 +44,7 @@ export class YoutubeDownloaderService {
 
     const trackFile = this.trackStorageService.createTrackFromUri(name);
 
-    await trackFile.saveMp4ToDisk(videoStream);
+    await trackFile.saveYTDLToDisk(videoStream);
 
     console.log('downloaded');
 

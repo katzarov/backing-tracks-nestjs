@@ -1,7 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { EntityManager } from 'typeorm';
-import * as fs from 'node:fs/promises';
 import { lastValueFrom, Observable } from 'rxjs';
 import { SpotifyService } from './spotify.service';
 import { DownloadYouTubeVideoDto } from './dto/download-youtube-video.dto';
@@ -118,10 +117,10 @@ export class AcquireTracksService {
     const trackFile = this.trackStorageService.createTrack();
 
     // TODO: temp, will later switch to streams & use the lib storage module
-    await fs.writeFile(
-      `${trackFile.convertedTracksPath}/${trackFile.uri}.mp3`,
-      file.buffer,
-    );
+    // await fs.writeFile(
+    //   `${trackFile.convertedTracksPath}/${trackFile.uri}.mp3`,
+    //   file.buffer,
+    // );
 
     const newTrackInfo = await this.createAndSaveTrackEntry(
       userId,

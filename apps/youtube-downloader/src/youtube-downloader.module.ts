@@ -14,16 +14,22 @@ import { TrackStorageModule } from '@app/track-storage';
     }),
     TrackStorageModule.registerAsync({
       useFactory: (configService: ConfigService) => {
-        const downloadedTracksPath = configService.getOrThrow<string>(
-          'storage.downloadedTracksPath',
-        );
-        const convertedTracksPath = configService.getOrThrow<string>(
-          'storage.convertedTracksPath',
-        );
-
         return {
-          downloadedTracksPath,
-          convertedTracksPath,
+          disk: {
+            downloadedTracksPath: configService.getOrThrow<string>(
+              'storage.disk.downloadedTracksPath',
+            ),
+            convertedTracksPath: configService.getOrThrow<string>(
+              'storage.disk.convertedTracksPath',
+            ),
+          },
+          s3: {
+            isEnabled: configService.getOrThrow<boolean>(
+              'storage.s3.isEnabled',
+            ),
+            region: configService.getOrThrow<string>('storage.s3.region'),
+            bucket: configService.getOrThrow<string>('storage.s3.bucket'),
+          },
         };
       },
       inject: [ConfigService],

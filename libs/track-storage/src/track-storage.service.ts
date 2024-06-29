@@ -2,27 +2,50 @@ import { Inject, Injectable } from '@nestjs/common';
 import { MODULE_OPTIONS_TOKEN } from './track-storage.module-definition';
 import { TrackStorageOptions } from './track-storage-options.interface';
 import { TrackFile } from './impl/TrackFile';
+import { DiskDriver } from './impl/DiskDriver';
+import { S3Driver } from './impl/S3Driver';
 
 @Injectable()
 export class TrackStorageService {
+  diskDriver: DiskDriver;
+  s3IsEnabled: boolean;
+  s3Driver?: S3Driver;
+
   constructor(
     @Inject(MODULE_OPTIONS_TOKEN) private options: TrackStorageOptions,
   ) {
+    this.diskDriver = new DiskDriver({
+      downloadedTracksPath: this.options.disk.downloadedTracksPath,
+      convertedTracksPath: this.options.disk.convertedTracksPath,
+    });
+
+    this.s3IsEnabled = options.s3.isEnabled;
+    if (options.s3.isEnabled) {
+      this.s3Driver = new S3Driver({
+        region: options.s3.region,
+        bucket: options.s3.bucket,
+      });
+      // TODO: may want to destroy s3 client at nest shutdown
+    }
   }
 
   createTrack() {
     const options = {
-      downloadedTracksPath: this.options.downloadedTracksPath,
-      convertedTracksPath: this.options.convertedTracksPath,
+      diskDriver: this.diskDriver,
+      s3IsEnabled: this.s3IsEnabled,
+      s3Driver: this.s3Driver,
     };
+
     return new TrackFile(options);
   }
 
   createTrackFromUri(uri: string) {
     const options = {
-      downloadedTracksPath: this.options.downloadedTracksPath,
-      convertedTracksPath: this.options.convertedTracksPath,
+      diskDriver: this.diskDriver,
+      s3IsEnabled: this.s3IsEnabled,
+      s3Driver: this.s3Driver,
     };
+
     return new TrackFile(options, uri);
   }
   }

@@ -1,5 +1,11 @@
 export interface TrackStorageOptions {
-  downloadedTracksPath: string;
-  convertedTracksPath: string;
-  // s3 bucketName TODO
+  disk: {
+    downloadedTracksPath: string;
+    convertedTracksPath: string;
+  };
+  s3: {
+    isEnabled: boolean;
+    region: string;
+    bucket: string;
+  };
 }

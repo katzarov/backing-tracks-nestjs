@@ -10,7 +10,7 @@ export class FileConverterService {
   async convertFile(name: string) {
     const trackFile = this.trackStorageService.createTrackFromUri(name);
 
-    const videoSteam = trackFile.getMp4ReadStreamFromDisk();
+    const videoSteam = trackFile.getYTDLFromDisk();
 
     const transformedStream = ffmpeg(videoSteam)
       .format('mp3')
@@ -24,7 +24,7 @@ export class FileConverterService {
       // can also pass a writable stream here, but i don't cause then its easier to await the whole process in a promise based fashion.
       .pipe() as PassThrough;
 
-    await trackFile.saveMp3ToDisk(transformedStream);
+    await trackFile.saveConvertedTrackToDisk(transformedStream);
     console.log('converted');
 
     return 'DONE';
