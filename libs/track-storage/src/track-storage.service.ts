@@ -24,6 +24,7 @@ export class TrackStorageService {
       this.s3Driver = new S3Driver({
         region: options.s3.region,
         bucket: options.s3.bucket,
+        urlExpiration: options.s3.urlExpiration,
       });
       // TODO: may want to destroy s3 client at nest shutdown
     }

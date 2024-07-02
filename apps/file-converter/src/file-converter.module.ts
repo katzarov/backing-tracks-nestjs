@@ -26,6 +26,9 @@ import { TrackStorageModule } from '@app/track-storage';
             isEnabled: configService.getOrThrow<boolean>(
               'storage.s3.isEnabled',
             ),
+            urlExpiration: configService.getOrThrow<number>(
+              'storage.s3.urlExpiration',
+            ),
             region: configService.getOrThrow<string>('storage.s3.region'),
             bucket: configService.getOrThrow<string>('storage.s3.bucket'),
           },

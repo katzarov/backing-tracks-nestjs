@@ -41,6 +41,7 @@ export default () => ({
     },
     s3: {
       isEnabled: process.env.S3_ENABLED.toLowerCase() === 'true',
+      urlExpiration: parseInt(process.env.S3_PRESIGNED_URL_EXPIRATION, 10),
       region: process.env.S3_REGION,
       bucket: process.env.S3_BUCKET,
     },

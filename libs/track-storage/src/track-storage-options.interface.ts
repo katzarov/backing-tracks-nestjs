@@ -5,6 +5,7 @@ export interface TrackStorageOptions {
   };
   s3: {
     isEnabled: boolean;
+    urlExpiration: number;
     region: string;
     bucket: string;
   };
