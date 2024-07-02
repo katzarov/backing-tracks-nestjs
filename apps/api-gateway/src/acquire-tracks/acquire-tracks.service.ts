@@ -12,9 +12,12 @@ import { Artist } from '../meta/artist.entity';
 import { UserService } from '../user/user.service';
 import { TrackStorageService } from '@app/track-storage';
 import type { TrackFile } from '@app/track-storage';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AcquireTracksService {
+  private isS3Enabled: boolean;
+
   constructor(
     @Inject('YOUTUBE_DOWNLOADER_SERVICE') private youtubeService: ClientProxy,
     @Inject('FILE_CONVERTER_SERVICE') private fileConverterService: ClientProxy,
@@ -23,7 +26,12 @@ export class AcquireTracksService {
     private usersService: UserService,
     private spotifyService: SpotifyService,
     private trackStorageService: TrackStorageService,
-  ) {}
+    configService: ConfigService,
+  ) {
+    this.isS3Enabled = configService.getOrThrow<boolean>(
+      'storage.s3.isEnabled',
+    );
+  }
 
   private download(url: string, trackFile: TrackFile): Observable<string> {
     const pattern = { cmd: 'downloadYouTubeVideo' };
@@ -97,6 +105,10 @@ export class AcquireTracksService {
 
     await lastValueFrom(this.download(url, trackFile));
     await lastValueFrom(this.convert(trackFile));
+
+    if (this.isS3Enabled) {
+      await trackFile.saveTrackToS3(trackFile.getTrackFromDisk());
+    }
 
     const newTrackInfo = await this.createAndSaveTrackEntry(
       userId,
