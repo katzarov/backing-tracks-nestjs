@@ -77,6 +77,16 @@ export class TracksService {
     return new StreamableFile(file);
   }
 
+  async getFileViaPresignedS3Url(resourceId: string) {
+    const presignedUrl = await this.trackStorageService
+      .createTrackFromUri(resourceId)
+      .getTrackPresignedUrlFromS3();
+
+    const response = { url: presignedUrl };
+
+    return response;
+  }
+
   remove(userId: number, resourceId: string) {
     // TODO delete file as well
     return this.tracksRepository.delete({
