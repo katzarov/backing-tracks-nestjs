@@ -12,7 +12,7 @@ const configService = new ConfigService(configuration);
 
 export default new DataSource({
   type: 'postgres',
-  database: configService.getOrThrow('POSTGRES_DB_NAME'),
+  database: configService.getOrThrow('POSTGRES_DB'),
   host: configService.getOrThrow('POSTGRES_HOST'),
   port: configService.getOrThrow('POSTGRES_PORT'),
   username: configService.getOrThrow('POSTGRES_USER'),
