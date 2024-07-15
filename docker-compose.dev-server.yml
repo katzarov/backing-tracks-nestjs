@@ -1,13 +1,13 @@
 version: '3.8'
 services:
-    api-gateway:
-        container_name: ${COMPOSE_PROJECT_NAME}-api-gateway
+    api:
+        container_name: ${COMPOSE_PROJECT_NAME}-api
         build:
             context: .
             target: dev
             dockerfile: ./Dockerfile
             args:
-                - TARGET_APP=api-gateway
+                - TARGET_APP=api
         ports:
             - '${API_PORT}:${API_PORT}'
         volumes:

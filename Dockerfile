@@ -36,7 +36,7 @@ COPY package*.json ./
 RUN npm ci --include=dev
 # copy over all app src
 COPY . .
-RUN npm run build-api-gateway && \
+RUN npm run build-api && \
     npm run build-youtube-downloader && \
     npm run build-file-converter
 
@@ -60,7 +60,7 @@ COPY --chown=node:node --from=prod_node_deps /usr/src/app/node_modules /usr/src/
 # we want to use execform and not shellform - RUN node blah/blah - which spawns a shell.
 # seems like no good easy way to pass the TARGET_APP to the CMD in execform, so for now, will be overriding this where needed later.
 # https://github.com/moby/moby/issues/5509
-CMD ["node", "dist/apps/api-gateway/main"]
+CMD ["node", "dist/apps/api/main"]
 
 
 FROM base as dev

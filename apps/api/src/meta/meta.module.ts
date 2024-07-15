@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Artist } from '../meta/artist.entity';
-import { TrackMeta } from '../meta/trackMeta.entity';
+import { Artist } from './artist.entity';
+import { TrackMeta } from './trackMeta.entity';
 
 // TODO: this module and entitites is temporary
 @Module({

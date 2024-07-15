@@ -1,16 +1,16 @@
 version: '3.8'
 services:
-    api-gateway:
-        container_name: ${COMPOSE_PROJECT_NAME}-api-gateway
+    api:
+        container_name: ${COMPOSE_PROJECT_NAME}-api
         build:
             context: .
             target: prod
             dockerfile: ./Dockerfile
             args:
-                - TARGET_APP=api-gateway
+                - TARGET_APP=api
                 - DOWNLOADED_TRACKS_PATH=${DOWNLOADED_TRACKS_PATH}
                 - CONVERTED_TRACKS_PATH=${CONVERTED_TRACKS_PATH}
-        command: [ "node", "dist/apps/api-gateway/main" ]
+        command: [ "node", "dist/apps/api/main" ]
         volumes:
             - downloaded-tracks:/usr/src/app/${DOWNLOADED_TRACKS_PATH}
             - converted-tracks:/usr/src/app/${CONVERTED_TRACKS_PATH}

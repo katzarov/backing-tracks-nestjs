@@ -28,16 +28,16 @@ staging:
 	docker-compose	-f docker-compose.staging.yml --env-file .env.staging	up
 
 clean-dev-server:	loadDevServerEnv
-	docker	rm	-f	${COMPOSE_PROJECT_NAME}-api-gateway
-	docker	rmi	-f	${COMPOSE_PROJECT_NAME}-api-gateway
+	docker	rm	-f	${COMPOSE_PROJECT_NAME}-api
+	docker	rmi	-f	${COMPOSE_PROJECT_NAME}-api
 	docker	rm	-f	${COMPOSE_PROJECT_NAME}-youtube-downloader
 	docker	rmi	-f	${COMPOSE_PROJECT_NAME}-youtube-downloader
 	docker	rm	-f	${COMPOSE_PROJECT_NAME}-file-converter
 	docker	rmi	-f	${COMPOSE_PROJECT_NAME}-file-converter
 
 clean-staging:	loadStagingEnv
-	docker	rm	-f	${COMPOSE_PROJECT_NAME}-api-gateway
-	docker	rmi	-f	${COMPOSE_PROJECT_NAME}-api-gateway
+	docker	rm	-f	${COMPOSE_PROJECT_NAME}-api
+	docker	rmi	-f	${COMPOSE_PROJECT_NAME}-api
 	docker	rm	-f	${COMPOSE_PROJECT_NAME}-youtube-downloader
 	docker	rmi	-f	${COMPOSE_PROJECT_NAME}-youtube-downloader
 	docker	rm	-f	${COMPOSE_PROJECT_NAME}-file-converter

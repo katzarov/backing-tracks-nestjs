@@ -6,10 +6,10 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build-api-gateway": "nest build",
+    "build-api": "nest build",
     "build-youtube-downloader": "nest build youtube-downloader",
     "build-file-converter": "nest build file-converter",
-    "start:dev-api-gateway": "nest start --watch",
+    "start:dev-api": "nest start --watch",
     "start:dev-youtube-downloader": "nest start --watch youtube-downloader",
     "start:dev-file-converter": "nest start --watch file-converter",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
@@ -18,7 +18,7 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./apps/api-gateway/test/jest-e2e.json"
+    "test:e2e": "jest --config ./apps/api/test/jest-e2e.json"
   },
   "engines": {
     "npm": ">=10.2.3 <11.0.0",
