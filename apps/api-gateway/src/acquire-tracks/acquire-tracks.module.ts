@@ -7,34 +7,14 @@ import { TracksModule } from '../tracks/tracks.module';
 import { SpotifyService } from './spotify.service';
 import { UserModule } from '../user/user.module';
 import { TrackStorageModule } from '@app/track-storage';
+import { StorageConfigFactory } from '@app/track-storage/storage-config.provider';
 
 @Module({
   imports: [
     TracksModule,
     UserModule,
     TrackStorageModule.registerAsync({
-      useFactory: (configService: ConfigService) => {
-        return {
-          disk: {
-            downloadedTracksPath: configService.getOrThrow<string>(
-              'storage.disk.downloadedTracksPath',
-            ),
-            convertedTracksPath: configService.getOrThrow<string>(
-              'storage.disk.convertedTracksPath',
-            ),
-          },
-          s3: {
-            isEnabled: configService.getOrThrow<boolean>(
-              'storage.s3.isEnabled',
-            ),
-            urlExpiration: configService.getOrThrow<number>(
-              'storage.s3.urlExpiration',
-            ),
-            region: configService.getOrThrow<string>('storage.s3.region'),
-            bucket: configService.getOrThrow<string>('storage.s3.bucket'),
-          },
-        };
-      },
+      useFactory: StorageConfigFactory,
       inject: [ConfigService],
     }),
   ],

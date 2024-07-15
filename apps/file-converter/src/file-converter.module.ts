@@ -4,6 +4,7 @@ import { FileConverterService } from './file-converter.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration from 'config/configuration';
 import { TrackStorageModule } from '@app/track-storage';
+import { StorageConfigFactory } from '@app/track-storage/storage-config.provider';
 
 @Module({
   imports: [
@@ -12,28 +13,7 @@ import { TrackStorageModule } from '@app/track-storage';
       load: [configuration],
     }),
     TrackStorageModule.registerAsync({
-      useFactory: (configService: ConfigService) => {
-        return {
-          disk: {
-            downloadedTracksPath: configService.getOrThrow<string>(
-              'storage.disk.downloadedTracksPath',
-            ),
-            convertedTracksPath: configService.getOrThrow<string>(
-              'storage.disk.convertedTracksPath',
-            ),
-          },
-          s3: {
-            isEnabled: configService.getOrThrow<boolean>(
-              'storage.s3.isEnabled',
-            ),
-            urlExpiration: configService.getOrThrow<number>(
-              'storage.s3.urlExpiration',
-            ),
-            region: configService.getOrThrow<string>('storage.s3.region'),
-            bucket: configService.getOrThrow<string>('storage.s3.bucket'),
-          },
-        };
-      },
+      useFactory: StorageConfigFactory,
       inject: [ConfigService],
     }),
   ],
