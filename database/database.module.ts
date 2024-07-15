@@ -13,10 +13,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         username: configService.getOrThrow('database.username'),
         password: configService.getOrThrow('database.password'),
         autoLoadEntities: true,
-        retryAttempts: 99999999, // TODO: temp
-        retryDelay: 10000,
+        retryAttempts: 36,
+        retryDelay: 5000,
         // dropSchema: true,
-        synchronize: configService.getOrThrow('database.synchronize'), // scary.. in real world, maybe think of another way to keep this false on prod.
+        synchronize: configService.getOrThrow('database.synchronize'),
       }),
       inject: [ConfigService],
     }),
