@@ -12,6 +12,7 @@ import { StorageConfigFactory } from '@app/track-storage/storage-config.provider
     ConfigModule.forRoot({
       isGlobal: true,
       load: [configuration],
+      envFilePath: ['.env.nest', '.env.secret'],
     }),
     TrackStorageModule.registerAsync({
       useFactory: StorageConfigFactory,

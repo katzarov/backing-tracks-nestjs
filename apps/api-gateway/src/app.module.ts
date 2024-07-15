@@ -14,6 +14,7 @@ import { AuthGuard } from './auth/auth.guard';
     ConfigModule.forRoot({
       isGlobal: true,
       load: [configuration],
+      envFilePath: ['.env.nest', '.env.secret'],
     }),
     DatabaseModule,
     AcquireTracksModule,

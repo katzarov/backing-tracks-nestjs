@@ -8,16 +8,13 @@ services:
             dockerfile: ./Dockerfile
             args:
                 - TARGET_APP=api-gateway
-        # for prod
-        # command: [ "node", "dist/apps/api-gateway/main" ]
         ports:
             - '${API_PORT}:${API_PORT}'
         volumes:
             - nodemodules:/usr/src/app/node_modules
             - .:/usr/src/app
-        env_file:
-            - .env
         environment:
+            API_HOST: 0.0.0.0
             POSTGRES_HOST: pg-db
             YOUTUBE_DOWNLOADER_HOST: youtube-downloader
             FILE_CONVERTER_HOST: file-converter
@@ -37,17 +34,13 @@ services:
             dockerfile: ./Dockerfile
             args:
                 - TARGET_APP=youtube-downloader
-        # for prod
-        # command: [ "node", "dist/apps/youtube-downloader/main" ]
         ports:
             - '${YOUTUBE_DOWNLOADER_PORT}:${YOUTUBE_DOWNLOADER_PORT}'
         volumes:
             - nodemodules:/usr/src/app/node_modules
             - .:/usr/src/app
-        env_file:
-            - .env
         environment:
-            YOUTUBE_DOWNLOADER_HOST: youtube-downloader
+            YOUTUBE_DOWNLOADER_HOST: 0.0.0.0
         networks:
             - microservices
 
@@ -59,17 +52,13 @@ services:
             dockerfile: ./Dockerfile
             args:
                 - TARGET_APP=file-converter
-        # for prod
-        # command: [ "node", "dist/apps/file-converter/main" ]
         ports:
             - '${FILE_CONVERTER_PORT}:${FILE_CONVERTER_PORT}'
         volumes:
             - nodemodules:/usr/src/app/node_modules
             - .:/usr/src/app
-        env_file:
-            - .env
         environment:
-            FILE_CONVERTER_HOST: file-converter
+            FILE_CONVERTER_HOST: 0.0.0.0
         networks:
             - microservices
 
@@ -88,35 +77,40 @@ services:
             - pg-db-data:/var/lib/postgresql/data
         networks:
             - db
-
-    pg-admin:
-        image: dpage/pgadmin4
-        container_name: pgadmin4_container
-        restart: always
-        environment:
-            PGADMIN_DEFAULT_EMAIL: user-name@domain-name.com
-            PGADMIN_DEFAULT_PASSWORD: strong-password
-        ports:
-            - '${PGDMIN_PORT}:80'
-        volumes:
-            - pg-admin-data:/var/lib/pgadmin
-        depends_on:
-            - pg-db
-        networks:
-            - db
+        healthcheck:
+            test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+            interval: 10s
+            timeout: 10s
+            retries: 5
+            start_period: 10s
+    # pg-admin:
+    #     image: dpage/pgadmin4
+    #     container_name: ${COMPOSE_PROJECT_NAME}-pgadmin4_container
+    #     restart: always
+    #     environment:
+    #         PGADMIN_DEFAULT_EMAIL: user-name@domain-name.com
+    #         PGADMIN_DEFAULT_PASSWORD: strong-password
+    #     ports:
+    #         - '8888:80'
+    #     volumes:
+    #         - pg-admin-data:/var/lib/pgadmin
+    #     depends_on:
+    #         - pg-db
+    #     networks:
+    #         - db
 
 volumes:
     pg-db-data:
         driver: local
-    pg-admin-data:
-        driver: local
     nodemodules:
         external: true
+    # pg-admin-data:
+    # driver: local
 
 networks:
     db:
-        name: db
+        name: ${COMPOSE_PROJECT_NAME}-db
         driver: bridge
     microservices:
-        name: microservices
+        name: ${COMPOSE_PROJECT_NAME}-microservices
         driver: bridge

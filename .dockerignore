@@ -38,6 +38,7 @@ README.md
 .eslintrc.js
 .prettierrc
 *.env
+.env.secret
 
 converted
 downloads

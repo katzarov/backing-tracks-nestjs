@@ -1,21 +1,41 @@
 # https://unix.stackexchange.com/questions/235223/makefile-include-env-file
 define	setup_env
-	$(eval ENV_FILE := $(1).env)
+	$(eval ENV_FILE := $(1))
     @echo " - setup env $(ENV_FILE)"
-    $(eval include $(1).env)
-    $(eval export sed 's/=.*//' $(1).env)
+    $(eval include $(1))
+    $(eval export sed 's/=.*//' $(1))
 endef
 
-# load .env environment
-localDevEnv:
-	$(call setup_env,)
-setup:
+loadDevServerEnv:
+	$(call setup_env, .env.nest)
+
+loadStagingEnv:
+	$(call setup_env, .env.staging)
+
+# https://blog.logrocket.com/containerized-development-nestjs-docker/
+setup-dev-server:
 	docker	volume	create	nodemodules
-dev:
-	docker-compose	up
-# build-api:
-# 	docker	build	-t	api-gateway	--target	dev	.
-clean:	localDevEnv
+
+dev-server:
+	docker-compose	-f docker-compose.dev-server.yml --env-file .env.nest build
+	docker-compose	-f docker-compose.dev-server.yml --env-file .env.nest up
+
+dev-server-db:	loadDevServerEnv
+	docker	start	${COMPOSE_PROJECT_NAME}-pg-db
+
+staging:
+	docker-compose	-f docker-compose.staging.yml --env-file .env.staging	build
+	docker-compose	-f docker-compose.staging.yml --env-file .env.staging	up
+
+clean-dev-server:	loadDevServerEnv
+	docker	rm	-f	${COMPOSE_PROJECT_NAME}-api-gateway
+	docker	rmi	-f	${COMPOSE_PROJECT_NAME}-api-gateway
+	docker	rm	-f	${COMPOSE_PROJECT_NAME}-youtube-downloader
+	docker	rmi	-f	${COMPOSE_PROJECT_NAME}-youtube-downloader
+	docker	rm	-f	${COMPOSE_PROJECT_NAME}-file-converter
+	docker	rmi	-f	${COMPOSE_PROJECT_NAME}-file-converter
+
+clean-staging:	loadStagingEnv
 	docker	rm	-f	${COMPOSE_PROJECT_NAME}-api-gateway
 	docker	rmi	-f	${COMPOSE_PROJECT_NAME}-api-gateway
 	docker	rm	-f	${COMPOSE_PROJECT_NAME}-youtube-downloader
