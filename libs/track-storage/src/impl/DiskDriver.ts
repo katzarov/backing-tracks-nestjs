@@ -5,6 +5,8 @@ import {
   createReadStream,
   createWriteStream,
 } from 'node:fs';
+import { writeFile } from 'node:fs/promises';
+import { Buffer } from 'node:buffer';
 import { pipeline } from 'node:stream/promises';
 import { PassThrough, Readable } from 'node:stream';
 // import { FiLE_EXTENSIONS } from './constants';
@@ -35,6 +37,18 @@ export class DiskDriver {
     } catch (err) {
       console.error(err);
     }
+  }
+
+  saveBufferToDisk(
+    buffer: Buffer,
+    uri: string,
+    location: string,
+    fileExtension: string,
+  ) {
+    const path = this.resolveLocation(location);
+    const writePath = `${path}/${uri}.${fileExtension}`;
+
+    return writeFile(writePath, buffer, 'utf-8');
   }
 
   saveStreamToDisk(

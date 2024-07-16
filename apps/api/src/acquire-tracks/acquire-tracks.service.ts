@@ -106,6 +106,7 @@ export class AcquireTracksService {
     await lastValueFrom(this.download(url, trackFile));
     await lastValueFrom(this.convert(trackFile));
 
+    // TODO: at some point this decision - save to disk or s3 or both will be handled entirely by the storage lib.
     if (this.isS3Enabled) {
       await trackFile.saveTrackToS3(trackFile.getTrackFromDisk());
     }
@@ -128,11 +129,12 @@ export class AcquireTracksService {
   ) {
     const trackFile = this.trackStorageService.createTrack();
 
-    // TODO: temp, will later switch to streams & use the lib storage module
-    // await fs.writeFile(
-    //   `${trackFile.convertedTracksPath}/${trackFile.uri}.mp3`,
-    //   file.buffer,
-    // );
+    trackFile.saveUploadedTrackToDisk(file.buffer);
+
+    // TODO: at some point this decision - save to disk or s3 or both will be handled entirely by the storage lib.
+    if (this.isS3Enabled) {
+      await trackFile.saveTrackToS3(trackFile.getTrackFromDisk());
+    }
 
     const newTrackInfo = await this.createAndSaveTrackEntry(
       userId,

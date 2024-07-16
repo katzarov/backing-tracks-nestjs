@@ -72,10 +72,6 @@ export class AcquireTracksController {
     )
     file: Express.Multer.File,
   ) {
-    // TODO: whole file is in memory, not great => switch to streaming file to a tmp folder for example.
-    // https://github.com/expressjs/multer?tab=readme-ov-file#diskstorage
-    // https://github.com/sindresorhus/file-type?tab=readme-ov-file#filetypefromstreamstream
-
     return this.acquireTracksService.uploadTrack(userId, uploadTrackDto, file);
   }
 }
