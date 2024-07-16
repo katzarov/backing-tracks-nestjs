@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { FileConverterController } from './file-converter.controller';
 import { FileConverterService } from './file-converter.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import configuration from 'config/configuration';
+import { fileConverterConfig, storageConfig } from 'config';
 import { TrackStorageModule } from '@app/track-storage';
 import { StorageConfigFactory } from '@app/track-storage/storage-config.provider';
 
@@ -10,7 +10,7 @@ import { StorageConfigFactory } from '@app/track-storage/storage-config.provider
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [configuration],
+      load: [fileConverterConfig, storageConfig],
       envFilePath: ['.env.nest', '.env.secret'],
     }),
     TrackStorageModule.registerAsync({
