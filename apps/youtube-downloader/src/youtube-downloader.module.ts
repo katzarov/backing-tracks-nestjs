@@ -5,7 +5,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { youtubeDownloaderConfig, storageConfig } from 'config';
 import { TrackStorageModule } from '@app/track-storage';
 import { StorageConfigFactory } from '@app/track-storage/storage-config.provider';
-// import * as ytdl from 'ytdl-core';
 
 @Module({
   imports: [
@@ -20,12 +19,6 @@ import { StorageConfigFactory } from '@app/track-storage/storage-config.provider
     }),
   ],
   controllers: [YoutubeController],
-  providers: [
-    // {
-    //   provide: 'YTDL_LIB',
-    //   useValue: ytdl,
-    // },
-    YoutubeDownloaderService,
-  ],
+  providers: [YoutubeDownloaderService],
 })
 export class YoutubeDownloaderModule {}

@@ -9,14 +9,20 @@ import { TrackStorageService } from '@app/track-storage';
 import type { TrackFile } from '@app/track-storage';
 import { ConfigService } from '@nestjs/config';
 import { TrackRepository } from '@app/database/repositories';
+import {
+  YOUTUBE_DOWNLOADER_SERVICE_TOKEN,
+  FILE_CONVERTER_SERVICE_TOKEN,
+} from './acquire-tracks.injection-tokens';
 
 @Injectable()
 export class AcquireTracksService {
   private isS3Enabled: boolean;
 
   constructor(
-    @Inject('YOUTUBE_DOWNLOADER_SERVICE') private youtubeService: ClientProxy,
-    @Inject('FILE_CONVERTER_SERVICE') private fileConverterService: ClientProxy,
+    @Inject(YOUTUBE_DOWNLOADER_SERVICE_TOKEN)
+    private youtubeService: ClientProxy,
+    @Inject(FILE_CONVERTER_SERVICE_TOKEN)
+    private fileConverterService: ClientProxy,
     private trackRepository: TrackRepository,
     private spotifyService: SpotifyService,
     private trackStorageService: TrackStorageService,

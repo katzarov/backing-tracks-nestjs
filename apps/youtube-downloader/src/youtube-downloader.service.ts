@@ -5,7 +5,6 @@ import { TrackStorageService } from '@app/track-storage';
 
 @Injectable()
 export class YoutubeDownloaderService {
-  // constructor(@Inject('YTDL_LIB') private ytdl) {}
   constructor(private trackStorageService: TrackStorageService) {}
 
   async getYouTubeVideoInfo(url: string) {
