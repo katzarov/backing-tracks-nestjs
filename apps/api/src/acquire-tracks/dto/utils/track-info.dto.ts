@@ -1,5 +1,5 @@
 import { IsNotEmpty, IsString, IsEnum } from 'class-validator';
-import { TrackType, TrackInstrument } from '../../../tracks/track.entity';
+import { TrackType, TrackInstrument } from '@app/database/entities';
 
 export class TrackInfoDto {
   @IsNotEmpty()

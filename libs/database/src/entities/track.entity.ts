@@ -7,8 +7,8 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { User } from '../user/user.entity';
-import { TrackMeta } from '../meta/trackMeta.entity';
+import { User } from './user.entity';
+import { TrackMeta } from './trackMeta.entity';
 
 export enum TrackType {
   BACKING = 'BACKING',
@@ -65,7 +65,9 @@ export class Track {
   @ManyToOne(() => User, (user) => user.tracks)
   user: User;
 
-  constructor(entity: Partial<Track>) {
+  constructor(
+    entity: Omit<Track, 'id' | 'createdDate' | 'updatedDate' | 'user'>,
+  ) {
     Object.assign(this, entity);
   }
 }

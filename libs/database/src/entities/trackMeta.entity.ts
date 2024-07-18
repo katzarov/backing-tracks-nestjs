@@ -7,7 +7,7 @@ import {
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Track } from '../tracks/track.entity';
+import { Track } from './track.entity';
 import { Artist } from './artist.entity';
 
 @Entity()
@@ -30,7 +30,12 @@ export class TrackMeta {
   @OneToMany(() => Track, (track) => track.meta)
   tracks: Track[];
 
-  constructor(entity: Partial<TrackMeta>) {
+  constructor(
+    entity: Omit<
+      TrackMeta,
+      'createdDate' | 'updatedDate' | 'artist' | 'tracks'
+    >,
+  ) {
     Object.assign(this, entity);
   }
 }

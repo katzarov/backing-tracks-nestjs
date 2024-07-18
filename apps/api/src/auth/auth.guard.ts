@@ -7,8 +7,8 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { AuthResult, auth } from 'express-oauth2-jwt-bearer';
 import { promisify } from 'util';
-import { UserService } from '../user/user.service';
-import { User } from '../user/user.entity';
+import { UserRepository } from '@app/database/repositories';
+import { User } from '@app/database/entities';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -17,7 +17,7 @@ export class AuthGuard implements CanActivate {
 
   constructor(
     private configService: ConfigService,
-    private userService: UserService,
+    private userRepository: UserRepository,
   ) {
     this.audience = this.configService.getOrThrow<string>('auth.audience');
     const domain = this.configService.getOrThrow<string>('auth.domain');
@@ -54,10 +54,10 @@ export class AuthGuard implements CanActivate {
       // for now, lets go with 1)
 
       let user: User | null;
-      user = await this.userService.findOneByAuth0Id(auth0Id);
+      user = await this.userRepository.findOneByAuth0Id(auth0Id);
 
       if (user === null) {
-        user = await this.userService.create(auth0Id);
+        user = await this.userRepository.saveOneWithAuth0Id(auth0Id);
       }
 
       // TODO: think which id should I use from now on: the auth0 one, or should I map it to one of mine..

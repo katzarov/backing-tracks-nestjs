@@ -7,7 +7,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Track } from '../tracks/track.entity';
+import { Track } from './track.entity';
 
 @Entity()
 @Unique(['auth0Id'])
@@ -27,7 +27,7 @@ export class User {
   @OneToMany(() => Track, (track) => track.user)
   tracks: Track[];
 
-  constructor(entity: Partial<User>) {
+  constructor(entity: Omit<User, 'id' | 'createdDate' | 'updatedDate'>) {
     Object.assign(this, entity);
   }
 }

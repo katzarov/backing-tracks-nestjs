@@ -1,18 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { EntityManager } from 'typeorm';
 import { lastValueFrom, Observable } from 'rxjs';
 import { SpotifyService } from './spotify.service';
 import { DownloadYouTubeVideoDto } from './dto/download-youtube-video.dto';
-import { TracksService } from '../tracks/tracks.service';
-import { Track, TrackInstrument, TrackType } from '../tracks/track.entity';
+import { TrackInstrument, TrackType } from '@app/database/entities';
 import { UploadTrackDto } from './dto/upload-track.dto';
-import { TrackMeta } from '../meta/trackMeta.entity';
-import { Artist } from '../meta/artist.entity';
-import { UserService } from '../user/user.service';
 import { TrackStorageService } from '@app/track-storage';
 import type { TrackFile } from '@app/track-storage';
 import { ConfigService } from '@nestjs/config';
+import { TrackRepository } from '@app/database/repositories';
 
 @Injectable()
 export class AcquireTracksService {
@@ -21,9 +17,7 @@ export class AcquireTracksService {
   constructor(
     @Inject('YOUTUBE_DOWNLOADER_SERVICE') private youtubeService: ClientProxy,
     @Inject('FILE_CONVERTER_SERVICE') private fileConverterService: ClientProxy,
-    private entityManager: EntityManager,
-    private tracksService: TracksService,
-    private usersService: UserService,
+    private trackRepository: TrackRepository,
     private spotifyService: SpotifyService,
     private trackStorageService: TrackStorageService,
     configService: ConfigService,
@@ -53,37 +47,31 @@ export class AcquireTracksService {
     trackInstrument: TrackInstrument,
   ) {
     const trackInfo = await this.spotifyService.getTrack(spotifyId);
-    const trackName = trackInfo.name;
-    const trackDuration = trackInfo.duration_ms; // TODO get duration from the actiual track file itself.
-
+    // TODO get duration from the actual track file itself.
     const artistId = trackInfo.artists[0].id;
     const artistName = trackInfo.artists[0].name;
 
-    const artist = new Artist({ spotifyUri: artistId, artistName });
-    const trackMeta = new TrackMeta({ spotifyUri: spotifyId, trackName });
-    const track = new Track({
-      resourceId,
-      duration: trackDuration,
-      trackType,
-      trackInstrument,
-    });
-
-    const user = await this.usersService.findOne(userId);
-    track.user = user;
-
-    await this.entityManager.transaction(async (transactionalEntityManager) => {
-      const newArtist = await transactionalEntityManager.save(artist);
-      trackMeta.artist = newArtist;
-
-      const newTrackMeta = await transactionalEntityManager.save(trackMeta);
-      track.meta = newTrackMeta;
-
-      await transactionalEntityManager.save(track);
+    await this.trackRepository.createTrackMatchedWithSpotify({
+      user: { id: userId },
+      track: {
+        uri: resourceId,
+        duration: trackInfo.duration_ms,
+        trackType,
+        trackInstrument,
+      },
+      artist: {
+        spotifyUri: artistId,
+        name: artistName,
+      },
+      trackMeta: {
+        spotifyUri: spotifyId,
+        name: trackInfo.name,
+      },
     });
 
     // TODO: cleanup files if this fails
 
-    return `new track acquired: ${trackName}, id: ${resourceId}, for user: ${userId}`;
+    return `new track acquired: ${trackInfo.name}, id: ${resourceId}, for user: ${userId}`;
   }
 
   getYouTubeVideoInfo(url: string) {

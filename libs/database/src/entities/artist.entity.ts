@@ -9,8 +9,6 @@ import {
 
 import { TrackMeta } from './trackMeta.entity';
 
-// TODO: will need more tables for this.. or better a new database for all artists data.. or better, don't model this in a realational db at all, but dump the spotify json data somewhere.
-
 @Entity()
 export class Artist {
   @PrimaryColumn()
@@ -28,7 +26,7 @@ export class Artist {
   @OneToMany(() => TrackMeta, (trackMeta) => trackMeta.artist)
   tracks: TrackMeta[];
 
-  constructor(entity: Partial<Artist>) {
+  constructor(entity: Omit<Artist, 'createdDate' | 'updatedDate' | 'tracks'>) {
     Object.assign(this, entity);
   }
 }

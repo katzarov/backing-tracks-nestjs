@@ -94,7 +94,8 @@
       "<rootDir>/libs/"
     ],
     "moduleNameMapper": {
-      "^@app/track-storage(|/.*)$": "<rootDir>/libs/track-storage/src/$1"
+      "^@app/track-storage(|/.*)$": "<rootDir>/libs/track-storage/src/$1",
+      "^@app/database(|/.*)$": "<rootDir>/libs/database/src/$1"
     }
   }
 }

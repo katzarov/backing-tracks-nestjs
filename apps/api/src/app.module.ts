@@ -8,11 +8,10 @@ import {
   fileConverterConfig,
   storageConfig,
 } from 'config';
-import { DatabaseModule } from 'database/database.module'; // keep this above all other user modules
+import { DatabaseModule } from '@app/database'; // keep this above all other user modules
+import { UserRepositoryModule } from '@app/database/modules'; // needed for the global auth guard, which uses the userRepository
 import { AcquireTracksModule } from './acquire-tracks/acquire-tracks.module';
-import { UserModule } from './user/user.module';
 import { TracksModule } from './tracks/tracks.module';
-import { MetaModule } from './meta/meta.module';
 import { AuthGuard } from './auth/auth.guard';
 
 @Module({
@@ -29,10 +28,9 @@ import { AuthGuard } from './auth/auth.guard';
       envFilePath: ['.env.nest', '.env.secret'],
     }),
     DatabaseModule,
+    UserRepositoryModule, // needed for the global auth guard, which uses the userRepository
     AcquireTracksModule,
-    UserModule,
     TracksModule,
-    MetaModule,
   ],
   controllers: [],
   providers: [

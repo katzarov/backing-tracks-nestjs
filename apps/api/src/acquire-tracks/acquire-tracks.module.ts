@@ -5,14 +5,14 @@ import { AcquireTracksService } from './acquire-tracks.service';
 import { AcquireTracksController } from './acquire-tracks.controller';
 import { TracksModule } from '../tracks/tracks.module';
 import { SpotifyService } from './spotify.service';
-import { UserModule } from '../user/user.module';
 import { TrackStorageModule } from '@app/track-storage';
 import { StorageConfigFactory } from '@app/track-storage/storage-config.provider';
+import { TrackRepositoryModule } from '@app/database/modules';
 
 @Module({
   imports: [
     TracksModule,
-    UserModule,
+    TrackRepositoryModule,
     TrackStorageModule.registerAsync({
       useFactory: StorageConfigFactory,
       inject: [ConfigService],
