@@ -45,10 +45,9 @@ export class DiskDriver {
     location: string,
     fileExtension: string,
   ) {
-    const path = this.resolveLocation(location);
-    const writePath = `${path}/${uri}.${fileExtension}`;
+    const path = this.getPath(uri, location, fileExtension);
 
-    return writeFile(writePath, buffer, 'utf-8');
+    return writeFile(path, buffer, 'utf-8');
   }
 
   saveStreamToDisk(
@@ -57,8 +56,8 @@ export class DiskDriver {
     location: string,
     fileExtension: string,
   ) {
-    const path = this.resolveLocation(location);
-    const writeStream = createWriteStream(`${path}/${uri}.${fileExtension}`, {
+    const path = this.getPath(uri, location, fileExtension);
+    const writeStream = createWriteStream(path, {
       encoding: 'utf-8',
     });
 
@@ -66,10 +65,15 @@ export class DiskDriver {
   }
 
   getStreamFromDisk(uri: string, location: string, fileExtension: string) {
-    const path = this.resolveLocation(location);
-    const readStream = createReadStream(`${path}/${uri}.${fileExtension}`);
+    const path = this.getPath(uri, location, fileExtension);
+    const readStream = createReadStream(path);
 
     return readStream;
+  }
+
+  getPath(uri: string, location: string, fileExtension: string) {
+    const path = this.resolveLocation(location);
+    return `${path}/${uri}.${fileExtension}`;
   }
 
   static DownloadsLocation() {

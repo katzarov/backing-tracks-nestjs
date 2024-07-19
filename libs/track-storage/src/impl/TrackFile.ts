@@ -116,6 +116,14 @@ export class TrackFile {
     );
   }
 
+  getTrackDiskPath() {
+    return this.diskDriver.getPath(
+      this.uri,
+      DiskDriver.ConvertedLocation(),
+      FiLE_EXTENSIONS.MP3,
+    );
+  }
+
   saveTrackToS3(stream: Readable) {
     if (!this.s3IsEnabled) {
       throw new Error("Client shouldn't call when s3 feature is disabled.");
