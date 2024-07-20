@@ -1,48 +1,35 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { lastValueFrom, Observable } from 'rxjs';
 import { SpotifyService } from './spotify.service';
 import { DownloadYouTubeVideoDto } from './dto/download-youtube-video.dto';
 import { TrackInstrument, TrackType } from '@app/database/entities';
 import { UploadTrackDto } from './dto/upload-track.dto';
 import { TrackStorageService } from '@app/track-storage';
-import type { TrackFile } from '@app/track-storage';
 import { ConfigService } from '@nestjs/config';
 import { TrackRepository } from '@app/database/repositories';
 import {
   YOUTUBE_DOWNLOADER_SERVICE_TOKEN,
   FILE_CONVERTER_SERVICE_TOKEN,
 } from './acquire-tracks.injection-tokens';
+import { AcquireTracksMicroServicesClient } from './acquire-tracks.microservices-client';
 
 @Injectable()
-export class AcquireTracksService {
+export class AcquireTracksService extends AcquireTracksMicroServicesClient {
   private isS3Enabled: boolean;
 
   constructor(
-    @Inject(YOUTUBE_DOWNLOADER_SERVICE_TOKEN)
-    private youtubeService: ClientProxy,
-    @Inject(FILE_CONVERTER_SERVICE_TOKEN)
-    private fileConverterService: ClientProxy,
+    @Inject(YOUTUBE_DOWNLOADER_SERVICE_TOKEN) youtubeService: ClientProxy,
+    @Inject(FILE_CONVERTER_SERVICE_TOKEN) fileConverterService: ClientProxy,
     private trackRepository: TrackRepository,
     private spotifyService: SpotifyService,
     private trackStorageService: TrackStorageService,
     configService: ConfigService,
   ) {
+    super(youtubeService, fileConverterService);
+
     this.isS3Enabled = configService.getOrThrow<boolean>(
       'storage.s3.isEnabled',
     );
-  }
-
-  private download(url: string, trackFile: TrackFile): Observable<string> {
-    const pattern = { cmd: 'downloadYouTubeVideo' };
-    const payload = { url, name: trackFile.uri };
-    return this.youtubeService.send(pattern, payload);
-  }
-
-  private convert(trackFile: TrackFile): Observable<string> {
-    const pattern = { cmd: 'convertFile' };
-    const payload = { name: trackFile.uri };
-    return this.fileConverterService.send(pattern, payload);
   }
 
   private async createAndSaveTrackEntry(
@@ -51,17 +38,28 @@ export class AcquireTracksService {
     spotifyId: string,
     trackType: TrackType,
     trackInstrument: TrackInstrument,
+    trackDuration: number | null,
   ) {
     const trackInfo = await this.spotifyService.getTrack(spotifyId);
-    // TODO get duration from the actual track file itself.
     const artistId = trackInfo.artists[0].id;
     const artistName = trackInfo.artists[0].name;
+
+    let duration: number;
+
+    if (trackDuration === null) {
+      duration = trackInfo.duration_ms / 1000;
+      console.log(
+        `FFprobe duration for ${resourceId} is undefined. Using Spotify duration as fallback.`,
+      );
+    } else {
+      duration = trackDuration;
+    }
 
     await this.trackRepository.createTrackMatchedWithSpotify({
       user: { id: userId },
       track: {
         uri: resourceId,
-        duration: trackInfo.duration_ms,
+        duration,
         trackType,
         trackInstrument,
       },
@@ -76,12 +74,19 @@ export class AcquireTracksService {
     });
 
     // TODO: cleanup files if this fails
-
-    return `new track acquired: ${trackInfo.name}, id: ${resourceId}, for user: ${userId}`;
+    return `track acquired: id: ${resourceId} user: ${userId} title: ${trackInfo.name} aritst: ${artistName}`;
   }
 
-  getYouTubeVideoInfo(url: string) {
-    return this.youtubeService.send({ cmd: 'getYouTubeVideoInfo' }, { url });
+  async getYouTubeVideoInfo(url: string) {
+    const ytdlResult = await this.getVideoInfo(url);
+
+    // TODO: put response data in separate key in ms api => {status: {...}, data: {...}}
+    return {
+      title: ytdlResult.title,
+      channel: ytdlResult.channel,
+      length: ytdlResult.length,
+      thumbnailUrl: ytdlResult.thumbnailUrl,
+    };
   }
 
   async downloadYouTubeVideo(
@@ -89,16 +94,16 @@ export class AcquireTracksService {
     { url, spotifyId, trackType, trackInstrument }: DownloadYouTubeVideoDto,
   ) {
     const trackFile = this.trackStorageService.createTrack();
-    // BIG TODO here: probably want some job/tracker service instead of doing it like this here.
-    // some hybrid microservice that also does ss3 with the client to show the download/converter progress, and show all currnet jobs and blah blah..
-    // i,e job tracking/execution/notification service(s), will also need a queue, look into rabbitmq
-    // put a message broker inbetween all instead of this method call all microservices like that.
-    // + notification service that will listen also to all messages and track the result + will notify the client
 
-    // TODO v2, these two microserices will probably end up being lambdas again.. I will need to rethink a bit how the notification/job tracking for the FE client, will be done in this case.
+    await this.download(url, trackFile);
 
-    await lastValueFrom(this.download(url, trackFile));
-    await lastValueFrom(this.convert(trackFile));
+    // TODO: also handle errors for file converter ms,
+    // maybe catch error here and rethrow & delete ytdl files from prev step .. or do that in the MS..
+
+    await this.convert(trackFile);
+
+    const { duration: trackDuration } =
+      await this.getAudioDurationInSeconds(trackFile);
 
     // TODO: at some point this decision - save to disk or s3 or both will be handled entirely by the storage lib.
     if (this.isS3Enabled) {
@@ -111,9 +116,9 @@ export class AcquireTracksService {
       spotifyId,
       trackType,
       trackInstrument,
+      trackDuration,
     );
     console.log(newTrackInfo);
-    return { msg: newTrackInfo };
   }
 
   async uploadTrack(
@@ -123,7 +128,10 @@ export class AcquireTracksService {
   ) {
     const trackFile = this.trackStorageService.createTrack();
 
-    trackFile.saveUploadedTrackToDisk(file.buffer);
+    await trackFile.saveUploadedTrackToDisk(file.buffer);
+
+    const { duration: trackDuration } =
+      await this.getAudioDurationInSeconds(trackFile);
 
     // TODO: at some point this decision - save to disk or s3 or both will be handled entirely by the storage lib.
     if (this.isS3Enabled) {
@@ -136,8 +144,8 @@ export class AcquireTracksService {
       spotifyId,
       trackType,
       trackInstrument,
+      trackDuration,
     );
     console.log(newTrackInfo);
-    return { msg: newTrackInfo };
   }
 }
