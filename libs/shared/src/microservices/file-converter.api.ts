@@ -24,5 +24,5 @@ export interface IFileConverterApiGetAudioDurationInSecondsPayload {
 
 export interface IFileConverterApiGetAudioDurationInSecondsResponse
   extends TCPMicroserviceResponse {
-  duration: number | null;
+  duration?: number | null;
 }

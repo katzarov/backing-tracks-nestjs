@@ -56,7 +56,8 @@ export class Track {
   })
   trackInstrument: TrackInstrument;
 
-  @Column({ type: 'integer' })
+  // TODO figure out what precision we actually need
+  @Column({ type: 'double precision' })
   duration: number;
 
   @ManyToOne(() => TrackMeta, (meta) => meta.tracks)
