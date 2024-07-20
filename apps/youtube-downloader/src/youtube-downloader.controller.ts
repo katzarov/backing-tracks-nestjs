@@ -1,6 +1,11 @@
 import { Controller } from '@nestjs/common';
 import { YoutubeDownloaderService } from './youtube-downloader.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
+import {
+  IYouTubeDownloaderApiDownloadYouTubeVideoPayload,
+  IYouTubeDownloaderApiGetYouTubeVideoInfoPayload,
+  YouTubeDownloaderApi,
+} from '@app/shared/microservices';
 
 @Controller()
 export class YoutubeController {
@@ -8,14 +13,17 @@ export class YoutubeController {
     private readonly youtubeDownloaderService: YoutubeDownloaderService,
   ) {}
 
-  @MessagePattern({ cmd: 'getYouTubeVideoInfo' })
-  async getYouTubeVideoInfo(@Payload('url') url: string) {
-    return await this.youtubeDownloaderService.getYouTubeVideoInfo(url);
+  @MessagePattern({ cmd: YouTubeDownloaderApi.getYouTubeVideoInfo })
+  getYouTubeVideoInfo(
+    @Payload() payload: IYouTubeDownloaderApiGetYouTubeVideoInfoPayload,
+  ) {
+    return this.youtubeDownloaderService.getYouTubeVideoInfo(payload);
   }
 
-  @MessagePattern({ cmd: 'downloadYouTubeVideo' })
-  async downloadYouTubeVideo(@Payload() data: { url: string; name: string }) {
-    const { url, name } = data;
-    return await this.youtubeDownloaderService.downloadYouTubeVideo(url, name);
+  @MessagePattern({ cmd: YouTubeDownloaderApi.downloadYouTubeVideo })
+  downloadYouTubeVideo(
+    @Payload() payload: IYouTubeDownloaderApiDownloadYouTubeVideoPayload,
+  ) {
+    return this.youtubeDownloaderService.downloadYouTubeVideo(payload);
   }
 }

@@ -17,10 +17,10 @@ export interface IYouTubeDownloaderApiGetYouTubeVideoInfoPayload {
 
 export interface IYouTubeDownloaderApiGetYouTubeVideoInfoResponse
   extends TCPMicroserviceResponse {
-  title: string;
-  channel: string;
-  length: string;
-  thumbnailUrl: string;
+  title?: string;
+  channel?: string;
+  length?: string;
+  thumbnailUrl?: string;
 }
 
 export interface IYouTubeDownloaderApiDownloadYouTubeVideoPayload {
