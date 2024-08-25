@@ -66,7 +66,7 @@ services:
         # TODO: specify ver
         image: postgres
         container_name: ${COMPOSE_PROJECT_NAME}-pg-db
-        restart: always
+        restart: unless-stopped
         environment:
             POSTGRES_DB: ${POSTGRES_DB}
             POSTGRES_USER: ${POSTGRES_USER}
@@ -86,7 +86,7 @@ services:
     # pg-admin:
     #     image: dpage/pgadmin4
     #     container_name: ${COMPOSE_PROJECT_NAME}-pgadmin4_container
-    #     restart: always
+    #     restart: unless-stopped
     #     environment:
     #         PGADMIN_DEFAULT_EMAIL: user-name@domain-name.com
     #         PGADMIN_DEFAULT_PASSWORD: strong-password

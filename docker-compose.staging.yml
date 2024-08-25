@@ -84,7 +84,7 @@ services:
         # TODO: specify ver
         image: postgres
         container_name: ${COMPOSE_PROJECT_NAME}-pg-db
-        restart: always
+        restart: unless-stopped
         environment:
             POSTGRES_DB: ${POSTGRES_DB}
             POSTGRES_USER: ${POSTGRES_USER}

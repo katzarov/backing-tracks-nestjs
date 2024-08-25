@@ -36,9 +36,9 @@ COPY package*.json ./
 RUN npm ci --include=dev
 # copy over all app src
 COPY . .
-RUN npm run build-api && \
-    npm run build-youtube-downloader && \
-    npm run build-file-converter
+RUN npm run build:api && \
+    npm run build:youtube-downloader && \
+    npm run build:file-converter
 
 
 FROM base as prod
@@ -78,7 +78,7 @@ COPY . .
 # seems like I need to make an env of the arg to be able to pass it to the shell.. fine for now. TODO: revisit later
 ENV _internal_TARGET_APP ${TARGET_APP}
 # need to run it in a shell in order to be able pass the signals to npm - and be able to terminate the process without waiting for the timeout :P. This is fine for dev.
-CMD npm run start:dev-${_internal_TARGET_APP}
+CMD npm run start:${_internal_TARGET_APP}
 
 
 # TODO check if analogous to first copying the package json approach
