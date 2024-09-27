@@ -6,9 +6,11 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToMany,
 } from 'typeorm';
 import { User } from './user.entity';
 import { TrackMeta } from './trackMeta.entity';
+import { Playlist } from './playlist.entity';
 
 export enum TrackType {
   BACKING = 'BACKING',
@@ -34,6 +36,7 @@ export class Track {
   @UpdateDateColumn()
   updatedDate: Date;
 
+  // todo rename to file_uri
   @Column({ type: 'uuid' })
   resourceId: string; // TODO: resourceId => https://stackoverflow.com/questions/176264/what-is-the-difference-between-a-uri-a-url-and-a-urn
 
@@ -65,6 +68,9 @@ export class Track {
 
   @ManyToOne(() => User, (user) => user.tracks)
   user: User;
+
+  @ManyToMany(() => Playlist, (playlist) => playlist.tracks)
+  playlists?: Playlist[];
 
   constructor(
     entity: Omit<Track, 'id' | 'createdDate' | 'updatedDate' | 'user'>,

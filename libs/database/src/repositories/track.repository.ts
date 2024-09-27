@@ -48,14 +48,16 @@ export class TrackRepository {
 
   findAll(userId: number) {
     return this.trackRepository.find({
-      relations: { meta: { artist: true } },
+      relations: { meta: { artist: true }, playlists: true },
       where: { user: Equal(userId) },
       select: {
+        id: true,
         resourceId: true,
         duration: true,
         trackType: true,
         trackInstrument: true,
         meta: { trackName: true, artist: { artistName: true } },
+        playlists: { id: true, name: true, description: true },
       },
       order: { id: 'ASC' },
     });

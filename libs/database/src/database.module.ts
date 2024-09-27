@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User, Track, TrackMeta, Artist } from './entities';
+import { User, Track, TrackMeta, Artist, Playlist } from './entities';
 
 @Module({
   imports: [
@@ -15,7 +15,7 @@ import { User, Track, TrackMeta, Artist } from './entities';
         username: configService.getOrThrow('database.username'),
         password: configService.getOrThrow('database.password'),
         autoLoadEntities: false,
-        entities: [User, Track, TrackMeta, Artist],
+        entities: [User, Track, TrackMeta, Playlist, Artist],
         retryAttempts: 36,
         retryDelay: 5000,
         dropSchema: false,

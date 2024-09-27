@@ -10,6 +10,8 @@ import {
 import { Track } from './track.entity';
 import { Artist } from './artist.entity';
 
+// TODO need to be per user, artist per user as well.
+// cause at some point users will be able to define thier own stuff and it wont be just the good data from spotify
 @Entity()
 export class TrackMeta {
   @PrimaryColumn()
