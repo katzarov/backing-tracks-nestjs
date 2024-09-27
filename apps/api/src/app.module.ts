@@ -13,6 +13,7 @@ import { UserRepositoryModule } from '@app/database/modules'; // needed for the 
 import { AcquireTracksModule } from './acquire-tracks/acquire-tracks.module';
 import { TracksModule } from './tracks/tracks.module';
 import { AuthGuard } from './auth/auth.guard';
+import { PlaylistsModule } from './playlists/playlists.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { AuthGuard } from './auth/auth.guard';
     UserRepositoryModule, // needed for the global auth guard, which uses the userRepository
     AcquireTracksModule,
     TracksModule,
+    PlaylistsModule,
   ],
   controllers: [],
   providers: [
