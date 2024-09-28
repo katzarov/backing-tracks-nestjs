@@ -69,7 +69,10 @@ export class Track {
   @ManyToOne(() => User, (user) => user.tracks)
   user: User;
 
-  @ManyToMany(() => Playlist, (playlist) => playlist.tracks)
+  @ManyToMany(() => Playlist, (playlist) => playlist.tracks, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   playlists?: Playlist[];
 
   constructor(

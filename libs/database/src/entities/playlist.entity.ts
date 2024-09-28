@@ -33,7 +33,7 @@ export class Playlist {
   user: User;
 
   // todo , maybe makes more sense for the track to own this table
-  @ManyToMany(() => Track, (track) => track.playlists, { cascade: true })
+  @ManyToMany(() => Track, (track) => track.playlists)
   @JoinTable({ name: 'playlist_tracks' })
   tracks: Track[];
 
