@@ -18,6 +18,10 @@ export class PlaylistsService {
     return this.playlistRepository.findAllPlaylists(userId);
   }
 
+  findOne(userId: number, playlistId: number) {
+    return this.playlistRepository.getPlaylistWithAllTracks(userId, playlistId);
+  }
+
   editPlaylistsOfTrack(
     userId: number,
     trackId: number,

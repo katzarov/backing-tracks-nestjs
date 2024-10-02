@@ -29,6 +29,14 @@ export class PlaylistsController {
     return this.playlistsService.findAll(userId);
   }
 
+  @Get(':id')
+  findOne(
+    @AuthenticatedUser() userId: number,
+    @Param('id', ParseIntPipe) playlistId: number,
+  ) {
+    return this.playlistsService.findOne(userId, playlistId);
+  }
+
   @Put(':id')
   editPlaylistsOfTrack(
     @AuthenticatedUser() userId: number,

@@ -26,6 +26,20 @@ export class PlaylistRepository {
     });
   }
 
+  getPlaylistWithAllTracks(userId: number, playlistId: number) {
+    return this.playlistRepository.findOne({
+      relations: { tracks: { meta: { artist: true }, playlists: true } },
+      where: { user: Equal(userId), id: Equal(playlistId) },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        tracks: true,
+      },
+      order: { id: 'ASC' },
+    });
+  }
+
   async editPlaylistsOfTrack(
     userId: number,
     trackId: number,
