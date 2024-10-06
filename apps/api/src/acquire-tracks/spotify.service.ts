@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import type { MaxInt, PartialSearchResult } from '@spotify/web-api-ts-sdk';
+import type {
+  MaxInt,
+  PartialSearchResult,
+  Track,
+} from '@spotify/web-api-ts-sdk';
 import { SpotifyApi } from '@spotify/web-api-ts-sdk';
 
 const spotifyMarket = 'US';
@@ -21,10 +25,33 @@ export class SpotifyService {
     );
   }
 
+  private buildAlbumArtImageObject(track: Track) {
+    const images = {
+      small: null,
+      medium: null,
+      large: null,
+    };
+
+    for (const image of track.album.images) {
+      if (image.width === 640) {
+        images.large = image;
+        continue;
+      }
+      if (image.width === 300) {
+        images.medium = image;
+        continue;
+      }
+      if (image.width === 64) {
+        images.small = image;
+      }
+    }
+    return images;
+  }
+
   private buildResponseForClient(
     res: Required<Pick<PartialSearchResult, 'tracks'>>,
   ) {
-    // TODO: handle multiple artists, handle multiple images and their dimnesions.
+    // TODO: handle multiple artists.
     return res.tracks.items.map((item) => ({
       id: item.id,
       track: {
@@ -34,7 +61,8 @@ export class SpotifyService {
       album: {
         uri: item.album.uri,
         name: item.album.name,
-        image: item.album.images[0].url,
+        // spotify's docs say the image order is from largest in size to smallest. For search results, we just need the smallest.
+        image: item.album.images.at(-1).url,
       },
       artist: {
         uri: item.artists[0].uri,
@@ -60,8 +88,13 @@ export class SpotifyService {
   }
 
   async getTrack(spotifyId: string) {
-    const result = await this.spotifyApi.tracks.get(spotifyId, spotifyMarket);
+    const trackInfo = await this.spotifyApi.tracks.get(
+      spotifyId,
+      spotifyMarket,
+    );
 
-    return result;
+    const albumArt = this.buildAlbumArtImageObject(trackInfo);
+
+    return { trackInfo, albumArt };
   }
 }

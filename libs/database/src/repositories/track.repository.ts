@@ -24,6 +24,7 @@ export class TrackRepository {
     const trackMeta = new TrackMeta({
       spotifyUri: dto.trackMeta.spotifyUri,
       trackName: dto.trackMeta.name,
+      albumArt: dto.trackMeta.albumArt,
     });
     const track = new Track({
       resourceId: dto.track.uri,
@@ -56,7 +57,27 @@ export class TrackRepository {
         duration: true,
         trackType: true,
         trackInstrument: true,
-        meta: { trackName: true, artist: { artistName: true } },
+        meta: {
+          trackName: true,
+          albumArt: {
+            small: {
+              url: true,
+              width: true,
+              height: true,
+            },
+            medium: {
+              url: true,
+              width: true,
+              height: true,
+            },
+            large: {
+              url: true,
+              width: true,
+              height: true,
+            },
+          },
+          artist: { artistName: true },
+        },
         playlists: { id: true, name: true, description: true },
       },
       order: { id: 'ASC' },

@@ -40,7 +40,9 @@ export class AcquireTracksService extends AcquireTracksMicroServicesClient {
     trackInstrument: TrackInstrument,
     trackDuration: number | null,
   ) {
-    const trackInfo = await this.spotifyService.getTrack(spotifyId);
+    const { trackInfo, albumArt } =
+      await this.spotifyService.getTrack(spotifyId);
+
     const artistId = trackInfo.artists[0].id;
     const artistName = trackInfo.artists[0].name;
 
@@ -70,6 +72,7 @@ export class AcquireTracksService extends AcquireTracksMicroServicesClient {
       trackMeta: {
         spotifyUri: spotifyId,
         name: trackInfo.name,
+        albumArt,
       },
     });
 

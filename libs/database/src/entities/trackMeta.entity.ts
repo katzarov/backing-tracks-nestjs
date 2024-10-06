@@ -10,6 +10,12 @@ import {
 import { Track } from './track.entity';
 import { Artist } from './artist.entity';
 
+interface IAlbumArtImage {
+  url: string;
+  width: number;
+  height: number;
+}
+
 // TODO need to be per user, artist per user as well.
 // cause at some point users will be able to define thier own stuff and it wont be just the good data from spotify
 @Entity()
@@ -25,6 +31,13 @@ export class TrackMeta {
 
   @Column()
   trackName: string;
+
+  @Column('jsonb')
+  albumArt: {
+    small: IAlbumArtImage | null;
+    medium: IAlbumArtImage | null;
+    large: IAlbumArtImage | null;
+  };
 
   @ManyToOne(() => Artist, (artist) => artist.tracks)
   artist: Artist;

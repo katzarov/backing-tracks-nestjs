@@ -1,4 +1,4 @@
-import { TrackType, TrackInstrument } from '../../entities';
+import { TrackType, TrackInstrument, TrackMeta } from '../../entities';
 
 /**
  * I see two options of how to design the api for these repositories.
@@ -21,6 +21,7 @@ export interface CreateTrackMatchedWithSpotifyRepositoryDto {
   trackMeta: {
     spotifyUri: string;
     name: string;
+    albumArt: TrackMeta['albumArt'];
   };
   artist: {
     spotifyUri: string;
