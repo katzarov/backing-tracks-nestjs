@@ -6,6 +6,7 @@ import {
   ParseUUIDPipe,
   Header,
   UseGuards,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { TracksService } from './tracks.service';
 import { AuthenticatedUser } from '../auth/authenticated-user.decorator';
@@ -24,9 +25,9 @@ export class TracksController {
   @Get(':id')
   findOne(
     @AuthenticatedUser() userId: number,
-    @Param('id', ParseUUIDPipe) resourceId: string,
+    @Param('id', ParseIntPipe) trackId: number,
   ) {
-    return this.tracksService.findOne(userId, resourceId);
+    return this.tracksService.findOne(userId, trackId);
   }
 
   @Get('/file/:id')
@@ -48,8 +49,10 @@ export class TracksController {
   @Delete(':id')
   remove(
     @AuthenticatedUser() userId: number,
-    @Param('id', ParseUUIDPipe) resourceId: string,
+    @Param('id', ParseIntPipe) trackId: number,
   ) {
-    return this.tracksService.remove(userId, resourceId);
+    // TODO: also delete from file storage
+    // TODO: (in general) don't just return the typeorm response...
+    return this.tracksService.remove(userId, trackId);
   }
 }

@@ -86,12 +86,12 @@ export class TrackRepository {
     // return this.tracksRepository.findBy({ user: Equal(userId) });
   }
 
-  findOneByUri(userId: number, resourceId: string) {
+  findOneById(userId: number, trackId: number) {
     return this.trackRepository.find({
       relations: { meta: { artist: true } },
       where: {
         user: Equal(userId),
-        resourceId: Equal(resourceId),
+        id: Equal(trackId),
       },
       select: {
         resourceId: true,
@@ -114,10 +114,10 @@ export class TrackRepository {
     // });
   }
 
-  deleteByUri(userId: number, resourceId: string) {
+  deleteById(userId: number, trackId: number) {
     return this.trackRepository.delete({
       user: Equal(userId),
-      resourceId: Equal(resourceId),
+      id: Equal(trackId),
     });
   }
 }

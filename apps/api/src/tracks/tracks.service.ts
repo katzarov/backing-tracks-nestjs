@@ -13,10 +13,11 @@ export class TracksService {
     return this.trackRepository.findAll(userId);
   }
 
-  findOne(userId: number, resourceId: string) {
-    return this.trackRepository.findOneByUri(userId, resourceId);
+  findOne(userId: number, trackId: number) {
+    return this.trackRepository.findOneById(userId, trackId);
   }
 
+  // TODO check if belongs to user
   getFile(resourceId: string) {
     const file = this.trackStorageService
       .createTrackFromUri(resourceId)
@@ -25,6 +26,7 @@ export class TracksService {
     return new StreamableFile(file);
   }
 
+  // TODO check if belongs to user
   async getFileViaPresignedS3Url(resourceId: string) {
     const presignedUrl = await this.trackStorageService
       .createTrackFromUri(resourceId)
@@ -35,8 +37,8 @@ export class TracksService {
     return response;
   }
 
-  remove(userId: number, resourceId: string) {
+  remove(userId: number, trackId: number) {
     // TODO delete file as well
-    return this.trackRepository.deleteByUri(userId, resourceId);
+    return this.trackRepository.deleteById(userId, trackId);
   }
 }
