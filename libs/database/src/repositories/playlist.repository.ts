@@ -1,7 +1,7 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Equal, In, Repository, QueryFailedError } from 'typeorm';
-import { Playlist, Track, User } from '../entities';
+import { Equal, Repository, QueryFailedError } from 'typeorm';
+import { Playlist, User } from '../entities';
 
 @Injectable()
 export class PlaylistRepository {
@@ -10,54 +10,7 @@ export class PlaylistRepository {
     private readonly userRepository: Repository<User>,
     @InjectRepository(Playlist)
     private readonly playlistRepository: Repository<Playlist>,
-    @InjectRepository(Track)
-    private readonly trackRepository: Repository<Track>,
   ) {}
-
-  findAllPlaylists(userId: number) {
-    return this.playlistRepository.find({
-      where: { user: Equal(userId) },
-      select: {
-        id: true,
-        name: true,
-        description: true,
-      },
-      order: { id: 'ASC' },
-    });
-  }
-
-  getPlaylistWithAllTracks(userId: number, playlistId: number) {
-    return this.playlistRepository.findOne({
-      relations: { tracks: { meta: { artist: true }, playlists: true } },
-      where: { user: Equal(userId), id: Equal(playlistId) },
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        tracks: true,
-      },
-      order: { id: 'ASC' },
-    });
-  }
-
-  async editPlaylistsOfTrack(
-    userId: number,
-    trackId: number,
-    newPlaylistsOfTrack: Array<{ id: number }>,
-  ) {
-    const track = await this.trackRepository.findOne({
-      where: { user: Equal(userId), id: Equal(trackId) },
-    });
-
-    const playlistEntities = await this.playlistRepository.findBy({
-      user: Equal(userId),
-      id: In(newPlaylistsOfTrack.map((playlist) => playlist.id)),
-    });
-
-    track.playlists = playlistEntities;
-
-    return this.trackRepository.save(track);
-  }
 
   async create(userId: number, name: string, description?: string) {
     const user = await this.userRepository.findOneBy({ id: userId });
@@ -76,5 +29,39 @@ export class PlaylistRepository {
       }
       throw e;
     }
+  }
+
+  findAll(userId: number) {
+    return this.playlistRepository.find({
+      where: { user: Equal(userId) },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+      },
+      order: { id: 'ASC' },
+    });
+  }
+
+  findOne(userId: number, playlistId: number) {
+    return this.playlistRepository.findOne({
+      where: {
+        user: Equal(userId),
+        id: Equal(playlistId),
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+      },
+    });
+  }
+
+  findAllTracks(userId: number, playlistId: number) {
+    return this.playlistRepository.findOne({
+      relations: { tracks: { meta: { artist: true } } },
+      where: { user: Equal(userId), id: Equal(playlistId) },
+      order: { id: 'ASC' },
+    });
   }
 }

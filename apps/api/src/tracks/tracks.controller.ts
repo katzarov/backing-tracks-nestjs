@@ -1,17 +1,20 @@
 import {
   Controller,
   Get,
+  Put,
   Param,
   Delete,
   ParseUUIDPipe,
   Header,
   UseGuards,
   ParseIntPipe,
+  Body,
 } from '@nestjs/common';
 import { TracksService } from './tracks.service';
 import { AuthenticatedUser } from '../auth/authenticated-user.decorator';
 import { GetFileGuard } from './getFile.guard';
 import { GetFileViaPresignedS3UrlGuard } from './getFileViaPresignedS3Url.guard';
+import { UpdatePlaylistsDto } from './dto/update-playlists.dto';
 
 @Controller('tracks')
 export class TracksController {
@@ -30,6 +33,28 @@ export class TracksController {
     return this.tracksService.findOne(userId, trackId);
   }
 
+  @Get(':id/playlists')
+  findAllPlaylists(
+    @AuthenticatedUser() userId: number,
+    @Param('id', ParseIntPipe) trackId: number,
+  ) {
+    return this.tracksService.findAllPlaylists(userId, trackId);
+  }
+
+  @Put(':id/playlists')
+  updatePlaylists(
+    @AuthenticatedUser() userId: number,
+    @Param('id', ParseIntPipe) trackId: number,
+    @Body() updatePlaylistsDto: UpdatePlaylistsDto,
+  ) {
+    return this.tracksService.updatePlaylists(
+      userId,
+      trackId,
+      updatePlaylistsDto.playlists,
+    );
+  }
+
+  // TODO move to a separate endpoint for assets
   @Get('/file/:id')
   @Header('Content-Type', 'audio/mpeg')
   @UseGuards(GetFileGuard)

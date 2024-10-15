@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Track, TrackMeta, Artist } from '../entities';
-import { EntityManager, Repository, Equal } from 'typeorm';
+import { Track, TrackMeta, Artist, Playlist } from '../entities';
+import { EntityManager, Repository, Equal, In } from 'typeorm';
 import { CreateTrackMatchedWithSpotifyRepositoryDto } from './dto';
 import { UserRepository } from './';
 
@@ -10,6 +10,8 @@ export class TrackRepository {
   constructor(
     @InjectRepository(Track)
     private readonly trackRepository: Repository<Track>,
+    @InjectRepository(Playlist)
+    private readonly playlistRepository: Repository<Playlist>,
     private readonly userRepository: UserRepository,
     private entityManager: EntityManager,
   ) {}
@@ -32,7 +34,6 @@ export class TrackRepository {
       trackType: dto.track.trackType,
       trackInstrument: dto.track.trackInstrument,
       meta: trackMeta,
-      // user: new User(userId),
     });
 
     const user = await this.userRepository.findOneById(dto.user.id);
@@ -49,72 +50,54 @@ export class TrackRepository {
 
   findAll(userId: number) {
     return this.trackRepository.find({
-      relations: { meta: { artist: true }, playlists: true },
+      relations: { meta: { artist: true } },
       where: { user: Equal(userId) },
-      select: {
-        id: true,
-        resourceId: true,
-        duration: true,
-        trackType: true,
-        trackInstrument: true,
-        meta: {
-          trackName: true,
-          albumArt: {
-            small: {
-              url: true,
-              width: true,
-              height: true,
-            },
-            medium: {
-              url: true,
-              width: true,
-              height: true,
-            },
-            large: {
-              url: true,
-              width: true,
-              height: true,
-            },
-          },
-          artist: { artistName: true },
-        },
-        playlists: { id: true, name: true, description: true },
-      },
       order: { id: 'ASC' },
     });
-
-    // return this.tracksRepository.findBy({ user: Equal(userId) });
   }
 
-  findOneById(userId: number, trackId: number) {
-    return this.trackRepository.find({
+  findOne(userId: number, trackId: number) {
+    return this.trackRepository.findOne({
       relations: { meta: { artist: true } },
       where: {
         user: Equal(userId),
         id: Equal(trackId),
       },
-      select: {
-        resourceId: true,
-        duration: true,
-        trackType: true,
-        trackInstrument: true,
-        meta: { trackName: true, artist: { artistName: true } },
-      },
     });
-
-    // https://typeorm.io/find-options#basic-options
-    // WHERE OR
-    // where: [{ user: Equal(userId) }, { resourceId: Equal(resourceId) }]
-    // WHERE AND
-    // where: { user: Equal(userId), resourceId: Equal(resourceId),}
-
-    // return this.tracksRepository.findBy({
-    //   user: Equal(userId),
-    //   resourceId: Equal(resourceId),
-    // });
   }
 
-  deleteById(userId: number, trackId: number) {
+  findAllPlaylists(userId: number, trackId: number) {
+    return this.trackRepository.findOne({
+      relations: { playlists: true },
+      where: { user: Equal(userId), id: Equal(trackId) },
+      select: {
+        id: true,
+        playlists: { id: true, name: true, description: true },
+      },
+      order: { id: 'ASC' },
+    });
+  }
+
+  async updatePlaylists(
+    userId: number,
+    trackId: number,
+    newPlaylistsOfTrack: Array<{ id: number }>,
+  ) {
+    const track = await this.trackRepository.findOne({
+      where: { user: Equal(userId), id: Equal(trackId) },
+    });
+
+    const playlistEntities = await this.playlistRepository.findBy({
+      user: Equal(userId),
+      id: In(newPlaylistsOfTrack.map((playlist) => playlist.id)),
+    });
+
+    track.playlists = playlistEntities;
+
+    return this.trackRepository.save(track);
+  }
+
+  delete(userId: number, trackId: number) {
     return this.trackRepository.delete({
       user: Equal(userId),
       id: Equal(trackId),

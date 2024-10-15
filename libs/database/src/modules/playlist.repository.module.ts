@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Playlist, Track, User } from '../entities';
+import { Playlist, User } from '../entities';
 import { PlaylistRepository } from '../repositories';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Playlist, Track])],
+  imports: [TypeOrmModule.forFeature([User, Playlist])],
   providers: [PlaylistRepository],
   exports: [PlaylistRepository],
 })

@@ -2,13 +2,11 @@ import {
   Controller,
   Get,
   Post,
-  Put,
   Body,
   Param,
   ParseIntPipe,
 } from '@nestjs/common';
 import { PlaylistsService } from './playlists.service';
-import { PlaylistsOfTrackDto } from './dto/playlists-of-track.dto';
 import { AuthenticatedUser } from '../auth/authenticated-user.decorator';
 import { CreatePlaylistDto } from './dto/create-playlist.dto';
 
@@ -37,16 +35,11 @@ export class PlaylistsController {
     return this.playlistsService.findOne(userId, playlistId);
   }
 
-  @Put(':id')
-  editPlaylistsOfTrack(
+  @Get(':id/tracks')
+  findAllTracks(
     @AuthenticatedUser() userId: number,
-    @Param('id', ParseIntPipe) trackId: number,
-    @Body() playlistsOfTrackDto: PlaylistsOfTrackDto,
+    @Param('id', ParseIntPipe) playlistId: number,
   ) {
-    return this.playlistsService.editPlaylistsOfTrack(
-      userId,
-      trackId,
-      playlistsOfTrackDto.playlists,
-    );
+    return this.playlistsService.findAllTracks(userId, playlistId);
   }
 }

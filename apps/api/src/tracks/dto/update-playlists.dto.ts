@@ -7,7 +7,7 @@ class PlaylistDto {
   id: number;
 }
 
-export class PlaylistsOfTrackDto {
+export class UpdatePlaylistsDto {
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => PlaylistDto)

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PlaylistRepository } from '@app/database/repositories';
 import { CreatePlaylistDto } from './dto/create-playlist.dto';
 
@@ -15,23 +15,20 @@ export class PlaylistsService {
   }
 
   findAll(userId: number) {
-    return this.playlistRepository.findAllPlaylists(userId);
+    return this.playlistRepository.findAll(userId);
   }
 
-  findOne(userId: number, playlistId: number) {
-    return this.playlistRepository.getPlaylistWithAllTracks(userId, playlistId);
+  async findOne(userId: number, playlistId: number) {
+    const result = await this.playlistRepository.findOne(userId, playlistId);
+
+    if (result === null) {
+      throw new NotFoundException(`Playlist with id:${playlistId} not found.`);
+    }
+
+    return result;
   }
 
-  editPlaylistsOfTrack(
-    userId: number,
-    trackId: number,
-    playlistsOfTrack: Array<{ id: number }>,
-  ) {
-    // TODO Here (and in general), don't just return the typeorm response to the client.
-    return this.playlistRepository.editPlaylistsOfTrack(
-      userId,
-      trackId,
-      playlistsOfTrack,
-    );
+  findAllTracks(userId: number, playlistId: number) {
+    return this.playlistRepository.findAllTracks(userId, playlistId);
   }
 }
