@@ -31,4 +31,8 @@ export class PlaylistsService {
   findAllTracks(userId: number, playlistId: number) {
     return this.playlistRepository.findAllTracks(userId, playlistId);
   }
+
+  remove(userId: number, playlistId: number) {
+    return this.playlistRepository.delete(userId, playlistId);
+  }
 }

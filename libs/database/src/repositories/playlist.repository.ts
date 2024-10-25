@@ -64,4 +64,11 @@ export class PlaylistRepository {
       order: { id: 'ASC' },
     });
   }
+
+  delete(userId: number, playlistId: number) {
+    return this.playlistRepository.delete({
+      user: Equal(userId),
+      id: Equal(playlistId),
+    });
+  }
 }

@@ -5,6 +5,7 @@ import {
   Body,
   Param,
   ParseIntPipe,
+  Delete,
 } from '@nestjs/common';
 import { PlaylistsService } from './playlists.service';
 import { AuthenticatedUser } from '../auth/authenticated-user.decorator';
@@ -41,5 +42,13 @@ export class PlaylistsController {
     @Param('id', ParseIntPipe) playlistId: number,
   ) {
     return this.playlistsService.findAllTracks(userId, playlistId);
+  }
+
+  @Delete(':id')
+  remove(
+    @AuthenticatedUser() userId: number,
+    @Param('id', ParseIntPipe) playlistId: number,
+  ) {
+    return this.playlistsService.remove(userId, playlistId);
   }
 }
