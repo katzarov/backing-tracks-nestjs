@@ -63,6 +63,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/shared/tsconfig.lib.json"
       }
+    },
+    "yt-dlp": {
+      "type": "library",
+      "root": "libs/yt-dlp",
+      "entryFile": "index",
+      "sourceRoot": "libs/yt-dlp/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/yt-dlp/tsconfig.lib.json"
+      }
     }
   }
 }
