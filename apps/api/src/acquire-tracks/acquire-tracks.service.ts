@@ -100,11 +100,6 @@ export class AcquireTracksService extends AcquireTracksMicroServicesClient {
 
     await this.download(url, trackFile);
 
-    // TODO: also handle errors for file converter ms,
-    // maybe catch error here and rethrow & delete ytdl files from prev step .. or do that in the MS..
-
-    await this.convert(trackFile);
-
     const { duration: trackDuration } =
       await this.getAudioDurationInSeconds(trackFile);
 

@@ -12,7 +12,8 @@ Check the frontend repository for general project description [frontend reposito
 
 - NestJS
 - TypeORM
-- ffmpeg
+- Postgres
+- ffmpeg, yt-dlp
 
 ## Folder Structure
 
@@ -20,7 +21,7 @@ This is a NestJS monorepo:
 
 - `apps/api` - HTTP REST API
 - `apps/file-converter` - TCP microservice for all ffmpeg related operations like converting files, getting details of audio files etc.
-- `apps/youtube-downloader` - TCP microservice for downloading tracks from YouTube. Will need to replace it with something else as YouTube is doing some major changes and a lot of YouTube downloading libraries are broken.
+- `apps/youtube-downloader` - TCP microservice for downloading tracks from YouTube.
 - `libs/database` - all database related stuff: entity/schema definitions, repositories.
 
 ## Installation

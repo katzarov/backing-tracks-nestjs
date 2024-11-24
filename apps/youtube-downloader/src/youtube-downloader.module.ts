@@ -5,6 +5,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { youtubeDownloaderConfig, storageConfig } from 'config';
 import { TrackStorageModule } from '@app/track-storage';
 import { StorageConfigFactory } from '@app/track-storage/storage-config.provider';
+import { YtDlpModule } from '@app/yt-dlp-nestjs-module';
+import { YtDlpOptionsFactory } from '@app/yt-dlp-nestjs-module/yt-dlp.options.provider';
 
 @Module({
   imports: [
@@ -15,6 +17,10 @@ import { StorageConfigFactory } from '@app/track-storage/storage-config.provider
     }),
     TrackStorageModule.registerAsync({
       useFactory: StorageConfigFactory,
+      inject: [ConfigService],
+    }),
+    YtDlpModule.registerAsync({
+      useFactory: YtDlpOptionsFactory,
       inject: [ConfigService],
     }),
   ],

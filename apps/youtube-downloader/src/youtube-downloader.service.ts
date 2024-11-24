@@ -1,6 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import * as ytdl from 'ytdl-core';
-import { TrackStorageService } from '@app/track-storage';
 import {
   IYouTubeDownloaderApiGetYouTubeVideoInfoPayload,
   IYouTubeDownloaderApiGetYouTubeVideoInfoResponse,
@@ -8,27 +6,29 @@ import {
   IYouTubeDownloaderApiDownloadYouTubeVideoResponse,
   TCPStatusCodes,
 } from '@app/shared/microservices';
+import { YtDlpService } from '@app/yt-dlp-nestjs-module';
+import type { ProgressDataDto } from '@app/yt-dlp';
 
 @Injectable()
 export class YoutubeDownloaderService {
-  constructor(private trackStorageService: TrackStorageService) {}
+  constructor(private ytDlpService: YtDlpService) {}
 
   async getYouTubeVideoInfo(
     payload: IYouTubeDownloaderApiGetYouTubeVideoInfoPayload,
   ): Promise<IYouTubeDownloaderApiGetYouTubeVideoInfoResponse> {
     try {
-      const info = await ytdl.getInfo(payload.youTubeVideoUrl);
+      const ytdlp = this.ytDlpService.YtDlp(payload.youTubeVideoUrl);
+      const info = await ytdlp.getInfo();
 
-      const { title, author, lengthSeconds, thumbnails } = info.videoDetails;
-      const { name } = author;
-      const thumbnailUrl = thumbnails[0].url;
+      const { title, channel, duration, thumbnail } = info; // ..., thumbnails }
+      // const thumbnailUrl = thumbnails[0].url;
 
       return {
         status: TCPStatusCodes.Success,
         title,
-        channel: name,
-        length: lengthSeconds,
-        thumbnailUrl,
+        channel,
+        length: duration.toString(),
+        thumbnailUrl: thumbnail,
       };
     } catch (e) {
       console.log('YTDL is broken.', e);
@@ -41,39 +41,13 @@ export class YoutubeDownloaderService {
     payload: IYouTubeDownloaderApiDownloadYouTubeVideoPayload,
   ): Promise<IYouTubeDownloaderApiDownloadYouTubeVideoResponse> {
     try {
-      const info = await ytdl.getInfo(payload.youTubeVideoUrl);
-      const formats = ytdl.filterFormats(info.formats, 'audioonly');
-      const choosenFormat = ytdl.chooseFormat(formats, {
-        quality: 'highestaudio',
-      });
+      const ytdlp = this.ytDlpService.YtDlp(payload.youTubeVideoUrl);
 
-      const videoStream = ytdl(payload.youTubeVideoUrl, {
-        format: choosenFormat,
-      });
+      // TODO: update job progress... (will probably add BullMQ shortly)
+      const cb = (data: ProgressDataDto) =>
+        console.log('lib client handler', data.eta, data.percent_str);
 
-      videoStream.on('info', () => {
-        // the usage of the uri like this kinda suggest it is used as a job tracking id, but it is not - will have another system to handle the jobs and queue.
-        console.log(`${payload.uri} - download start`);
-      });
-
-      videoStream.on('progress', () => {
-        // at some point we will log the progress to some other system and notify the client web app
-        // console.log(formatBytes(e));
-      });
-
-      videoStream.on('end', () => {
-        console.log(`${payload.uri} - download end`);
-      });
-
-      videoStream.on('error', (e) => {
-        console.log(`YTDL error during downloading ${payload.uri}: `, e);
-      });
-
-      const trackFile = this.trackStorageService.createTrackFromUri(
-        payload.uri,
-      );
-
-      await trackFile.saveYTDLToDisk(videoStream);
+      await ytdlp.download(payload.uri, cb);
 
       console.log(`${payload.uri} - download saved to local disk`);
 
