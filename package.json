@@ -97,7 +97,8 @@
       "^@app/track-storage(|/.*)$": "<rootDir>/libs/track-storage/src/$1",
       "^@app/database(|/.*)$": "<rootDir>/libs/database/src/$1",
       "^@app/shared(|/.*)$": "<rootDir>/libs/shared/src/$1",
-      "^@app/yt-dlp(|/.*)$": "<rootDir>/libs/yt-dlp/src/$1"
+      "^@app/yt-dlp(|/.*)$": "<rootDir>/libs/yt-dlp/src/$1",
+      "^@app/yt-dlp-nestjs-module(|/.*)$": "<rootDir>/libs/yt-dlp-nestjs-module/src/$1"
     }
   }
 }

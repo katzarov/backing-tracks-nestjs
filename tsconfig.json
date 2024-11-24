@@ -25,7 +25,9 @@
       "@app/shared": ["libs/shared/src"],
       "@app/shared/*": ["libs/shared/src/*"],
       "@app/yt-dlp": ["libs/yt-dlp/src"],
-      "@app/yt-dlp/*": ["libs/yt-dlp/src/*"]
+      "@app/yt-dlp/*": ["libs/yt-dlp/src/*"],
+      "@app/yt-dlp-nestjs-module": ["libs/yt-dlp-nestjs-module/src"],
+      "@app/yt-dlp-nestjs-module/*": ["libs/yt-dlp-nestjs-module/src/*"]
     }
   }
 }

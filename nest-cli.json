@@ -72,6 +72,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/yt-dlp/tsconfig.lib.json"
       }
+    },
+    "yt-dlp-nestjs-module": {
+      "type": "library",
+      "root": "libs/yt-dlp-nestjs-module",
+      "entryFile": "index",
+      "sourceRoot": "libs/yt-dlp-nestjs-module/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/yt-dlp-nestjs-module/tsconfig.lib.json"
+      }
     }
   }
 }
