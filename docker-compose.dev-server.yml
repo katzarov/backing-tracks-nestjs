@@ -31,9 +31,7 @@ services:
         build:
             context: .
             target: dev
-            dockerfile: ./Dockerfile
-            args:
-                - TARGET_APP=youtube-downloader
+            dockerfile: ./Dockerfile.ytdl
         ports:
             - '${YOUTUBE_DOWNLOADER_PORT}:${YOUTUBE_DOWNLOADER_PORT}'
         volumes:

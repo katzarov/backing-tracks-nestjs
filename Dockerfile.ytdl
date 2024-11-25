@@ -1,0 +1,78 @@
+
+# TODO consider just allowing for all minor & patch updates
+# yt-dlp even distributes their own ffmpeg builds where they fix some issues they experience, but for now, this ffmpeg pkg also works.. need to check if it's official actually, TODO.
+FROM node:20.11.1-bookworm-slim AS base_with_ffmpeg
+RUN \
+    --mount=type=cache,target=/var/cache/apt \
+    apt-get update && \
+    apt-get install -y tini ffmpeg
+ENTRYPOINT ["/usr/bin/tini", "-v", "-e", "143", "--"]
+
+
+# we need curl to get the yt-dlp binary but we don't want curl be in the final image
+# side note: wanted to start image from the same node base image as above but..
+# it seems we get into a locking issue since both images are seemingly building in parallel, and both are doing the apt-get update and reading/updating the cache that is mounted.
+FROM base_with_ffmpeg AS temp_yt-dlp
+RUN \
+    --mount=type=cache,target=/var/cache/apt \
+    apt-get update && \
+    apt-get install -y curl
+RUN \
+    curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/bin/yt-dlp
+# this binary also includes an auto-updater, need to think what I want to do.. But an auto-updater might come in handy for sure, given this is a constant battle with youtube, and given I might not deploy new build that often.
+
+
+# u+rx => octal => 500
+FROM base_with_ffmpeg AS base_with_ffmpeg_and_yt-dlp
+COPY --chown=node:node --chmod=500 --from=temp_yt-dlp /usr/bin/yt-dlp /usr/bin/yt-dlp
+
+
+FROM base_with_ffmpeg_and_yt-dlp AS dev
+# our base image is lacking procps which is needed for the nest dev-server
+RUN \
+    --mount=type=cache,target=/var/cache/apt \
+    apt-get update && \
+    apt-get install -y procps
+WORKDIR /usr/src/app
+COPY package*.json ./
+RUN npm ci --include=dev
+# copy all app src
+COPY . .
+# need to run it in a shell in order to be able pass the signals to npm - and be able to terminate the process without waiting for the timeout.
+USER node
+CMD npm run start:youtube-downloader
+
+
+FROM node:20.11.1-bookworm-slim AS temp_prod_node_deps
+WORKDIR /usr/src/app
+# create a layer for this specific package.json and package-lock.json so we can use the cache for subsequent layers (when no changes in this layer).
+COPY package*.json ./
+RUN npm ci --only=production
+
+
+# need to install deps again, this time dev as well, cause we need the nest-cli in order to build the app. but we don't need the nest-cli in our final image.
+FROM node:20.11.1-bookworm-slim AS temp_prod_app_build
+WORKDIR /usr/src/app
+COPY package*.json ./
+RUN npm ci --include=dev
+# copy over all app src
+COPY . .
+RUN npm run build:youtube-downloader
+
+
+FROM base_with_ffmpeg_and_yt-dlp AS prod
+ARG DOWNLOADED_TRACKS_PATH
+ARG CONVERTED_TRACKS_PATH
+WORKDIR /usr/src/app
+ENV NODE_ENV=production
+# make the necessary dirs and set the permission to use with the node user
+RUN mkdir ${DOWNLOADED_TRACKS_PATH} && \
+    chown -R node:node ${DOWNLOADED_TRACKS_PATH}
+RUN mkdir ${CONVERTED_TRACKS_PATH} && \
+    chown -R node:node ${CONVERTED_TRACKS_PATH}
+# Run the app as a non-root user.
+USER node
+# while copying, change files' ownership to node user as well
+COPY --chown=node:node --from=temp_prod_app_build /usr/src/app/dist/apps/youtube-downloader /usr/src/app/dist/apps/youtube-downloader
+COPY --chown=node:node --from=temp_prod_node_deps /usr/src/app/node_modules /usr/src/app/node_modules
+CMD ["node", "dist/apps/youtube-downloader/main"]

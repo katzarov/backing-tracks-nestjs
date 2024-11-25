@@ -37,12 +37,10 @@ services:
         build:
             context: .
             target: prod
-            dockerfile: ./Dockerfile
+            dockerfile: ./Dockerfile.ytdl
             args:
-                - TARGET_APP=youtube-downloader
                 - DOWNLOADED_TRACKS_PATH=${DOWNLOADED_TRACKS_PATH}
                 - CONVERTED_TRACKS_PATH=${CONVERTED_TRACKS_PATH}
-        command: [ "node", "dist/apps/youtube-downloader/main" ]
         volumes:
             - downloaded-tracks:/usr/src/app/${DOWNLOADED_TRACKS_PATH}
             - converted-tracks:/usr/src/app/${CONVERTED_TRACKS_PATH}
