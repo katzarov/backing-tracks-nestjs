@@ -37,7 +37,7 @@ RUN npm ci --include=dev
 # copy over all app src
 COPY . .
 RUN npm run build:api && \
-    npm run build:youtube-downloader
+    npm run build:ytdl
 
 
 FROM base as prod

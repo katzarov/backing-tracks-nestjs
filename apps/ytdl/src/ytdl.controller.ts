@@ -11,7 +11,7 @@ import {
 } from '@app/shared/microservices';
 
 @Controller()
-export class YoutubeController {
+export class YtdlController {
   constructor(
     private readonly youtubeDownloaderService: YoutubeDownloaderService,
     private readonly ffmpegService: FfmpegService,

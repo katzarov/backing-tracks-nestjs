@@ -19,13 +19,13 @@
         "tsConfigPath": "apps/api/tsconfig.app.json"
       }
     },
-    "youtube-downloader": {
+    "ytdl": {
       "type": "application",
-      "root": "apps/youtube-downloader",
+      "root": "apps/ytdl",
       "entryFile": "main",
-      "sourceRoot": "apps/youtube-downloader/src",
+      "sourceRoot": "apps/ytdl/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/youtube-downloader/tsconfig.app.json"
+        "tsConfigPath": "apps/ytdl/tsconfig.app.json"
       }
     },
     "track-storage": {

@@ -14,10 +14,10 @@ export const apiConfig = () => ({
   },
 });
 
-export const youtubeDownloaderConfig = () => ({
-  youtubeDownloader: {
-    host: process.env.YOUTUBE_DOWNLOADER_HOST,
-    port: parseInt(process.env.YOUTUBE_DOWNLOADER_PORT, 10),
+export const ytdlConfig = () => ({
+  ytdl: {
+    host: process.env.YTDL_HOST,
+    port: parseInt(process.env.YTDL_PORT, 10),
   },
 });
 

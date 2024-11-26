@@ -16,27 +16,27 @@ services:
         environment:
             API_HOST: 0.0.0.0
             POSTGRES_HOST: pg-db
-            YOUTUBE_DOWNLOADER_HOST: youtube-downloader
+            YTDL_HOST: ytdl
         networks:
             - db
             - microservices
         depends_on:
             - pg-db
-            - youtube-downloader
+            - ytdl
 
-    youtube-downloader:
-        container_name: ${COMPOSE_PROJECT_NAME}-youtube-downloader
+    ytdl:
+        container_name: ${COMPOSE_PROJECT_NAME}-ytdl
         build:
             context: .
             target: dev
             dockerfile: ./Dockerfile.ytdl
         ports:
-            - '${YOUTUBE_DOWNLOADER_PORT}:${YOUTUBE_DOWNLOADER_PORT}'
+            - '${YTDL_PORT}:${YTDL_PORT}'
         volumes:
             - nodemodules:/usr/src/app/node_modules
             - .:/usr/src/app
         environment:
-            YOUTUBE_DOWNLOADER_HOST: 0.0.0.0
+            YTDL_HOST: 0.0.0.0
         networks:
             - microservices
 

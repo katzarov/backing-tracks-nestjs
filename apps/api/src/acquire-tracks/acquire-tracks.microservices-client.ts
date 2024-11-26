@@ -18,13 +18,13 @@ import {
 } from '@nestjs/common';
 
 /**
- * Encapsulates communication with the youtube microservice. (Converts microservice observable responses to promises).
+ * Encapsulates communication with the ytdl microservice. (Converts microservice observable responses to promises).
  *
  */
 // NOTE: send() method returns a "cold observable", which means that you have to explicitly subscribe to it before the message will be sent.
 // NOTE: lastValueFrom() subscribes & converts the observables to promises. And it will return a rejected promise if the observable doesn't emit any values.
 export class AcquireTracksMicroServicesClient {
-  constructor(private youtubeService: ClientProxy) {}
+  constructor(private ytdlService: ClientProxy) {}
 
   /**
    * Gets info for youtube video.
@@ -41,7 +41,7 @@ export class AcquireTracksMicroServicesClient {
       youTubeVideoUrl: url,
     };
     const observable =
-      this.youtubeService.send<IYouTubeDownloaderApiGetYouTubeVideoInfoResponse>(
+      this.ytdlService.send<IYouTubeDownloaderApiGetYouTubeVideoInfoResponse>(
         pattern,
         payload,
       );
@@ -84,7 +84,7 @@ export class AcquireTracksMicroServicesClient {
     };
 
     const observable =
-      this.youtubeService.send<IYouTubeDownloaderApiDownloadYouTubeVideoResponse>(
+      this.ytdlService.send<IYouTubeDownloaderApiDownloadYouTubeVideoResponse>(
         pattern,
         payload,
       );
@@ -124,7 +124,7 @@ export class AcquireTracksMicroServicesClient {
       uri: trackFile.uri,
     };
     const observable =
-      this.youtubeService.send<IFileConverterApiGetAudioDurationInSecondsResponse>(
+      this.ytdlService.send<IFileConverterApiGetAudioDurationInSecondsResponse>(
         pattern,
         payload,
       );

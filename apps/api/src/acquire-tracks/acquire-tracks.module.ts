@@ -8,7 +8,7 @@ import { SpotifyService } from './spotify.service';
 import { TrackStorageModule } from '@app/track-storage';
 import { StorageConfigFactory } from '@app/track-storage/storage-config.provider';
 import { TrackRepositoryModule } from '@app/database/modules';
-import { YOUTUBE_DOWNLOADER_SERVICE_TOKEN } from './acquire-tracks.injection-tokens';
+import { YTDL_SERVICE_TOKEN } from './acquire-tracks.injection-tokens';
 
 @Module({
   imports: [
@@ -24,10 +24,10 @@ import { YOUTUBE_DOWNLOADER_SERVICE_TOKEN } from './acquire-tracks.injection-tok
     AcquireTracksService,
     SpotifyService,
     {
-      provide: YOUTUBE_DOWNLOADER_SERVICE_TOKEN,
+      provide: YTDL_SERVICE_TOKEN,
       useFactory: (configService: ConfigService) => {
-        const host = configService.getOrThrow<string>('youtubeDownloader.host');
-        const port = configService.getOrThrow<number>('youtubeDownloader.port');
+        const host = configService.getOrThrow<string>('ytdl.host');
+        const port = configService.getOrThrow<number>('ytdl.port');
 
         return ClientProxyFactory.create({
           transport: Transport.TCP,

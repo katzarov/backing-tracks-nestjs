@@ -30,11 +30,11 @@ staging:
 clean-dev-server:	loadDevServerEnv
 	docker	rm	-f	${COMPOSE_PROJECT_NAME}-api
 	docker	rmi	-f	${COMPOSE_PROJECT_NAME}-api
-	docker	rm	-f	${COMPOSE_PROJECT_NAME}-youtube-downloader
-	docker	rmi	-f	${COMPOSE_PROJECT_NAME}-youtube-downloader
+	docker	rm	-f	${COMPOSE_PROJECT_NAME}-ytdl
+	docker	rmi	-f	${COMPOSE_PROJECT_NAME}-ytdl
 
 clean-staging:	loadStagingEnv
 	docker	rm	-f	${COMPOSE_PROJECT_NAME}-api
 	docker	rmi	-f	${COMPOSE_PROJECT_NAME}-api
-	docker	rm	-f	${COMPOSE_PROJECT_NAME}-youtube-downloader
-	docker	rmi	-f	${COMPOSE_PROJECT_NAME}-youtube-downloader
+	docker	rm	-f	${COMPOSE_PROJECT_NAME}-ytdl
+	docker	rmi	-f	${COMPOSE_PROJECT_NAME}-ytdl

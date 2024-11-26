@@ -7,9 +7,9 @@
   "license": "UNLICENSED",
   "scripts": {
     "build:api": "nest build",
-    "build:youtube-downloader": "nest build youtube-downloader",
+    "build:ytdl": "nest build ytdl",
     "start:api": "nest start --watch",
-    "start:youtube-downloader": "nest start --watch youtube-downloader",
+    "start:ytdl": "nest start --watch ytdl",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",

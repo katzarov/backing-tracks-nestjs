@@ -40,7 +40,7 @@ RUN npm ci --include=dev
 COPY . .
 # need to run it in a shell in order to be able pass the signals to npm - and be able to terminate the process without waiting for the timeout.
 USER node
-CMD npm run start:youtube-downloader
+CMD npm run start:ytdl
 
 
 FROM node:20.11.1-bookworm-slim AS temp_prod_node_deps
@@ -57,7 +57,7 @@ COPY package*.json ./
 RUN npm ci --include=dev
 # copy over all app src
 COPY . .
-RUN npm run build:youtube-downloader
+RUN npm run build:ytdl
 
 
 FROM base_with_ffmpeg_and_yt-dlp AS prod
@@ -73,6 +73,6 @@ RUN mkdir ${CONVERTED_TRACKS_PATH} && \
 # Run the app as a non-root user.
 USER node
 # while copying, change files' ownership to node user as well
-COPY --chown=node:node --from=temp_prod_app_build /usr/src/app/dist/apps/youtube-downloader /usr/src/app/dist/apps/youtube-downloader
+COPY --chown=node:node --from=temp_prod_app_build /usr/src/app/dist/apps/ytdl /usr/src/app/dist/apps/ytdl
 COPY --chown=node:node --from=temp_prod_node_deps /usr/src/app/node_modules /usr/src/app/node_modules
-CMD ["node", "dist/apps/youtube-downloader/main"]
+CMD ["node", "dist/apps/ytdl/main"]
