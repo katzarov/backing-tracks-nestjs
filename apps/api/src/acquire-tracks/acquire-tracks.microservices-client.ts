@@ -109,7 +109,15 @@ export class AcquireTracksMicroServicesClient {
     }
   }
 
-  // todo document
+  /**
+   * Gets duration of audio file in seconds.
+   *
+   * @param {TrackFile} trackFile - track file obj
+   * @returns {IFileConverterApiGetAudioDurationInSecondsResponse} - status code & duration
+   *
+   * @throws {InternalServerErrorException} when internal ms / ffmpeg  error
+   * @throws {BadGatewayException} when communication with ytdl ms can't be established
+   */
   protected async getAudioDurationInSeconds(trackFile: TrackFile) {
     const pattern = { cmd: FileConverterApi.getAudioDurationInSeconds };
     const payload: IFileConverterApiGetAudioDurationInSecondsPayload = {
@@ -120,7 +128,33 @@ export class AcquireTracksMicroServicesClient {
         pattern,
         payload,
       );
-    // todo try catch
-    return await lastValueFrom(observable);
+
+    let internalMsError: InternalServerErrorException;
+
+    try {
+      const result = await lastValueFrom(observable);
+
+      if (result.status === TCPStatusCodes.Failure) {
+        internalMsError = new InternalServerErrorException(
+          'Error: Ffmpeg lib/service may be broken.',
+        );
+        throw internalMsError;
+      }
+
+      return result;
+    } catch (e) {
+      if (e === internalMsError) {
+        console.log(internalMsError.message);
+        throw e;
+      }
+
+      const msCommunicationError = new BadGatewayException(
+        'Error: YTDL microservice communication error.',
+      );
+
+      console.log(msCommunicationError.message, e);
+
+      throw msCommunicationError;
+    }
   }
 }

@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { YoutubeController } from './youtube-downloader.controller';
 import { YoutubeDownloaderService } from './youtube-downloader.service';
+import { FfmpegService } from './ffmpeg.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { youtubeDownloaderConfig, storageConfig } from 'config';
 import { TrackStorageModule } from '@app/track-storage';
@@ -25,6 +26,6 @@ import { YtDlpOptionsFactory } from '@app/yt-dlp-nestjs-module/yt-dlp.options.pr
     }),
   ],
   controllers: [YoutubeController],
-  providers: [YoutubeDownloaderService],
+  providers: [YoutubeDownloaderService, FfmpegService],
 })
 export class YoutubeDownloaderModule {}
