@@ -20,8 +20,7 @@ Check the frontend repository for general project description [frontend reposito
 This is a NestJS monorepo:
 
 - `apps/api` - HTTP REST API
-- `apps/file-converter` - TCP microservice for all ffmpeg related operations like converting files, getting details of audio files etc.
-- `apps/youtube-downloader` - TCP microservice for downloading tracks from YouTube.
+- `apps/youtube-downloader` - TCP microservice based on the yt-dlp library for downloading tracks from YouTube, and converting them to mp3 using ffmpeg.
 - `libs/database` - all database related stuff: entity/schema definitions, repositories.
 
 ## Installation

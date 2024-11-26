@@ -28,15 +28,6 @@
         "tsConfigPath": "apps/youtube-downloader/tsconfig.app.json"
       }
     },
-    "file-converter": {
-      "type": "application",
-      "root": "apps/file-converter",
-      "entryFile": "main",
-      "sourceRoot": "apps/file-converter/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/file-converter/tsconfig.app.json"
-      }
-    },
     "track-storage": {
       "type": "library",
       "root": "libs/track-storage",

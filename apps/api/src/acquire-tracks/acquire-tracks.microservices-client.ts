@@ -7,8 +7,6 @@ import {
   IYouTubeDownloaderApiGetYouTubeVideoInfoPayload,
   IYouTubeDownloaderApiDownloadYouTubeVideoPayload,
   IYouTubeDownloaderApiDownloadYouTubeVideoResponse,
-  IFileConverterApiConvertVideoToAudioPayload,
-  IFileConverterApiConvertVideoToAudioResponse,
   IFileConverterApiGetAudioDurationInSecondsPayload,
   IFileConverterApiGetAudioDurationInSecondsResponse,
   TCPStatusCodes,
@@ -20,16 +18,13 @@ import {
 } from '@nestjs/common';
 
 /**
- * Encapsulates communication with the youtube and file converter microservices. (Converts microservice observable responses to promises).
+ * Encapsulates communication with the youtube microservice. (Converts microservice observable responses to promises).
  *
  */
 // NOTE: send() method returns a "cold observable", which means that you have to explicitly subscribe to it before the message will be sent.
 // NOTE: lastValueFrom() subscribes & converts the observables to promises. And it will return a rejected promise if the observable doesn't emit any values.
 export class AcquireTracksMicroServicesClient {
-  constructor(
-    private youtubeService: ClientProxy,
-    private fileConverterService: ClientProxy,
-  ) {}
+  constructor(private youtubeService: ClientProxy) {}
 
   /**
    * Gets info for youtube video.
@@ -72,7 +67,7 @@ export class AcquireTracksMicroServicesClient {
   }
 
   /**
-   * Downloads a youtube video and saves it to local disk.
+   * Downloads a youtube video, converts it to mp3, and saves it to local disk.
    *
    * @param {string} url - youtube video url
    * @param {TrackFile} trackFile - track file obj
@@ -114,29 +109,18 @@ export class AcquireTracksMicroServicesClient {
     }
   }
 
-  protected async convert(trackFile: TrackFile) {
-    const pattern = { cmd: FileConverterApi.convertVideoToAudio };
-    const payload: IFileConverterApiConvertVideoToAudioPayload = {
-      uri: trackFile.uri,
-    };
-    const observable =
-      this.fileConverterService.send<IFileConverterApiConvertVideoToAudioResponse>(
-        pattern,
-        payload,
-      );
-    return await lastValueFrom(observable);
-  }
-
+  // todo document
   protected async getAudioDurationInSeconds(trackFile: TrackFile) {
     const pattern = { cmd: FileConverterApi.getAudioDurationInSeconds };
     const payload: IFileConverterApiGetAudioDurationInSecondsPayload = {
       uri: trackFile.uri,
     };
     const observable =
-      this.fileConverterService.send<IFileConverterApiGetAudioDurationInSecondsResponse>(
+      this.youtubeService.send<IFileConverterApiGetAudioDurationInSecondsResponse>(
         pattern,
         payload,
       );
+    // todo try catch
     return await lastValueFrom(observable);
   }
 }

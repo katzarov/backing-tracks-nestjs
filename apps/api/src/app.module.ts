@@ -5,7 +5,6 @@ import {
   apiConfig,
   databaseConfig,
   youtubeDownloaderConfig,
-  fileConverterConfig,
   storageConfig,
 } from 'config';
 import { DatabaseModule } from '@app/database'; // keep this above all other user modules
@@ -19,13 +18,7 @@ import { PlaylistsModule } from './playlists/playlists.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [
-        apiConfig,
-        databaseConfig,
-        youtubeDownloaderConfig,
-        fileConverterConfig,
-        storageConfig,
-      ],
+      load: [apiConfig, databaseConfig, youtubeDownloaderConfig, storageConfig],
       envFilePath: ['.env.nest', '.env.secret'],
     }),
     DatabaseModule,

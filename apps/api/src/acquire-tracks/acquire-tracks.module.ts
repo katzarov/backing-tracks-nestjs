@@ -8,10 +8,7 @@ import { SpotifyService } from './spotify.service';
 import { TrackStorageModule } from '@app/track-storage';
 import { StorageConfigFactory } from '@app/track-storage/storage-config.provider';
 import { TrackRepositoryModule } from '@app/database/modules';
-import {
-  YOUTUBE_DOWNLOADER_SERVICE_TOKEN,
-  FILE_CONVERTER_SERVICE_TOKEN,
-} from './acquire-tracks.injection-tokens';
+import { YOUTUBE_DOWNLOADER_SERVICE_TOKEN } from './acquire-tracks.injection-tokens';
 
 @Module({
   imports: [
@@ -31,19 +28,6 @@ import {
       useFactory: (configService: ConfigService) => {
         const host = configService.getOrThrow<string>('youtubeDownloader.host');
         const port = configService.getOrThrow<number>('youtubeDownloader.port');
-
-        return ClientProxyFactory.create({
-          transport: Transport.TCP,
-          options: { host, port },
-        });
-      },
-      inject: [ConfigService],
-    },
-    {
-      provide: FILE_CONVERTER_SERVICE_TOKEN,
-      useFactory: (configService: ConfigService) => {
-        const host = configService.getOrThrow<string>('fileConverter.host');
-        const port = configService.getOrThrow<number>('fileConverter.port');
 
         return ClientProxyFactory.create({
           transport: Transport.TCP,

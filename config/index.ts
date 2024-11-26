@@ -21,13 +21,6 @@ export const youtubeDownloaderConfig = () => ({
   },
 });
 
-export const fileConverterConfig = () => ({
-  fileConverter: {
-    host: process.env.FILE_CONVERTER_HOST,
-    port: parseInt(process.env.FILE_CONVERTER_PORT, 10),
-  },
-});
-
 export const databaseConfig = () => ({
   database: {
     name: process.env.POSTGRES_DB,

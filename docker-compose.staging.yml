@@ -23,14 +23,12 @@ services:
             API_HOST: 0.0.0.0
             POSTGRES_HOST: pg-db
             YOUTUBE_DOWNLOADER_HOST: youtube-downloader
-            FILE_CONVERTER_HOST: file-converter
         networks:
             - db
             - microservices
         depends_on:
             - pg-db
             - youtube-downloader
-            - file-converter
 
     youtube-downloader:
         container_name: ${COMPOSE_PROJECT_NAME}-youtube-downloader
@@ -51,30 +49,6 @@ services:
             - .env.secret
         environment:
             YOUTUBE_DOWNLOADER_HOST: 0.0.0.0
-        networks:
-            - microservices
-
-    file-converter:
-        container_name: ${COMPOSE_PROJECT_NAME}-file-converter
-        build:
-            context: .
-            target: prod
-            dockerfile: ./Dockerfile
-            args:
-                - TARGET_APP=file-converter
-                - DOWNLOADED_TRACKS_PATH=${DOWNLOADED_TRACKS_PATH}
-                - CONVERTED_TRACKS_PATH=${CONVERTED_TRACKS_PATH}
-        command: [ "node", "dist/apps/file-converter/main" ]
-        volumes:
-            - downloaded-tracks:/usr/src/app/${DOWNLOADED_TRACKS_PATH}
-            - converted-tracks:/usr/src/app/${CONVERTED_TRACKS_PATH}
-        ports:
-            - '${FILE_CONVERTER_PORT}:${FILE_CONVERTER_PORT}'
-        env_file:
-            - .env.staging
-            - .env.secret
-        environment:
-            FILE_CONVERTER_HOST: 0.0.0.0
         networks:
             - microservices
 
