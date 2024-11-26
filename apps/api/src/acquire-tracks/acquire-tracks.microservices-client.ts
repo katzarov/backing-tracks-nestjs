@@ -1,14 +1,13 @@
 import { ClientProxy } from '@nestjs/microservices';
 import type { TrackFile } from '@app/track-storage';
 import {
-  YouTubeDownloaderApi,
-  FileConverterApi,
-  IYouTubeDownloaderApiGetYouTubeVideoInfoResponse,
-  IYouTubeDownloaderApiGetYouTubeVideoInfoPayload,
-  IYouTubeDownloaderApiDownloadYouTubeVideoPayload,
-  IYouTubeDownloaderApiDownloadYouTubeVideoResponse,
-  IFileConverterApiGetAudioDurationInSecondsPayload,
-  IFileConverterApiGetAudioDurationInSecondsResponse,
+  YtdlApi,
+  IYtdlApiGetYouTubeVideoInfoResponse,
+  IYtdlApiGetYouTubeVideoInfoPayload,
+  IYtdlApiDownloadYouTubeVideoPayload,
+  IYtdlApiDownloadYouTubeVideoResponse,
+  IYtdlApiGetAudioDurationInSecondsPayload,
+  IYtdlApiGetAudioDurationInSecondsResponse,
   TCPStatusCodes,
 } from '@app/shared/microservices';
 import { lastValueFrom } from 'rxjs';
@@ -30,18 +29,18 @@ export class AcquireTracksMicroServicesClient {
    * Gets info for youtube video.
    *
    * @param {string} url - youtube video url
-   * @returns {IYouTubeDownloaderApiGetYouTubeVideoInfoResponse} - status code & video info
+   * @returns {IYtdlApiGetYouTubeVideoInfoResponse} - status code & video info
    *
    * @throws {InternalServerErrorException} when ytdl lib is broken
    * @throws {BadGatewayException} when communication with ytdl ms can't be established
    */
   protected async getVideoInfo(url: string) {
-    const pattern = { cmd: YouTubeDownloaderApi.getYouTubeVideoInfo };
-    const payload: IYouTubeDownloaderApiGetYouTubeVideoInfoPayload = {
+    const pattern = { cmd: YtdlApi.getYouTubeVideoInfo };
+    const payload: IYtdlApiGetYouTubeVideoInfoPayload = {
       youTubeVideoUrl: url,
     };
     const observable =
-      this.ytdlService.send<IYouTubeDownloaderApiGetYouTubeVideoInfoResponse>(
+      this.ytdlService.send<IYtdlApiGetYouTubeVideoInfoResponse>(
         pattern,
         payload,
       );
@@ -71,20 +70,20 @@ export class AcquireTracksMicroServicesClient {
    *
    * @param {string} url - youtube video url
    * @param {TrackFile} trackFile - track file obj
-   * @returns {IYouTubeDownloaderApiDownloadYouTubeVideoResponse} - status code
+   * @returns {IYtdlApiDownloadYouTubeVideoResponse} - status code
    *
    * @throws {InternalServerErrorException} when ytdl lib is broken
    * @throws {BadGatewayException} when communication with ytdl ms can't be established
    */
   protected async download(url: string, trackFile: TrackFile) {
-    const pattern = { cmd: YouTubeDownloaderApi.downloadYouTubeVideo };
-    const payload: IYouTubeDownloaderApiDownloadYouTubeVideoPayload = {
+    const pattern = { cmd: YtdlApi.downloadYouTubeVideo };
+    const payload: IYtdlApiDownloadYouTubeVideoPayload = {
       youTubeVideoUrl: url,
       uri: trackFile.uri,
     };
 
     const observable =
-      this.ytdlService.send<IYouTubeDownloaderApiDownloadYouTubeVideoResponse>(
+      this.ytdlService.send<IYtdlApiDownloadYouTubeVideoResponse>(
         pattern,
         payload,
       );
@@ -113,18 +112,18 @@ export class AcquireTracksMicroServicesClient {
    * Gets duration of audio file in seconds.
    *
    * @param {TrackFile} trackFile - track file obj
-   * @returns {IFileConverterApiGetAudioDurationInSecondsResponse} - status code & duration
+   * @returns {IYtdlApiGetAudioDurationInSecondsResponse} - status code & duration
    *
    * @throws {InternalServerErrorException} when internal ms / ffmpeg  error
    * @throws {BadGatewayException} when communication with ytdl ms can't be established
    */
   protected async getAudioDurationInSeconds(trackFile: TrackFile) {
-    const pattern = { cmd: FileConverterApi.getAudioDurationInSeconds };
-    const payload: IFileConverterApiGetAudioDurationInSecondsPayload = {
+    const pattern = { cmd: YtdlApi.getAudioDurationInSeconds };
+    const payload: IYtdlApiGetAudioDurationInSecondsPayload = {
       uri: trackFile.uri,
     };
     const observable =
-      this.ytdlService.send<IFileConverterApiGetAudioDurationInSecondsResponse>(
+      this.ytdlService.send<IYtdlApiGetAudioDurationInSecondsResponse>(
         pattern,
         payload,
       );

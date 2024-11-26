@@ -1,21 +1,27 @@
 import { TCPMicroserviceResponse } from './tcp.status-codes';
 
-export class YouTubeDownloaderApi {
+export class YtdlApi {
   /**
    * Returns info about the youtube donwload
    */
   static getYouTubeVideoInfo = 'getYouTubeVideoInfo';
+
   /**
    * Initiates download
    */
   static downloadYouTubeVideo = 'downloadYouTubeVideo';
+
+  /**
+   * Return the duration of an mp3 in seconds.
+   */
+  static getAudioDurationInSeconds = 'getAudioDurationInSeconds';
 }
 
-export interface IYouTubeDownloaderApiGetYouTubeVideoInfoPayload {
+export interface IYtdlApiGetYouTubeVideoInfoPayload {
   youTubeVideoUrl: string;
 }
 
-export interface IYouTubeDownloaderApiGetYouTubeVideoInfoResponse
+export interface IYtdlApiGetYouTubeVideoInfoResponse
   extends TCPMicroserviceResponse {
   title?: string;
   channel?: string;
@@ -23,10 +29,19 @@ export interface IYouTubeDownloaderApiGetYouTubeVideoInfoResponse
   thumbnailUrl?: string;
 }
 
-export interface IYouTubeDownloaderApiDownloadYouTubeVideoPayload {
+export interface IYtdlApiDownloadYouTubeVideoPayload {
   youTubeVideoUrl: string;
   uri: string;
 }
 
-export interface IYouTubeDownloaderApiDownloadYouTubeVideoResponse
+export interface IYtdlApiDownloadYouTubeVideoResponse
   extends TCPMicroserviceResponse {}
+
+export interface IYtdlApiGetAudioDurationInSecondsPayload {
+  uri: string;
+}
+
+export interface IYtdlApiGetAudioDurationInSecondsResponse
+  extends TCPMicroserviceResponse {
+  duration?: number | null;
+}

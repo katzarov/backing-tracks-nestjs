@@ -3,11 +3,10 @@ import { YoutubeDownloaderService } from './youtube-downloader.service';
 import { FfmpegService } from './ffmpeg.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import {
-  FileConverterApi,
-  IFileConverterApiGetAudioDurationInSecondsPayload,
-  IYouTubeDownloaderApiDownloadYouTubeVideoPayload,
-  IYouTubeDownloaderApiGetYouTubeVideoInfoPayload,
-  YouTubeDownloaderApi,
+  YtdlApi,
+  IYtdlApiGetAudioDurationInSecondsPayload,
+  IYtdlApiDownloadYouTubeVideoPayload,
+  IYtdlApiGetYouTubeVideoInfoPayload,
 } from '@app/shared/microservices';
 
 @Controller()
@@ -17,23 +16,21 @@ export class YtdlController {
     private readonly ffmpegService: FfmpegService,
   ) {}
 
-  @MessagePattern({ cmd: YouTubeDownloaderApi.getYouTubeVideoInfo })
-  getYouTubeVideoInfo(
-    @Payload() payload: IYouTubeDownloaderApiGetYouTubeVideoInfoPayload,
-  ) {
+  @MessagePattern({ cmd: YtdlApi.getYouTubeVideoInfo })
+  getYouTubeVideoInfo(@Payload() payload: IYtdlApiGetYouTubeVideoInfoPayload) {
     return this.youtubeDownloaderService.getYouTubeVideoInfo(payload);
   }
 
-  @MessagePattern({ cmd: YouTubeDownloaderApi.downloadYouTubeVideo })
+  @MessagePattern({ cmd: YtdlApi.downloadYouTubeVideo })
   downloadYouTubeVideo(
-    @Payload() payload: IYouTubeDownloaderApiDownloadYouTubeVideoPayload,
+    @Payload() payload: IYtdlApiDownloadYouTubeVideoPayload,
   ) {
     return this.youtubeDownloaderService.downloadYouTubeVideo(payload);
   }
 
-  @MessagePattern({ cmd: FileConverterApi.getAudioDurationInSeconds })
+  @MessagePattern({ cmd: YtdlApi.getAudioDurationInSeconds })
   getAudioDurationInSeconds(
-    @Payload() payload: IFileConverterApiGetAudioDurationInSecondsPayload,
+    @Payload() payload: IYtdlApiGetAudioDurationInSecondsPayload,
   ) {
     return this.ffmpegService.getAudioDurationInSeconds(payload);
   }

@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import {
-  IYouTubeDownloaderApiGetYouTubeVideoInfoPayload,
-  IYouTubeDownloaderApiGetYouTubeVideoInfoResponse,
-  IYouTubeDownloaderApiDownloadYouTubeVideoPayload,
-  IYouTubeDownloaderApiDownloadYouTubeVideoResponse,
+  IYtdlApiGetYouTubeVideoInfoPayload,
+  IYtdlApiGetYouTubeVideoInfoResponse,
+  IYtdlApiDownloadYouTubeVideoPayload,
+  IYtdlApiDownloadYouTubeVideoResponse,
   TCPStatusCodes,
 } from '@app/shared/microservices';
 import { YtDlpService } from '@app/yt-dlp-nestjs-module';
@@ -14,8 +14,8 @@ export class YoutubeDownloaderService {
   constructor(private ytDlpService: YtDlpService) {}
 
   async getYouTubeVideoInfo(
-    payload: IYouTubeDownloaderApiGetYouTubeVideoInfoPayload,
-  ): Promise<IYouTubeDownloaderApiGetYouTubeVideoInfoResponse> {
+    payload: IYtdlApiGetYouTubeVideoInfoPayload,
+  ): Promise<IYtdlApiGetYouTubeVideoInfoResponse> {
     try {
       const ytdlp = this.ytDlpService.YtDlp(payload.youTubeVideoUrl);
       const info = await ytdlp.getInfo();
@@ -38,8 +38,8 @@ export class YoutubeDownloaderService {
   }
 
   async downloadYouTubeVideo(
-    payload: IYouTubeDownloaderApiDownloadYouTubeVideoPayload,
-  ): Promise<IYouTubeDownloaderApiDownloadYouTubeVideoResponse> {
+    payload: IYtdlApiDownloadYouTubeVideoPayload,
+  ): Promise<IYtdlApiDownloadYouTubeVideoResponse> {
     try {
       const ytdlp = this.ytDlpService.YtDlp(payload.youTubeVideoUrl);
 

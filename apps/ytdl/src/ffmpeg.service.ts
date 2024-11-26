@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { ffprobe, FfprobeData } from 'fluent-ffmpeg';
 import { TrackStorageService } from '@app/track-storage';
 import {
-  IFileConverterApiGetAudioDurationInSecondsPayload,
-  IFileConverterApiGetAudioDurationInSecondsResponse,
+  IYtdlApiGetAudioDurationInSecondsPayload,
+  IYtdlApiGetAudioDurationInSecondsResponse,
   TCPStatusCodes,
 } from '@app/shared/microservices';
 
@@ -12,8 +12,8 @@ export class FfmpegService {
   constructor(private trackStorageService: TrackStorageService) {}
 
   getAudioDurationInSeconds(
-    payload: IFileConverterApiGetAudioDurationInSecondsPayload,
-  ): Promise<IFileConverterApiGetAudioDurationInSecondsResponse> {
+    payload: IYtdlApiGetAudioDurationInSecondsPayload,
+  ): Promise<IYtdlApiGetAudioDurationInSecondsResponse> {
     const trackDiskPath = this.trackStorageService
       .createTrackFromUri(payload.uri)
       .getTrackDiskPath();
