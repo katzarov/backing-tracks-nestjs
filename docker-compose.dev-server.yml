@@ -5,9 +5,7 @@ services:
         build:
             context: .
             target: dev
-            dockerfile: ./Dockerfile
-            args:
-                - TARGET_APP=api
+            dockerfile: ./Dockerfile.api
         ports:
             - '${API_PORT}:${API_PORT}'
         volumes:
@@ -41,8 +39,7 @@ services:
             - microservices
 
     pg-db:
-        # TODO: specify ver
-        image: postgres
+        image: postgres:16
         container_name: ${COMPOSE_PROJECT_NAME}-pg-db
         restart: unless-stopped
         environment:
