@@ -18,16 +18,42 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@app/track-storage": ["libs/track-storage/src"],
-      "@app/track-storage/*": ["libs/track-storage/src/*"],
-      "@app/database": ["libs/database/src"],
-      "@app/database/*": ["libs/database/src/*"],
-      "@app/shared": ["libs/shared/src"],
-      "@app/shared/*": ["libs/shared/src/*"],
-      "@app/yt-dlp": ["libs/yt-dlp/src"],
-      "@app/yt-dlp/*": ["libs/yt-dlp/src/*"],
-      "@app/yt-dlp-nestjs-module": ["libs/yt-dlp-nestjs-module/src"],
-      "@app/yt-dlp-nestjs-module/*": ["libs/yt-dlp-nestjs-module/src/*"]
+      "@app/track-storage": [
+        "libs/track-storage/src"
+      ],
+      "@app/track-storage/*": [
+        "libs/track-storage/src/*"
+      ],
+      "@app/database": [
+        "libs/database/src"
+      ],
+      "@app/database/*": [
+        "libs/database/src/*"
+      ],
+      "@app/shared": [
+        "libs/shared/src"
+      ],
+      "@app/shared/*": [
+        "libs/shared/src/*"
+      ],
+      "@app/yt-dlp": [
+        "libs/yt-dlp/src"
+      ],
+      "@app/yt-dlp/*": [
+        "libs/yt-dlp/src/*"
+      ],
+      "@app/yt-dlp-nestjs-module": [
+        "libs/yt-dlp-nestjs-module/src"
+      ],
+      "@app/yt-dlp-nestjs-module/*": [
+        "libs/yt-dlp-nestjs-module/src/*"
+      ],
+      "@app/job-queue": [
+        "libs/job-queue/src"
+      ],
+      "@app/job-queue/*": [
+        "libs/job-queue/src/*"
+      ]
     }
   }
 }

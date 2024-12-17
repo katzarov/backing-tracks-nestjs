@@ -72,6 +72,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/yt-dlp-nestjs-module/tsconfig.lib.json"
       }
+    },
+    "job-queue": {
+      "type": "library",
+      "root": "libs/job-queue",
+      "entryFile": "index",
+      "sourceRoot": "libs/job-queue/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/job-queue/tsconfig.lib.json"
+      }
     }
   }
 }
