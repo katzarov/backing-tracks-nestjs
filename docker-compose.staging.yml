@@ -20,6 +20,7 @@ services:
             - .env.secret
         environment:
             API_HOST: 0.0.0.0
+            REDIS_HOST: redis
             POSTGRES_HOST: pg-db
             YTDL_HOST: ytdl
         networks:
@@ -27,6 +28,7 @@ services:
             - microservices
         depends_on:
             - pg-db
+            - redis
             - ytdl
 
     ytdl:
@@ -48,6 +50,20 @@ services:
             - .env.secret
         environment:
             YTDL_HOST: 0.0.0.0
+            REDIS_HOST: redis
+        networks:
+            - microservices
+
+    redis:
+        image: redis/redis-stack-server:latest
+        container_name: ${COMPOSE_PROJECT_NAME}-redis
+        restart: unless-stopped
+        ports:
+            - '${REDIS_PORT}:6379'
+        environment:
+            REDIS_ARGS: "--maxmemory-policy noeviction"
+        volumes:
+            - redis-data:/data
         networks:
             - microservices
 
@@ -78,6 +94,8 @@ volumes:
     converted-tracks:
         driver: local
     pg-db-data:
+        driver: local
+    redis-data:
         driver: local
 
 networks:

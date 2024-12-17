@@ -13,6 +13,7 @@ services:
             - .:/usr/src/app
         environment:
             API_HOST: 0.0.0.0
+            REDIS_HOST: redis
             POSTGRES_HOST: pg-db
             YTDL_HOST: ytdl
         networks:
@@ -20,6 +21,7 @@ services:
             - microservices
         depends_on:
             - pg-db
+            - redis
             - ytdl
 
     ytdl:
@@ -35,6 +37,23 @@ services:
             - .:/usr/src/app
         environment:
             YTDL_HOST: 0.0.0.0
+            REDIS_HOST: redis
+        networks:
+            - microservices
+
+    redis:
+        # for prod use redis/redis-stack-server:latest which does not include redis insight
+        # https://docs.bullmq.io/guide/connections
+        image: redis/redis-stack:latest
+        container_name: ${COMPOSE_PROJECT_NAME}-redis
+        restart: unless-stopped
+        ports:
+            - '${REDIS_PORT}:6379'
+            - '${REDIS_INSIGHT_PORT}:8001'
+        environment:
+            REDIS_ARGS: "--maxmemory-policy noeviction"
+        volumes:
+            - redis-data:/data
         networks:
             - microservices
 
@@ -77,10 +96,13 @@ services:
 volumes:
     pg-db-data:
         driver: local
+    redis-data:
+        driver: local
     nodemodules:
         external: true
     # pg-admin-data:
     # driver: local
+    # TODO dont use host binded volumes for the donwloands/converted
 
 networks:
     db:

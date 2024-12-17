@@ -21,6 +21,13 @@ export const ytdlConfig = () => ({
   },
 });
 
+export const redisConfig = () => ({
+  redis: {
+    host: process.env.REDIS_HOST,
+    port: parseInt(process.env.REDIS_PORT, 10),
+  },
+});
+
 export const databaseConfig = () => ({
   database: {
     name: process.env.POSTGRES_DB,
