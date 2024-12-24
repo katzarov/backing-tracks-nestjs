@@ -15,6 +15,7 @@ import { AcquireTracksModule } from './acquire-tracks/acquire-tracks.module';
 import { TracksModule } from './tracks/tracks.module';
 import { AuthGuard } from './auth/auth.guard';
 import { PlaylistsModule } from './playlists/playlists.module';
+import { EventsModule } from '@app/shared/events';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { PlaylistsModule } from './playlists/playlists.module';
       load: [apiConfig, redisConfig, databaseConfig, ytdlConfig, storageConfig],
       envFilePath: ['.env.nest', '.env.secret'],
     }),
+    EventsModule,
     BullModule.forRootAsync({
       useFactory: (configService: ConfigService) => {
         const host = configService.getOrThrow<string>('redis.host');
