@@ -87,7 +87,7 @@ export class SpotifyService {
     return resultForClient;
   }
 
-  async getTrack(spotifyId: string) {
+  async getTrackInfo(spotifyId: string) {
     const trackInfo = await this.spotifyApi.tracks.get(
       spotifyId,
       spotifyMarket,

@@ -16,6 +16,7 @@ import { TracksModule } from './tracks/tracks.module';
 import { AuthGuard } from './auth/auth.guard';
 import { PlaylistsModule } from './playlists/playlists.module';
 import { EventsModule } from '@app/shared/events';
+import { YtdlQueueEventsListenerModule } from '@app/job-queue/ytdl-queue.events-listener.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { EventsModule } from '@app/shared/events';
       },
       inject: [ConfigService],
     }),
+    YtdlQueueEventsListenerModule,
     DatabaseModule,
     UserRepositoryModule, // needed for the global auth guard, which uses the userRepository
     AcquireTracksModule,

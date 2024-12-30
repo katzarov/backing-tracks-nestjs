@@ -9,6 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { TrackRepository } from '@app/database/repositories';
 import { YTDL_SERVICE_TOKEN } from './acquire-tracks.injection-tokens';
 import { AcquireTracksMicroServicesClient } from './acquire-tracks.microservices-client';
+import { YtdlQueueService } from '@app/job-queue';
 
 @Injectable()
 export class AcquireTracksService extends AcquireTracksMicroServicesClient {
@@ -16,6 +17,7 @@ export class AcquireTracksService extends AcquireTracksMicroServicesClient {
 
   constructor(
     @Inject(YTDL_SERVICE_TOKEN) ytdlService: ClientProxy,
+    private ytdlQueueService: YtdlQueueService,
     private trackRepository: TrackRepository,
     private spotifyService: SpotifyService,
     private trackStorageService: TrackStorageService,
@@ -37,7 +39,7 @@ export class AcquireTracksService extends AcquireTracksMicroServicesClient {
     trackDuration: number | null,
   ) {
     const { trackInfo, albumArt } =
-      await this.spotifyService.getTrack(spotifyId);
+      await this.spotifyService.getTrackInfo(spotifyId);
 
     const artistId = trackInfo.artists[0].id;
     const artistName = trackInfo.artists[0].name;
@@ -88,31 +90,37 @@ export class AcquireTracksService extends AcquireTracksMicroServicesClient {
     };
   }
 
+  // TODO rename to addYoutubeDownloadJob
   async downloadYouTubeVideo(
     userId: number,
     { url, spotifyId, trackType, trackInstrument }: DownloadYouTubeVideoDto,
   ) {
     const trackFile = this.trackStorageService.createTrack();
 
-    await this.download(url, trackFile);
+    const { trackInfo, albumArt } =
+      await this.spotifyService.getTrackInfo(spotifyId);
 
-    const { duration: trackDuration } =
-      await this.getAudioDurationInSeconds(trackFile);
+    // TODO do this in spotify service itself.
+    const artistId = trackInfo.artists[0].id;
+    const artistName = trackInfo.artists[0].name;
 
-    // TODO: at some point this decision - save to disk or s3 or both will be handled entirely by the storage lib.
-    if (this.isS3Enabled) {
-      await trackFile.saveTrackToS3(trackFile.getTrackFromDisk());
-    }
-
-    const newTrackInfo = await this.createAndSaveTrackEntry(
+    await this.ytdlQueueService.addYtdlJob({
       userId,
-      trackFile.uri,
-      spotifyId,
-      trackType,
-      trackInstrument,
-      trackDuration,
-    );
-    console.log(newTrackInfo);
+      ytUrl: url,
+      trackUri: trackFile.uri,
+      meta: {
+        spotify: {
+          trackUri: spotifyId,
+          trackName: trackInfo.name,
+          trackDuration: trackInfo.duration_ms / 1000,
+          artistUri: artistId,
+          artistName: artistName,
+          albumArt,
+        },
+        trackType,
+        trackInstrument,
+      },
+    });
   }
 
   async uploadTrack(

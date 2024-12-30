@@ -10,6 +10,7 @@ import {
   ParseFilePipe,
   MaxFileSizeValidator,
   FileTypeValidator,
+  HttpCode,
 } from '@nestjs/common';
 import { AcquireTracksService } from './acquire-tracks.service';
 import { DownloadYouTubeVideoDto } from './dto/download-youtube-video.dto';
@@ -34,7 +35,8 @@ export class AcquireTracksController {
     return this.acquireTracksService.getYouTubeVideoInfo(url);
   }
 
-  @Post('youtube/download')
+  @Post('youtube/addJob')
+  @HttpCode(202)
   downloadYouTubeVideo(
     @AuthenticatedUser() userId: number,
     @Body() downloadYouTubeVideoDto: DownloadYouTubeVideoDto,

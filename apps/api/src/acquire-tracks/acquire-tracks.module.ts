@@ -9,6 +9,8 @@ import { TrackStorageModule } from '@app/track-storage';
 import { StorageConfigFactory } from '@app/track-storage/storage-config.provider';
 import { TrackRepositoryModule } from '@app/database/modules';
 import { YTDL_SERVICE_TOKEN } from './acquire-tracks.injection-tokens';
+import { YtdlQueueModule } from '@app/job-queue';
+import { AcquireTracksOnYtdlQueueEvents } from './acquire-tracks.on-ytdl-queue-events';
 
 @Module({
   imports: [
@@ -18,6 +20,7 @@ import { YTDL_SERVICE_TOKEN } from './acquire-tracks.injection-tokens';
       useFactory: StorageConfigFactory,
       inject: [ConfigService],
     }),
+    YtdlQueueModule,
   ],
   controllers: [AcquireTracksController],
   providers: [
@@ -36,6 +39,7 @@ import { YTDL_SERVICE_TOKEN } from './acquire-tracks.injection-tokens';
       },
       inject: [ConfigService],
     },
+    AcquireTracksOnYtdlQueueEvents,
   ],
 })
 export class AcquireTracksModule {}

@@ -10,7 +10,7 @@ import {
 import { Track } from './track.entity';
 import { Artist } from './artist.entity';
 
-interface IAlbumArtImage {
+export interface IAlbumArtImage {
   url: string;
   width: number;
   height: number;
