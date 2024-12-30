@@ -29,9 +29,9 @@ Check the frontend repository for general project description [frontend reposito
 This is a NestJS monorepo:
 
 - `apps/api` - HTTP REST API. All the standard CRUD stuff. Authentication, mTLS, and few other things, are already handled before a request lands here.
-- `apps/ytdl` - TCP microservice. **Ytdl** stands for YouTube DownLoader, and this is what this service is mostly about. It is based on the **yt-dlp** library for downloading tracks from YouTube, and converting them to mp3 using **ffmpeg**. And since it already has ffmpeg as a dependancy, we also use it for a couple strictly ffmpeg related tasks.
+- `apps/ytdl` - TCP microservice & job processor. **Ytdl** stands for **Y**ou**T**ube **D**own**L**oader, and this is what this service is mostly about. It is based on the **yt-dlp** library for downloading tracks from YouTube, and converting them to mp3 using **ffmpeg**. And since it already has ffmpeg as a dependancy, we also use it for a couple strictly ffmpeg related tasks.
 - `libs/database` - all database related stuff: entity/schema definitions, repositories.
-- `libs/job-queue` - all BullMQ related stuff.
+- `libs/job-queue` - all BullMQ related stuff. Mainly a thin wrapper for publishing youtube download jobs, some common read operations on the queue, and some queue event listeners.
 - `libs` - in general, a lot of (core) code lives there.
 
 ## Installation

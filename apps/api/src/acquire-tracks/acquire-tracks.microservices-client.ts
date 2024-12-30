@@ -4,8 +4,6 @@ import {
   YtdlApi,
   IYtdlApiGetYouTubeVideoInfoResponse,
   IYtdlApiGetYouTubeVideoInfoPayload,
-  IYtdlApiDownloadYouTubeVideoPayload,
-  IYtdlApiDownloadYouTubeVideoResponse,
   IYtdlApiGetAudioDurationInSecondsPayload,
   IYtdlApiGetAudioDurationInSecondsResponse,
   TCPStatusCodes,
@@ -41,49 +39,6 @@ export class AcquireTracksMicroServicesClient {
     };
     const observable =
       this.ytdlService.send<IYtdlApiGetYouTubeVideoInfoResponse>(
-        pattern,
-        payload,
-      );
-
-    let error: InternalServerErrorException;
-    try {
-      const result = await lastValueFrom(observable);
-
-      if (result.status === TCPStatusCodes.Failure) {
-        error = new InternalServerErrorException('Youtube service is broken.');
-        throw error;
-      }
-
-      return result;
-    } catch (e) {
-      if (e === error) {
-        console.log('Error: YTDL lib may have stopped working.');
-        throw e;
-      }
-      console.log('Error: YTDL microservice communication error:', e);
-      throw new BadGatewayException('Youtube service is down.');
-    }
-  }
-
-  /**
-   * Downloads a youtube video, converts it to mp3, and saves it to local disk.
-   *
-   * @param {string} url - youtube video url
-   * @param {TrackFile} trackFile - track file obj
-   * @returns {IYtdlApiDownloadYouTubeVideoResponse} - status code
-   *
-   * @throws {InternalServerErrorException} when ytdl lib is broken
-   * @throws {BadGatewayException} when communication with ytdl ms can't be established
-   */
-  protected async download(url: string, trackFile: TrackFile) {
-    const pattern = { cmd: YtdlApi.downloadYouTubeVideo };
-    const payload: IYtdlApiDownloadYouTubeVideoPayload = {
-      youTubeVideoUrl: url,
-      uri: trackFile.uri,
-    };
-
-    const observable =
-      this.ytdlService.send<IYtdlApiDownloadYouTubeVideoResponse>(
         pattern,
         payload,
       );

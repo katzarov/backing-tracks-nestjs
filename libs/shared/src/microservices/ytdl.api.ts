@@ -7,11 +7,6 @@ export class YtdlApi {
   static getYouTubeVideoInfo = 'getYouTubeVideoInfo';
 
   /**
-   * Initiates download
-   */
-  static downloadYouTubeVideo = 'downloadYouTubeVideo';
-
-  /**
    * Return the duration of an mp3 in seconds.
    */
   static getAudioDurationInSeconds = 'getAudioDurationInSeconds';
@@ -28,14 +23,6 @@ export interface IYtdlApiGetYouTubeVideoInfoResponse
   length?: string;
   thumbnailUrl?: string;
 }
-
-export interface IYtdlApiDownloadYouTubeVideoPayload {
-  youTubeVideoUrl: string;
-  uri: string;
-}
-
-export interface IYtdlApiDownloadYouTubeVideoResponse
-  extends TCPMicroserviceResponse {}
 
 export interface IYtdlApiGetAudioDurationInSecondsPayload {
   uri: string;

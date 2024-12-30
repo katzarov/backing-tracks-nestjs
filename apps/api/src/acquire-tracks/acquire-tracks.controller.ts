@@ -13,7 +13,7 @@ import {
   HttpCode,
 } from '@nestjs/common';
 import { AcquireTracksService } from './acquire-tracks.service';
-import { DownloadYouTubeVideoDto } from './dto/download-youtube-video.dto';
+import { AddYouTubeDownloadJobDto } from './dto/add-youtube-download-job.dto';
 import { AuthenticatedUser } from '../auth/authenticated-user.decorator';
 import { GetYoutubeVideoInfoDto } from './dto/get-youtube-video-info.dto';
 import { SpotifyService } from './spotify.service';
@@ -37,13 +37,13 @@ export class AcquireTracksController {
 
   @Post('youtube/addJob')
   @HttpCode(202)
-  downloadYouTubeVideo(
+  addYouTubeDownloadJob(
     @AuthenticatedUser() userId: number,
-    @Body() downloadYouTubeVideoDto: DownloadYouTubeVideoDto,
+    @Body() addYouTubeDownloadJobDto: AddYouTubeDownloadJobDto,
   ) {
-    return this.acquireTracksService.downloadYouTubeVideo(
+    return this.acquireTracksService.addYouTubeDownloadJob(
       userId,
-      downloadYouTubeVideoDto,
+      addYouTubeDownloadJobDto,
     );
   }
 

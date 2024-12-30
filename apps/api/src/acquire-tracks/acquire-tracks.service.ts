@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { SpotifyService } from './spotify.service';
-import { DownloadYouTubeVideoDto } from './dto/download-youtube-video.dto';
+import { AddYouTubeDownloadJobDto } from './dto/add-youtube-download-job.dto';
 import { TrackInstrument, TrackType } from '@app/database/entities';
 import { UploadTrackDto } from './dto/upload-track.dto';
 import { TrackStorageService } from '@app/track-storage';
@@ -90,10 +90,9 @@ export class AcquireTracksService extends AcquireTracksMicroServicesClient {
     };
   }
 
-  // TODO rename to addYoutubeDownloadJob
-  async downloadYouTubeVideo(
+  async addYouTubeDownloadJob(
     userId: number,
-    { url, spotifyId, trackType, trackInstrument }: DownloadYouTubeVideoDto,
+    { url, spotifyId, trackType, trackInstrument }: AddYouTubeDownloadJobDto,
   ) {
     const trackFile = this.trackStorageService.createTrack();
 

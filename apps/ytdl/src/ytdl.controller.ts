@@ -5,7 +5,6 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 import {
   YtdlApi,
   IYtdlApiGetAudioDurationInSecondsPayload,
-  IYtdlApiDownloadYouTubeVideoPayload,
   IYtdlApiGetYouTubeVideoInfoPayload,
 } from '@app/shared/microservices';
 
@@ -19,13 +18,6 @@ export class YtdlController {
   @MessagePattern({ cmd: YtdlApi.getYouTubeVideoInfo })
   getYouTubeVideoInfo(@Payload() payload: IYtdlApiGetYouTubeVideoInfoPayload) {
     return this.youtubeDownloaderService.getYouTubeVideoInfo(payload);
-  }
-
-  @MessagePattern({ cmd: YtdlApi.downloadYouTubeVideo })
-  downloadYouTubeVideo(
-    @Payload() payload: IYtdlApiDownloadYouTubeVideoPayload,
-  ) {
-    return this.youtubeDownloaderService.downloadYouTubeVideo(payload);
   }
 
   @MessagePattern({ cmd: YtdlApi.getAudioDurationInSeconds })
