@@ -9,6 +9,8 @@ import { TrackStorageModule } from '@app/track-storage';
 import { StorageConfigFactory } from '@app/track-storage/storage-config.provider';
 import { YtDlpModule } from '@app/yt-dlp-nestjs-module';
 import { YtDlpOptionsFactory } from '@app/yt-dlp-nestjs-module/yt-dlp.options.provider';
+import { YtdlQueueProcessor } from './ytdl-queue.processor';
+import { YtdlQueueConfig } from '@app/job-queue/ytdl-queue.config';
 
 @Module({
   imports: [
@@ -28,6 +30,9 @@ import { YtDlpOptionsFactory } from '@app/yt-dlp-nestjs-module/yt-dlp.options.pr
       },
       inject: [ConfigService],
     }),
+    BullModule.registerQueue({
+      name: YtdlQueueConfig.queueName,
+    }),
     TrackStorageModule.registerAsync({
       useFactory: StorageConfigFactory,
       inject: [ConfigService],
@@ -38,6 +43,6 @@ import { YtDlpOptionsFactory } from '@app/yt-dlp-nestjs-module/yt-dlp.options.pr
     }),
   ],
   controllers: [YtdlController],
-  providers: [YoutubeDownloaderService, FfmpegService],
+  providers: [YoutubeDownloaderService, FfmpegService, YtdlQueueProcessor],
 })
 export class YtdlModule {}
