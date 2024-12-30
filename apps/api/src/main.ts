@@ -29,6 +29,8 @@ async function bootstrap() {
     maxAge: 60 * 60,
   });
 
+  app.enableShutdownHooks();
+
   const port = configService.getOrThrow<number>('api.port');
   await app.listen(port);
 }

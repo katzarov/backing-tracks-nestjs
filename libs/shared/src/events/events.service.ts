@@ -1,18 +1,39 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnApplicationShutdown } from '@nestjs/common';
 import { EventEmitter } from 'node:events';
 
+type UserEvents = 'sync' | 'progress';
+type GlobalEvents = 'ytDownloadCompleted';
+
 @Injectable()
-export class EventsService extends EventEmitter {
+export class EventsService
+  extends EventEmitter
+  implements OnApplicationShutdown
+{
   private readonly prefixes = {
     userEvents: 'user-event/',
+    globalEvents: 'global-event/',
   };
 
-  private getUserEventName(userId: number) {
-    return this.prefixes.userEvents.concat(userId.toString(10));
+  onApplicationShutdown() {
+    this.removeAllListeners();
   }
 
-  emitUserEvent(userId: number, payload: unknown) {
-    const eventName = this.getUserEventName(userId);
+  private getUserEventName(userId: number, type: UserEvents) {
+    return this.prefixes.userEvents.concat(userId.toString(10)).concat(type);
+  }
+
+  emitUserEvent(userId: number, type: UserEvents, payload?: unknown) {
+    const eventName = this.getUserEventName(userId, type);
     this.emit(eventName, payload);
+  }
+
+  emitGlobalEvent(type: GlobalEvents, payload?: unknown) {
+    const eventName = this.prefixes.globalEvents.concat(type);
+    this.emit(eventName, payload);
+  }
+
+  listenToGlobalEvents(type: GlobalEvents, cb: (e: unknown) => void) {
+    const eventName = this.prefixes.globalEvents.concat(type);
+    this.addListener(eventName, cb);
   }
 }
