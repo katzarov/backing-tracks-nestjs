@@ -47,6 +47,7 @@ import { YtdlQueueEventsListenerModule } from '@app/job-queue/ytdl-queue.events-
   controllers: [],
   providers: [
     {
+      // TODO: Put in a separate module & import the UserRepositoryModule there
       provide: APP_GUARD,
       useClass: AuthGuard,
     },

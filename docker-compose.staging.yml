@@ -1,4 +1,5 @@
 version: '3.8'
+# TODO add haproxy, in order to be closer to prod.
 services:
     api:
         container_name: ${COMPOSE_PROJECT_NAME}-api
@@ -55,6 +56,7 @@ services:
             - microservices
 
     redis:
+        # todo version
         image: redis/redis-stack-server:latest
         container_name: ${COMPOSE_PROJECT_NAME}-redis
         restart: unless-stopped

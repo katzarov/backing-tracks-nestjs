@@ -24,6 +24,7 @@ export class PlaylistRepository {
         // Big TODO,
         // this is postgres specific and it is possible that we move to a different db.
         if (e.driverError.code === '23505') {
+          // TODO: catch at playlist service and throw http exceptions there. At this level we should throw repository types of errors.
           throw new ConflictException('Name is already in use.');
         }
       }

@@ -22,6 +22,7 @@ export enum TrackInstrument {
   BASS = 'BASS',
 }
 
+// TODO the YT URL itself should also be a column
 // TODO take into account track versioning https://typeorm.io/decorator-reference#generated https://github.com/typeorm/typeorm/issues/1517
 // TODO rethink primary columns: https://typeorm.io/entities#primary-columns
 @Entity()

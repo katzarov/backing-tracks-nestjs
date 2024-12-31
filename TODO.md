@@ -2,14 +2,27 @@
 
 ## GENERAL:
 
+- write tests for the track acquisition flows
+- figure out yt-dlp automatic updates
+- rename lib/shared to lib/misc
+- make all IDs from int to uuid 4
+- ALL DTO validators, set max char limit as well
+- impl user roles. maybe user, demo and admin. impl some guards to prohibit some endpoints for demo users.
+- check if a requested resource(like track file) is actually owned by user. cause first we may not use uuid for everything, second we should check anyway
+- rename resourceId => uri / trackUri
+- rename track-storage to file-storage or just storage
+- read/learn about rxjs
 - do error logging & monitoring: check out morgan, winston, pino, sentry.
+- do NestJS logger instead of console.log
+- checkout the devtools https://docs.nestjs.com/devtools/overview
+- chekout the node permission model https://nodejs.org/en/blog/announcements/v20-release-announce
 - better exception handling, we have almost none right now.
 - microservies: identify & propagate errors to main app
 - add swagger
 - link the TS of this repo and the React repo ?
-- prob check via node dev/prod env for some flags
-- put injection tokens in consts
-- better dockerignore
+- prob check via node dev/prod env for some flags => NO, NODE_ENV just use production everywhere
+- better dockerignore ?
+- setup db migrations
 
 ## SECURITY:
 
@@ -26,19 +39,20 @@
 
 ## STORAGE & STREAMING:
 
-- impl s3 storage
-- give client presigned urls
-  In order to enable streaming with the waveform viz lib. We need to already have the json for the waveform precomputed and have the duration of the file.
+- In order to enable streaming with the waveform viz lib. We need to already have the json for the waveform precomputed and have the duration of the file.
 - generate waveforms service - await exec('audiowaveform -i /tmp/data.mp3 -o /tmp/data.json --pixels-per-second 20 --bits 8');
-- somehow get and save to db the duration of each file.
 - offload decison where to save at lib level. And simplify client api -> storage.saveTrack()
-- put location as base class extended by both disk and s3 drivers
 
 ## FILE UPLOAD
 
-- give client s3 presigned url ?
+- run a shazam on the uploaded file / ytdl to figure out what the song is, instead of the user matching it with spotify
+- give client s3 presigned url to upload file ? Then need to check where to do the validation.
 - Right now, whole file is in memory, not great => switch to streaming file to a tmp folder for example.
 - Moreover, file-type has moved to be ESM only since v17 and our nest project is using commonjs, so we are on v16 currently.
+- wait, we can do await import to import esm modules in cjs or node 22+ --experimental-require-module
+- https://joyeecheung.github.io/blog/2024/03/18/require-esm-in-node-js/
+- https://stackoverflow.com/questions/74830166/unable-to-import-esm-module-in-nestjs
+
 - https://github.com/expressjs/multer?tab=readme-ov-file#diskstorage
 - https://github.com/expressjs/multer/blob/master/StorageEngine.md
 - https://github.com/sindresorhus/file-type?tab=readme-ov-file#filetypefromstreamstream
@@ -46,9 +60,8 @@
 
 ## ACQUIRE TRACKS FEAT:
 
-- check the ytdl media metadata for the google music tag. or/and keywords. Seems some videos are matched to google music. but this lib fails to retrieve the info.
-  if this fail, we can still process the video name better by stripping "backing track", 'jam', "by", "high quality" and make the initial spotify search more accurate.
-- maybe move to the much better maintained ytdl python lib.
+- download album art from spotify and save to DB.. or somewhere else. Will probably only save in DB the smallest images 64x64. Also, check if Postgres offers some "specialized" solution for storing such things.
+- UPDATE: (check if yt-dlp has same issue) check the ytdl media metadata for the google music tag. or/and keywords. Seems some videos are matched to google music. but this lib fails to retrieve the info. if this fail, we can still process the video name better by stripping "backing track", 'jam', "by", "high quality" and make the initial spotify search more accurate.
 - donwload & save the album image(s): both the youtube and spotify (if matched).
 - actually, save as much ytdl metadata as possible - in case jam track / spotify no match - we can still populate the UI with interesting info.
 - when a jam/generic track, or can't find spotify match, user will enter manually and we'll save the artist/track metadata in our app db.
@@ -56,6 +69,8 @@
 - at some point will prob need functionality to merge artist / tracks into one entity.
 - when getting all spotify track info on the server, maybe just dump the result to a json col.
 - in case of upload track & no spotify match, we might just allow user to upload a pic as well when manually entering the track.
+- BIG TODO: create another way of creating a HQ backing track -> find track in spotify - download from spotify - AI remove guitar stem - boom.. or intergrate a 3rd party like "Moises" that already does this really well...
+- On FE modal, when we add the track, will need more steps in the modal to select what playlist (or create new playlist) to put the new track in.
 
 ## SEARCH, PLAYLISTS, TAGGING:
 

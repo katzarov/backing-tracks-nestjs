@@ -44,6 +44,7 @@ services:
     redis:
         # for prod use redis/redis-stack-server:latest which does not include redis insight
         # https://docs.bullmq.io/guide/connections
+        # todo version
         image: redis/redis-stack:latest
         container_name: ${COMPOSE_PROJECT_NAME}-redis
         restart: unless-stopped

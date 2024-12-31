@@ -39,6 +39,7 @@ export class YtDlp {
 
   /**
    * Silently, gets info for youtube url.
+   * // TODO: check if we can get some metadata for google music or whatever its called and get the track name from there
    */
   async getInfo() {
     // dumpSingleJson sets --simulate so nothing is downloaded or written to disk
