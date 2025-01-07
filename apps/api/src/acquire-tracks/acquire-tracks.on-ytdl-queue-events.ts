@@ -2,7 +2,7 @@ import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { TrackStorageService } from '@app/track-storage';
 import { ConfigService } from '@nestjs/config';
 import { TrackRepository } from '@app/database/repositories';
-import { EventsService } from '@app/shared/events';
+import { AppEvents, EventsService, JobQueueEvents } from '@app/shared/events';
 import { YtdlJobFormatted } from '@app/job-queue/ytdl-queue.interface';
 
 @Injectable()
@@ -22,8 +22,8 @@ export class AcquireTracksOnYtdlQueueEvents implements OnApplicationBootstrap {
   }
 
   onApplicationBootstrap() {
-    this.eventsService.listenToGlobalEvents(
-      'ytDownloadCompleted',
+    this.eventsService.addListener(
+      JobQueueEvents.ytdlCompleted,
       this.onYtDownloadCompleted.bind(this),
     );
   }
@@ -72,7 +72,7 @@ export class AcquireTracksOnYtdlQueueEvents implements OnApplicationBootstrap {
       },
     });
 
-    this.eventsService.emitUserEvent(data.userId, 'sync');
+    this.eventsService.emit(AppEvents.ytDownloadSavedInDatabase, eventPayload);
 
     console.log(
       `track acquired: id: ${data.trackUri} user: ${data.userId} title: ${data.meta.spotify.trackName} aritst: ${data.meta.spotify.artistName}`,

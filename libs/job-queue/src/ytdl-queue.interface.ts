@@ -87,7 +87,7 @@ export interface YtdlJobFormatted {
   progress: number | object;
   returnvalue: YtDownloadReturnType;
   timestamp: number; // when job was created
-  // finishedOn: number;
+  finishedOn: number;
   // processedOn: number;
   // failedReason: string;
   // stacktrace: string[];

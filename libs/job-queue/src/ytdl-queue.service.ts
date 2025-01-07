@@ -37,7 +37,7 @@ export class YtdlQueueService {
       progress: job.progress,
       returnvalue: job.returnvalue,
       timestamp: job.timestamp,
-      // finishedOn: job.finishedOn,
+      finishedOn: job.finishedOn,
       // processedOn: job.processedOn,
       // failedReason: job.failedReason,
       // stacktrace: job.stacktrace,
@@ -86,6 +86,7 @@ export class YtdlQueueService {
           count.failed++;
         }
 
+        // TODO remove user ID from job state when sending to client
         return this.formatJobData(job, jobState);
       });
 

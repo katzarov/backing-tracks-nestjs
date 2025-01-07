@@ -4,7 +4,7 @@ import {
   OnQueueEvent,
 } from '@nestjs/bullmq';
 import type { QueueEventsListener as QueueEventsListenerType } from 'bullmq';
-import { EventsService } from '@app/shared/events';
+import { EventsService, JobQueueEvents } from '@app/shared/events';
 import { YtdlQueueConfig } from '@app/job-queue/ytdl-queue.config';
 import { YtdlProgressEvent } from './ytdl-queue.interface';
 import { YtdlQueueService } from './ytdl-queue.service';
@@ -37,18 +37,16 @@ export class YtdlQueueEventsListener
   @OnQueueEvent('added')
   async onAdded({ jobId }) {
     const job = await this.ytdlQueueService.getJobById(jobId);
-    const { userId } = job.data;
 
-    this.eventsService.emitUserEvent(userId, 'sync');
+    this.eventsService.emit(JobQueueEvents.ytdlAny, job);
   }
 
   @OnQueueEvent('progress')
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async onProgress({ jobId }: YtdlProgressEvent, timestamp: string) {
     const job = await this.ytdlQueueService.getJobById(jobId);
-    const { userId } = job.data;
 
-    this.eventsService.emitUserEvent(userId, 'progress', job);
+    this.eventsService.emit(JobQueueEvents.ytdlProgress, job);
   }
 
   // note: if multiple instances of app - need to make sure we only add the db entry once! Or/And if possible - consume this event exactly once.
@@ -56,6 +54,6 @@ export class YtdlQueueEventsListener
   async onCompleted({ jobId }) {
     const job = await this.ytdlQueueService.getJobById(jobId);
 
-    this.eventsService.emitGlobalEvent('ytDownloadCompleted', job);
+    this.eventsService.emit(JobQueueEvents.ytdlCompleted, job);
   }
 }

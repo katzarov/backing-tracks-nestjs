@@ -1,39 +1,57 @@
+import { YtdlJobFormatted } from '@app/job-queue/ytdl-queue.interface';
 import { Injectable, OnApplicationShutdown } from '@nestjs/common';
 import { EventEmitter } from 'node:events';
 
-type UserEvents = 'sync' | 'progress';
-type GlobalEvents = 'ytDownloadCompleted';
+export enum JobQueueEvents {
+  ytdlAny = 'ytdl-any',
+  ytdlProgress = 'ytdl-progress',
+  ytdlCompleted = 'ytdl-completed',
+}
 
+export enum AppEvents {
+  ytDownloadSavedInDatabase = 'yt-download-saved-in-database',
+}
+
+interface TEvents extends Record<string, any> {
+  [JobQueueEvents.ytdlAny]: [YtdlJobFormatted];
+  [JobQueueEvents.ytdlProgress]: [YtdlJobFormatted];
+  [JobQueueEvents.ytdlCompleted]: [YtdlJobFormatted];
+  [AppEvents.ytDownloadSavedInDatabase]: [YtdlJobFormatted];
+}
+
+// any more complex than our current use case and we might want to just do @nestjs/event-emitter
+// https://docs.nestjs.com/techniques/events
+
+/**
+ * Provides the node event emitter with typed methods through class composition.
+ */
 @Injectable()
-export class EventsService
-  extends EventEmitter
-  implements OnApplicationShutdown
-{
-  private readonly prefixes = {
-    userEvents: 'user-event/',
-    globalEvents: 'global-event/',
-  };
+export class EventsService implements OnApplicationShutdown {
+  private readonly emitter = new EventEmitter();
 
+  // or onModuleDestroy ?
   onApplicationShutdown() {
-    this.removeAllListeners();
+    this.emitter.removeAllListeners();
   }
 
-  private getUserEventName(userId: number, type: UserEvents) {
-    return this.prefixes.userEvents.concat(userId.toString(10)).concat(type);
+  emit<TEventName extends keyof TEvents & string>(
+    eventName: TEventName,
+    ...eventArg: TEvents[TEventName]
+  ) {
+    this.emitter.emit(eventName, ...(eventArg as []));
   }
 
-  emitUserEvent(userId: number, type: UserEvents, payload?: unknown) {
-    const eventName = this.getUserEventName(userId, type);
-    this.emit(eventName, payload);
+  addListener<TEventName extends keyof TEvents & string>(
+    eventName: TEventName,
+    handler: (...eventArg: TEvents[TEventName]) => void,
+  ) {
+    this.emitter.addListener(eventName, handler as any);
   }
 
-  emitGlobalEvent(type: GlobalEvents, payload?: unknown) {
-    const eventName = this.prefixes.globalEvents.concat(type);
-    this.emit(eventName, payload);
-  }
-
-  listenToGlobalEvents(type: GlobalEvents, cb: (e: unknown) => void) {
-    const eventName = this.prefixes.globalEvents.concat(type);
-    this.addListener(eventName, cb);
+  removeListener<TEventName extends keyof TEvents & string>(
+    eventName: TEventName,
+    handler: (...eventArg: TEvents[TEventName]) => void,
+  ) {
+    this.emitter.removeListener(eventName, handler as any);
   }
 }
