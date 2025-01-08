@@ -15,6 +15,7 @@ import { AcquireTracksModule } from './acquire-tracks/acquire-tracks.module';
 import { TracksModule } from './tracks/tracks.module';
 import { AuthGuard } from './auth/auth.guard';
 import { PlaylistsModule } from './playlists/playlists.module';
+import { NotificationsModule } from './notifications/notifications.module';
 import { EventsModule } from '@app/shared/events';
 import { YtdlQueueEventsListenerModule } from '@app/job-queue/ytdl-queue.events-listener.module';
 
@@ -43,6 +44,7 @@ import { YtdlQueueEventsListenerModule } from '@app/job-queue/ytdl-queue.events-
     AcquireTracksModule,
     TracksModule,
     PlaylistsModule,
+    NotificationsModule,
   ],
   controllers: [],
   providers: [
