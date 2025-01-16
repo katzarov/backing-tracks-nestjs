@@ -1,3 +1,5 @@
+import { createHash } from 'node:crypto';
+import { access, constants, writeFile } from 'node:fs/promises';
 import { spawnYtDlpChild } from './yt-dlp.spawn-child';
 import { objToCommandLineArgs } from './obj-to-command-line-args';
 import { IArgs } from './yt-dlp.args.interface';
@@ -7,6 +9,22 @@ import {
   getProgressTemplate,
   ProgressDataDto,
 } from './yt-dlp.progress-utils';
+
+interface IYtDlpOptions {
+  downloadsPath: string;
+  convertedPath: string;
+  cookiesEnabled: boolean;
+  cookiesTxtPath?: string;
+}
+
+interface IYtDlpNoCookiesFactory {
+  url: string;
+  options: IYtDlpOptions;
+}
+
+interface IYtDlpFactory extends IYtDlpNoCookiesFactory {
+  options: IYtDlpOptions & { cookiesTxtPath: string };
+}
 
 /**
  * yt-dlp is currently the best yt download lib, but it is in Python. The simplest thing we can do is to just call the program from a child process and parse its stdout when necessary.
@@ -21,13 +39,51 @@ import {
 export class YtDlp {
   private downloadsPath: string;
   private convertedPath: string;
+  private cookiesEnabled: boolean;
+  private cookiesTxtPath: string | undefined;
 
-  constructor(
+  // no multiple constructors in JS, but can remove that static methods and define a couple of TS overloads here... not sure what I prefer.
+  private constructor(
     private url: string,
-    options: { downloadsPath: string; convertedPath: string },
+    options: IYtDlpOptions,
   ) {
     this.downloadsPath = options.downloadsPath;
     this.convertedPath = options.convertedPath;
+    this.cookiesEnabled = options.cookiesEnabled;
+
+    if (this.cookiesEnabled) {
+      this.cookiesTxtPath = options.cookiesTxtPath;
+    }
+  }
+
+  static YtDlpFactory({ url, options }: IYtDlpFactory) {
+    return new YtDlp(url, options);
+  }
+
+  static YtDlpNoCookiesFactory({ url, options }: IYtDlpNoCookiesFactory) {
+    return new YtDlp(url, options);
+  }
+
+  /**
+   *
+   * @throws {Error} - when cookies cannot be written to fs
+   */
+  static async writeCookiesToFs(cookies: string, path: string) {
+    const digest = createHash('md5').update(cookies).digest('hex');
+    const cookie = `cookie_${digest}.txt`;
+    const cookiePath = `${path}/${cookie}`;
+
+    try {
+      await access(cookiePath, constants.F_OK);
+      // cookie exists, and is the latest current version as in the env.
+      return cookiePath;
+    } catch (e) {
+      // cookie does not exists or is older version and needs to be rewritten.
+      // remove all other cookies from dir first ??
+      await writeFile(cookiePath, cookies);
+
+      return cookiePath;
+    }
   }
 
   private buildYtDlpArgs(argsObj: Partial<IArgs>) {
@@ -48,6 +104,7 @@ export class YtDlp {
       dumpSingleJson: true,
       sleepInterval: 1,
       sleepRequests: 1,
+      ...(this.cookiesEnabled && { cookies: this.cookiesTxtPath }),
     });
 
     try {
@@ -84,6 +141,7 @@ export class YtDlp {
       output: `${uri}.%(ext)s`, // `%(title)s-%(id)s-${uri}.%(ext)s`,
       outputNaPlaceholder: 'null',
       progressTemplate: getProgressTemplate(uri),
+      ...(this.cookiesEnabled && { cookies: this.cookiesTxtPath }),
     });
 
     try {
