@@ -14,7 +14,7 @@ const LogEventName = 'SSE';
 export class NotificationsUsersManager
   implements BeforeApplicationShutdown, OnApplicationShutdown
 {
-  private readonly logger = new Logger(LogEventName);
+  private readonly logger = new Logger();
   private connectedUsers = new Map<
     number,
     {

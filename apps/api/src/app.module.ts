@@ -8,6 +8,7 @@ import {
   ytdlConfig,
   storageConfig,
   redisConfig,
+  loggerConfig,
 } from 'config';
 import { DatabaseModule } from '@app/database'; // keep this above all other user modules
 import { UserRepositoryModule } from '@app/database/modules'; // needed for the global auth guard, which uses the userRepository
@@ -18,14 +19,23 @@ import { PlaylistsModule } from './playlists/playlists.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { EventsModule } from '@app/shared/events';
 import { YtdlQueueEventsListenerModule } from '@app/job-queue/ytdl-queue.events-listener.module';
+import { CustomLoggerModule } from '@app/shared/logger';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [apiConfig, redisConfig, databaseConfig, ytdlConfig, storageConfig],
-      envFilePath: ['.env.nest', '.env.secret'],
+      load: [
+        apiConfig,
+        redisConfig,
+        databaseConfig,
+        ytdlConfig,
+        storageConfig,
+        loggerConfig,
+      ],
+      envFilePath: ['.env.nest', '.env.secret'], // TODO separate secrets for api and ytdl
     }),
+    CustomLoggerModule,
     EventsModule,
     BullModule.forRootAsync({
       useFactory: (configService: ConfigService) => {

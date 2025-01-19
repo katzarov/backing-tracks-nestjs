@@ -55,3 +55,14 @@ export const storageConfig = () => ({
     },
   },
 });
+
+export const loggerConfig = () => ({
+  logger: {
+    logLevels: process.env.LOG_LEVELS.split(','),
+    slack: {
+      enabled: process.env.USE_SLACK_LOGGING.toLowerCase() === 'true',
+      generalChannelUrl: process.env.SLACK_INCOMING_WEBHOOK_URL_GENERAL,
+      errorChannelUrl: process.env.SLACK_INCOMING_WEBHOOK_URL_ERROR,
+    },
+  },
+});

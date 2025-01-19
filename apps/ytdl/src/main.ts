@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { YtdlModule } from './ytdl.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
+import { CustomLogger } from '@app/shared/logger';
 
 async function bootstrap() {
   // https://github.com/nestjs/nest/pull/12622, https://github.com/nestjs/nest/issues/2343
@@ -14,8 +15,11 @@ async function bootstrap() {
     {
       transport: Transport.TCP,
       options: { host, port, retryAttempts: 0, retryDelay: 0 },
+      bufferLogs: true,
+      autoFlushLogs: true,
     },
   );
+  app.useLogger(app.get(CustomLogger));
   await app.listen();
 }
 bootstrap();

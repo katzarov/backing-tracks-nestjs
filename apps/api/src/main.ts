@@ -3,9 +3,16 @@ import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
+import { CustomLogger } from '@app/shared/logger';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    bufferLogs: true,
+    autoFlushLogs: true,
+  });
+  // ideally we should buffer all the logs and then they should be flushed using our custom logger.
+  // but if there is some error here during startup it seems nothing is logged when we use buffering..?
+  app.useLogger(app.get(CustomLogger));
   const configService = app.get(ConfigService);
 
   app.use(helmet());
