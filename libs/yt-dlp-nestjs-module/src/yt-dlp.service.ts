@@ -9,6 +9,7 @@ export class YtDlpService implements OnApplicationBootstrap {
 
   constructor(@Inject(MODULE_OPTIONS_TOKEN) private options: YtDlpOptions) {}
   // there are a bunch of (better) ways to do this.. but for now we'll do it here as a Nest lifecycle hook until I decide how I want to handle the cookie.txt locking issues
+  // https://docs.nestjs.com/fundamentals/lifecycle-events#asynchronous-initialization async is supported
   async onApplicationBootstrap() {
     if (!this.options.cookiesEnabled) {
       return;

@@ -28,3 +28,7 @@
 ## TS
 
 - https://blog.makerx.com.au/a-type-safe-event-emitter-in-node-js/
+
+## JS
+
+- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/rest_parameters#the_difference_between_rest_parameters_and_the_arguments_object

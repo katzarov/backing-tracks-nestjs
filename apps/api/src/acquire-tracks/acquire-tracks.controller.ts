@@ -35,7 +35,7 @@ export class AcquireTracksController {
     return this.acquireTracksService.getYouTubeVideoInfo(url);
   }
 
-  @Post('youtube/addJob')
+  @Post('youtube/add-job')
   @HttpCode(202)
   addYouTubeDownloadJob(
     @AuthenticatedUser() userId: number,

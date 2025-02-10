@@ -36,4 +36,6 @@ This is a NestJS monorepo:
 
 ## Installation
 
+**NOTE:** I would not install yt-dlp directly on your machine for a few reasons, one is that it has the capability to read your browser cookies - it's a feature to circumvent website restrictions... So I just run the app (incl. the dev server) through containers where there is no access to my whole fs.
+
 TODO
