@@ -8,6 +8,7 @@ export const YtdlQueueConfig: {
 } = {
   queueName: 'ytdl',
   worker: {
+    // TODO: multiple ytdl workers can read and write to the same cookie file... need to either introduce a locking mechanism or have a separate cookie file per worker.
     concurrency: 4,
   },
   jobOpts: {

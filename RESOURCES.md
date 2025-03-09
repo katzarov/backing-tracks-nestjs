@@ -32,3 +32,46 @@
 ## JS
 
 - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/rest_parameters#the_difference_between_rest_parameters_and_the_arguments_object
+
+## Yt-Dlp
+
+a dump of some notes I had while implementing the feat.
+
+COOKIE ISSUE THREAFD
+https://github.com/yt-dlp/yt-dlp/issues/8227
+https://github.com/yt-dlp/yt-dlp/issues/8227#issuecomment-1867184804
+
+https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies
+
+need to lock the cookie file so that multiple peocesses can read and write to it.
+https://github.com/yt-dlp/yt-dlp/issues/5977
+https://github.com/yt-dlp/yt-dlp/issues/5977#issuecomment-2123022028 not allowing to write back to the cookie could break future downloads - pukkandan is one of the main contributors
+https://github.com/yt-dlp/yt-dlp/issues/8819
+
+yt-dlp does lock
+https://github.com/yt-dlp/yt-dlp/issues/2670
+https://github.com/yt-dlp/yt-dlp/blob/164368610456e2d96b279f8b120dea08f7b1d74f/yt_dlp/utils/_utils.py#L1575
+https://github.com/yt-dlp/yt-dlp/issues/393
+
+yt-dlp does not lock when writting https://github.com/yt-dlp/yt-dlp/blob/164368610456e2d96b279f8b120dea08f7b1d74f/yt_dlp/cookies.py#L1300
+so if i spawn multiple processes...
+i need to impl locking or maybe do a PR in yt-dlp to flock this coookie or something
+
+https://github.com/yt-dlp/yt-dlp/issues/5977
+https://github.com/yt-dlp/yt-dlp/issues/8819
+https://github.com/yt-dlp/yt-dlp/issues/1918
+https://github.com/yt-dlp/yt-dlp/blob/164368610456e2d96b279f8b120dea08f7b1d74f/yt_dlp/cookies.py#L1300
+https://stackoverflow.com/questions/22409780/flock-vs-lockf-on-linux
+https://github.com/yt-dlp/yt-dlp/issues/393
+
+cookies
+https://github.com/yt-dlp/yt-dlp/issues/8227
+https://github.com/yt-dlp/yt-dlp/issues/11094
+https://github.com/yt-dlp/yt-dlp/issues/8227#issuecomment-1867184804
+https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies
+https://github.com/tubearchivist/tubearchivist/issues/817
+https://github.com/yt-dlp/yt-dlp/issues/11868
+https://github.com/yt-dlp/yt-dlp/issues/10128
+https://github.com/yt-dlp/yt-dlp/issues/7874
+https://www.reddit.com/r/youtubedl/comments/prsfvl/how_do_i_use_a_vpnproxy_only_for_ytdlp/
+https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp

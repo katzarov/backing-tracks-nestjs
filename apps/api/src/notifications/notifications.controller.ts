@@ -26,3 +26,5 @@ export class NotificationsController {
     this.notificationsService.establishSSE(userId, res);
   }
 }
+
+// TODO: remove USER ID from job data

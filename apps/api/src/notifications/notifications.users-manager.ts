@@ -14,7 +14,7 @@ const LogEventName = 'SSE';
 export class NotificationsUsersManager
   implements BeforeApplicationShutdown, OnApplicationShutdown
 {
-  private readonly logger = new Logger();
+  private readonly logger = new Logger(NotificationsUsersManager.name);
   private connectedUsers = new Map<
     number,
     {
@@ -81,6 +81,7 @@ export class NotificationsUsersManager
       const value = this.connectedUsers.get(userId);
       value.clients.push(res);
     }
+    // TODO would be cool to see all the current open TCP connections on the system of this node process.
 
     this.logger.debug(
       this.connectedUsers,

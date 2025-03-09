@@ -9,21 +9,30 @@ import {
   getProgressTemplate,
   ProgressDataDto,
 } from './yt-dlp.progress-utils';
+import { Logger } from '@nestjs/common';
 
-interface IYtDlpOptions {
+interface IYtDlpUserOptions {
+  url: string;
+  // downloadRate: string; TODO
+}
+
+interface IYtDlpSystemOptions {
   downloadsPath: string;
   convertedPath: string;
+  sleepInterval: number;
+  sleepRequests: number;
+  maxDownloadRate: string;
   cookiesEnabled: boolean;
   cookiesTxtPath?: string;
 }
 
 interface IYtDlpNoCookiesFactory {
-  url: string;
-  options: IYtDlpOptions;
+  userOptions: IYtDlpUserOptions;
+  systemOptions: IYtDlpSystemOptions;
 }
 
 interface IYtDlpFactory extends IYtDlpNoCookiesFactory {
-  options: IYtDlpOptions & { cookiesTxtPath: string };
+  systemOptions: IYtDlpSystemOptions & { cookiesTxtPath: string };
 }
 
 /**
@@ -37,31 +46,29 @@ interface IYtDlpFactory extends IYtDlpNoCookiesFactory {
  *
  */
 export class YtDlp {
-  private downloadsPath: string;
-  private convertedPath: string;
-  private cookiesEnabled: boolean;
-  private cookiesTxtPath: string | undefined;
+  private readonly logger = new Logger(YtDlp.name);
 
   // no multiple constructors in JS, but can remove that static methods and define a couple of TS overloads here... not sure what I prefer.
   private constructor(
-    private url: string,
-    options: IYtDlpOptions,
-  ) {
-    this.downloadsPath = options.downloadsPath;
-    this.convertedPath = options.convertedPath;
-    this.cookiesEnabled = options.cookiesEnabled;
+    private userOptions: IYtDlpUserOptions,
+    private systemOptions: IYtDlpSystemOptions,
+  ) {}
 
-    if (this.cookiesEnabled) {
-      this.cookiesTxtPath = options.cookiesTxtPath;
-    }
+  static YtDlpFactory({ userOptions, systemOptions }: IYtDlpFactory) {
+    return new YtDlp(userOptions, systemOptions);
   }
 
-  static YtDlpFactory({ url, options }: IYtDlpFactory) {
-    return new YtDlp(url, options);
+  static YtDlpNoCookiesFactory({
+    userOptions,
+    systemOptions,
+  }: IYtDlpNoCookiesFactory) {
+    return new YtDlp(userOptions, systemOptions);
   }
 
-  static YtDlpNoCookiesFactory({ url, options }: IYtDlpNoCookiesFactory) {
-    return new YtDlp(url, options);
+  private isCookiesEnabled(
+    systemOptions: IYtDlpSystemOptions,
+  ): systemOptions is Required<IYtDlpSystemOptions> {
+    return systemOptions.cookiesEnabled;
   }
 
   /**
@@ -88,7 +95,9 @@ export class YtDlp {
 
   private buildYtDlpArgs(argsObj: Partial<IArgs>) {
     const commandLineArgs = objToCommandLineArgs(argsObj);
-    const ytDlpCommand = [this.url].concat(commandLineArgs);
+    const ytDlpCommand = [this.userOptions.url].concat(commandLineArgs);
+
+    this.logger.debug(commandLineArgs, this.buildYtDlpArgs.name);
 
     return ytDlpCommand;
   }
@@ -102,9 +111,11 @@ export class YtDlp {
     //  https://github.com/yt-dlp/yt-dlp?tab=readme-ov-file#verbosity-and-simulation-options
     const args = this.buildYtDlpArgs({
       dumpSingleJson: true,
-      sleepInterval: 1,
-      sleepRequests: 1,
-      ...(this.cookiesEnabled && { cookies: this.cookiesTxtPath }),
+      sleepInterval: this.systemOptions.sleepInterval,
+      sleepRequests: this.systemOptions.sleepRequests,
+      ...(this.isCookiesEnabled(this.systemOptions) && {
+        cookies: this.systemOptions.cookiesTxtPath,
+      }),
     });
 
     try {
@@ -114,8 +125,12 @@ export class YtDlp {
       const parsedResult: IDumpSingleJson = JSON.parse(result);
 
       return parsedResult;
-    } catch (e) {
-      console.log(`Error with getting yt info about: ${this.url}`, e);
+    } catch (error) {
+      this.logger.error(
+        `Error with getting yt info about: ${this.userOptions.url}`,
+        this.getInfo.name,
+        error,
+      );
     }
   }
 
@@ -128,20 +143,22 @@ export class YtDlp {
     onProgressUpdateHandler: (data: ProgressDataDto) => void,
   ) {
     const args = this.buildYtDlpArgs({
-      sleepInterval: 1,
-      sleepRequests: 1,
-      limitRate: '64K', // TODO: get from env config, and also each user role might have a diff limit..
+      sleepInterval: this.systemOptions.sleepInterval,
+      sleepRequests: this.systemOptions.sleepRequests,
+      limitRate: this.systemOptions.maxDownloadRate,
       format: 'bestaudio', // TODO figure out if this is actually the best
       extractAudio: true,
       audioFormat: 'mp3',
       paths: [
-        `home:/usr/src/app/${this.convertedPath}`, // TODO: get /usr/src/app from env config
-        `temp:/usr/src/app/${this.downloadsPath}`,
+        `home:/usr/src/app/${this.systemOptions.convertedPath}`, // TODO: get /usr/src/app from env config
+        `temp:/usr/src/app/${this.systemOptions.downloadsPath}`,
       ],
       output: `${uri}.%(ext)s`, // `%(title)s-%(id)s-${uri}.%(ext)s`,
       outputNaPlaceholder: 'null',
       progressTemplate: getProgressTemplate(uri),
-      ...(this.cookiesEnabled && { cookies: this.cookiesTxtPath }),
+      ...(this.isCookiesEnabled(this.systemOptions) && {
+        cookies: this.systemOptions.cookiesTxtPath,
+      }),
     });
 
     try {
@@ -150,11 +167,15 @@ export class YtDlp {
       );
 
       await spawnYtDlpChild(args, onProgressUpdateCb);
-      console.log(
+      this.logger.log(
         `Successfully downloaded (or is already downloaded) yt video: ${uri}`,
       );
-    } catch (e) {
-      console.log(`Error with downloading yt video: ${uri}`, e);
+    } catch (error) {
+      this.logger.error(
+        `Error with downloading yt video: ${uri}`,
+        this.download.name,
+        error,
+      );
     }
   }
 }

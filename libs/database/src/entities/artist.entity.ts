@@ -13,6 +13,7 @@ import { TrackMeta } from './trackMeta.entity';
 export class Artist {
   @PrimaryColumn()
   spotifyUri: string;
+  // TODO spotifyUri should not be the primary id...
 
   @CreateDateColumn()
   createdDate: Date;

@@ -5,7 +5,7 @@ import { YtDlp } from '@app/yt-dlp';
 
 @Injectable()
 export class YtDlpService implements OnApplicationBootstrap {
-  private cookiePath: string | undefined;
+  private cookiesTxtPath: string | undefined;
 
   constructor(@Inject(MODULE_OPTIONS_TOKEN) private options: YtDlpOptions) {}
   // there are a bunch of (better) ways to do this.. but for now we'll do it here as a Nest lifecycle hook until I decide how I want to handle the cookie.txt locking issues
@@ -15,7 +15,7 @@ export class YtDlpService implements OnApplicationBootstrap {
       return;
     }
 
-    this.cookiePath = await YtDlp.writeCookiesToFs(
+    this.cookiesTxtPath = await YtDlp.writeCookiesToFs(
       this.options.cookies,
       this.options.downloadsPath,
     );
@@ -23,15 +23,25 @@ export class YtDlpService implements OnApplicationBootstrap {
 
   YtDlp(url: string) {
     if (this.options.cookiesEnabled) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { cookies, ...optionsWithoutCookies } = this.options;
+
       return YtDlp.YtDlpFactory({
-        url,
-        options: { ...this.options, cookiesTxtPath: this.cookiePath },
+        userOptions: {
+          url,
+        },
+        systemOptions: {
+          ...optionsWithoutCookies,
+          cookiesTxtPath: this.cookiesTxtPath,
+        },
       });
     }
 
     return YtDlp.YtDlpNoCookiesFactory({
-      url,
-      options: this.options,
+      userOptions: {
+        url,
+      },
+      systemOptions: this.options,
     });
   }
 }

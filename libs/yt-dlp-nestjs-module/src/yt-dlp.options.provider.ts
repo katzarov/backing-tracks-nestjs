@@ -2,6 +2,10 @@ import { ConfigService } from '@nestjs/config';
 import { YtDlpOptions } from './yt-dlp.options.interface';
 
 export const YtDlpOptionsFactory = (configService: ConfigService) => {
+  const cookiesEnabled = configService.getOrThrow<boolean>(
+    'ytdl.ytDlp.cookiesEnabled',
+  );
+
   const noCookiesConfig: YtDlpOptions = {
     downloadsPath: configService.getOrThrow<string>(
       'storage.disk.downloadedTracksPath',
@@ -9,13 +13,18 @@ export const YtDlpOptionsFactory = (configService: ConfigService) => {
     convertedPath: configService.getOrThrow<string>(
       'storage.disk.convertedTracksPath',
     ),
-    cookiesEnabled: configService.getOrThrow<boolean>('ytdl.cookiesEnabled'),
+    sleepInterval: configService.getOrThrow<number>('ytdl.ytDlp.sleepInterval'),
+    sleepRequests: configService.getOrThrow<number>('ytdl.ytDlp.sleepRequests'),
+    maxDownloadRate: configService.getOrThrow<string>(
+      'ytdl.ytDlp.maxDownloadRate',
+    ),
+    cookiesEnabled: cookiesEnabled,
   };
 
-  if (noCookiesConfig.cookiesEnabled) {
+  if (cookiesEnabled) {
     return {
       ...noCookiesConfig,
-      cookies: configService.getOrThrow<string>('ytdl.cookies'),
+      cookies: configService.getOrThrow<string>('ytdl.ytDlp.cookies'),
     } satisfies YtDlpOptions;
   }
 

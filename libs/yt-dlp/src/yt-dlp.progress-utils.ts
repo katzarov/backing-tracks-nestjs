@@ -9,6 +9,7 @@ import {
   validateSync,
 } from 'class-validator';
 
+// TODO might need to also parse converting / ffmpeg / other stages from stdout.
 const downloadingTrackProgressKey = '[downloading-track]';
 const splitToken = '__SPLIT_TOKEN__';
 

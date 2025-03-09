@@ -18,8 +18,13 @@ export const ytdlConfig = () => ({
   ytdl: {
     host: process.env.YTDL_HOST,
     port: parseInt(process.env.YTDL_PORT, 10),
-    cookiesEnabled: process.env.USE_YT_DLP_COOKIES.toLowerCase() === 'true',
-    cookies: process.env.YT_DLP_COOKIES,
+    ytDlp: {
+      cookiesEnabled: process.env.USE_YT_DLP_COOKIES.toLowerCase() === 'true',
+      cookies: process.env.YT_DLP_COOKIES,
+      sleepInterval: 1,
+      sleepRequests: 1,
+      maxDownloadRate: '64K',
+    },
   },
 });
 

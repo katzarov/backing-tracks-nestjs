@@ -39,3 +39,19 @@ This is a NestJS monorepo:
 **NOTE:** I would not install yt-dlp directly on your machine for a few reasons, one is that it has the capability to read your browser cookies - it's a feature to circumvent website restrictions... So I just run the app (incl. the dev server) through containers where there is no access to my whole fs.
 
 TODO
+
+### Extracting YouTube cookies
+
+- https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp
+- https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies
+- create a throwaway Google account.
+- use a throwaway VM.
+- install a browser extension that can export the cookies.
+- Follow these exact steps when exporting the cookies, otherwise it won't work:
+
+  - Open a new private browsing/incognito window and log into YouTube
+  - Open a new tab and then close the YouTube tab
+  - Export youtube.com cookies from the browser
+  - Close the private browsing/incognito window so the session is never opened in the browser again.
+
+- TODO: This looks like something new that we'd want to setup ? https://github.com/yt-dlp/yt-dlp/wiki/PO-Token-Guide
