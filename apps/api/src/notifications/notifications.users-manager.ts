@@ -54,15 +54,18 @@ export class NotificationsUsersManager
   /**
    *
    * Assume user exists in map.
-   * @throws {Error} - when user is not found in map
    */
   protected sendMessageToClientsOfUser(userId: number, message: string) {
     const clientsOfUser = this.connectedUsers.get(userId);
 
     if (clientsOfUser === undefined) {
-      throw new Error(
+      // TODO check out why this happens even tho the client checks with isUserConnected()
+      this.logger.warn(
         `userId:${userId} does not exist. Client should check if user exists with isUserConnected() before calling sendMessageToClientsOfUser()`,
+        LogEventName,
       );
+
+      return;
     }
 
     for (const client of clientsOfUser.clients) {
