@@ -12,10 +12,6 @@ loadDevServerEnv:
 loadStagingEnv:
 	$(call setup_env, .env.staging)
 
-# https://blog.logrocket.com/containerized-development-nestjs-docker/
-setup-dev-server:
-	docker	volume	create	nodemodules
-
 dev-server:
 	docker-compose	-f docker-compose.dev-server.yml --env-file .env.nest build
 	docker-compose	-f docker-compose.dev-server.yml --env-file .env.nest up
@@ -32,6 +28,7 @@ clean-dev-server:	loadDevServerEnv
 	docker	rmi	-f	${COMPOSE_PROJECT_NAME}-api
 	docker	rm	-f	${COMPOSE_PROJECT_NAME}-ytdl
 	docker	rmi	-f	${COMPOSE_PROJECT_NAME}-ytdl
+	docker	volume	rm	${COMPOSE_PROJECT_NAME}_nodemodules
 
 clean-staging:	loadStagingEnv
 	docker	rm	-f	${COMPOSE_PROJECT_NAME}-api

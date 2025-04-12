@@ -9,8 +9,11 @@ services:
         ports:
             - '${API_PORT}:${API_PORT}'
         volumes:
-            - nodemodules:/usr/src/app/node_modules
+            # this is really just a hack:
+            # We want to bind the whole project dir, cause here we are running our nest dev server and we want it to restart on file changes that we make.
+            # But we don't want to also bind the node_modules, cause we have already installed them when we created the image - and want to use the ones from the image because they are specific to the image and its OS/arch/base image.
             - .:/usr/src/app
+            - nodemodules:/usr/src/app/node_modules
         environment:
             API_HOST: 0.0.0.0
             REDIS_HOST: redis
@@ -33,8 +36,8 @@ services:
         ports:
             - '${YTDL_PORT}:${YTDL_PORT}'
         volumes:
-            - nodemodules:/usr/src/app/node_modules
             - .:/usr/src/app
+            - nodemodules:/usr/src/app/node_modules
         environment:
             YTDL_HOST: 0.0.0.0
             REDIS_HOST: redis
@@ -100,7 +103,7 @@ volumes:
     redis-data:
         driver: local
     nodemodules:
-        external: true
+        driver: local
     # pg-admin-data:
     # driver: local
     # TODO dont use host binded volumes for the donwloands/converted
