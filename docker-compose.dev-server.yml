@@ -14,6 +14,7 @@ services:
             # But we don't want to also bind the node_modules, cause we have already installed them when we created the image - and want to use the ones from the image because they are specific to the image and its OS/arch/base image.
             - .:/usr/src/app
             - nodemodules:/usr/src/app/node_modules
+            - ../backing-tracks-isomorphic:/usr/src/backing-tracks-isomorphic
         environment:
             API_HOST: 0.0.0.0
             REDIS_HOST: redis
@@ -38,6 +39,7 @@ services:
         volumes:
             - .:/usr/src/app
             - nodemodules:/usr/src/app/node_modules
+            - ../backing-tracks-isomorphic:/usr/src/backing-tracks-isomorphic
         environment:
             YTDL_HOST: 0.0.0.0
             REDIS_HOST: redis

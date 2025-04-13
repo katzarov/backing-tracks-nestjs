@@ -11,9 +11,10 @@ Check the frontend repository for general project description [frontend reposito
 ## App Stack
 
 - NestJS
-- TypeORM
-- Postgres
-- BullMQ (queue system built on top of Redis)
+- TypeORM - I don't like it, never liked it. And now It also seems dead. I'd check out Prisma again - they have done some major rearchitecting that might solve the previous pain points.
+- Class Validator - I like it but inferring the TS types from the schema is just plain better - so will be replacing this with Zod.
+- Postgres => we are moving to DynamoDB cause its the only serverless pay per request db that AWS offers. And works great with a bunch of lambdas.
+- BullMQ (queue system built on top of Redis). I like it but now I need to rebuild the system using AWS event driven arch(EDA) primitives.
 - ffmpeg, yt-dlp
 
 ## Infra Stack
@@ -36,7 +37,37 @@ This is a NestJS monorepo:
 
 ## Installation
 
-**NOTE:** I would not install yt-dlp directly on your machine for a few reasons, one is that it has the capability to read your browser cookies - it's a feature to circumvent website restrictions... So I just run the app (incl. the dev server) through containers where there is no access to my whole fs.
+### Working with the containerized dev-server
+
+- The npm deps installed locally are just for our code editor. You may still start the dev-server locally but some feats might not work.
+- Note that our machine might not include all system dependencies that our app needs like ffmpeg or yt-dlp. You could install them locally but I won't.
+
+- When the app image is initially built all the dependencies are installed - system wide and npm.
+- We employ a hack that bind mounts our local src to the container, but still preserves its(the container's) node_modules.
+
+- As an app dependancy we also have backing-tracks-isomorphic(**bti** for short). This is a pkg we maintain and distribute via npm.
+- For local use we want our dev-server to use our local build of this pkg without going through npm. For that we use symlinks - npm link based.
+- You need to have this repository and the "backing-tracks-isomorphic" repository in on the same file path on your machine, i.e next to each other.
+- And we also bind mount the bti repo to our container.
+
+Checklist:
+
+1. package\*.json changed due to new dep, update, etc. => delete current container, image and volume. (script makes sure BTI is a symlink) `make dev-server-clean`
+2. package\*.json changed due to changing BTI from local to registry or vice versa ? => delete current container, image and volume. (script makes sure BTI is a symlink) `make dev-server-clean`
+3. BTI src changed ? => No need to rebuild image. Just restart nest dev-server by making some file change.
+4. Run the dev server with `make dev-server`.
+
+### Working with the containerized staging build
+
+- no host bind mounts
+- cannot use the local BTI build
+- script makes sure BTI is installed through the pkg registry
+
+- TODO
+
+1. Run the staging build with `make staging`. For now, this already invokes `make staging-clean`.
+
+**NOTE:** I would not install yt-dlp directly on your machine for a few reasons, one is that it has the capability to read your browser cookies - it's a feature to circumvent website restrictions... So I just run the app (incl. the dev server) through containers where there is no access to my whole fs... And that is not a bad thing to do anyway as there are malicious pkgs on npm for sure!
 
 TODO
 
