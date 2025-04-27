@@ -1,4 +1,4 @@
-FROM node:20.11.1-bookworm-slim AS base
+FROM node:20.19-bookworm-slim AS base
 WORKDIR /usr/src/app
 # https://docs.docker.com/build/cache/#use-the-dedicated-run-cache
 RUN \
@@ -14,7 +14,7 @@ ENTRYPOINT ["/usr/bin/tini", "-v", "-e", "143", "--"]
 # The CMD specifies arguments that will be fed to the ENTRYPOINT
 
 
-FROM node:20.11.1-bookworm-slim AS temp_prod_node_deps
+FROM node:20.19-bookworm-slim AS temp_prod_node_deps
 WORKDIR /usr/src/app
 # create a layer for this specific package.json and package-lock.json so we can use the cache for subsequent layers (when no changes in this layer).
 COPY package*.json ./
@@ -22,7 +22,7 @@ RUN npm ci --only=production
 
 
 # need to install deps again, this time dev as well, cause we need the nest-cli in order to build the app. but we don't need the nest-cli in our final image.
-FROM node:20.11.1-bookworm-slim AS temp_prod_app_build
+FROM node:20.19-bookworm-slim AS temp_prod_app_build
 WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm ci --include=dev

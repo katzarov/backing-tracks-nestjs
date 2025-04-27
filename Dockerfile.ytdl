@@ -1,6 +1,6 @@
 # TODO consider just allowing for all minor & patch updates
 # yt-dlp even distributes their own ffmpeg builds where they fix some issues they experience, but for now, this ffmpeg pkg also works.. need to check if it's official actually, TODO.
-FROM node:20.11.1-bookworm-slim AS base_with_ffmpeg
+FROM node:20.19-bookworm-slim AS base_with_ffmpeg
 RUN \
     --mount=type=cache,target=/var/cache/apt \
     apt-get update && \
@@ -26,7 +26,7 @@ FROM base_with_ffmpeg AS base_with_ffmpeg_and_yt-dlp
 COPY --chown=node:node --chmod=500 --from=temp_yt-dlp /usr/bin/yt-dlp /usr/bin/yt-dlp
 
 
-FROM node:20.11.1-bookworm-slim AS temp_prod_node_deps
+FROM node:20.19-bookworm-slim AS temp_prod_node_deps
 WORKDIR /usr/src/app
 # create a layer for this specific package.json and package-lock.json so we can use the cache for subsequent layers (when no changes in this layer).
 COPY package*.json ./
@@ -34,7 +34,7 @@ RUN npm ci --only=production
 
 
 # need to install deps again, this time dev as well, cause we need the nest-cli in order to build the app. but we don't need the nest-cli in our final image.
-FROM node:20.11.1-bookworm-slim AS temp_prod_app_build
+FROM node:20.19-bookworm-slim AS temp_prod_app_build
 WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm ci --include=dev
