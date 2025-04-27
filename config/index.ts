@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-nocheck
+// process.env vars can be string or undefined so e.g. calling a .split on undefined will throw an err. In this case, this is desirable.
+
 export const apiConfig = () => ({
   api: {
     host: process.env.API_HOST,

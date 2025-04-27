@@ -41,6 +41,7 @@ export class EventsService implements OnApplicationShutdown {
     this.emitter.emit(eventName, ...(eventArg as []));
   }
 
+  // TODO global error catcher wrapping the handler in case consumer misses to catch them !
   addListener<TEventName extends keyof TEvents & string>(
     eventName: TEventName,
     handler: (...eventArg: TEvents[TEventName]) => void,

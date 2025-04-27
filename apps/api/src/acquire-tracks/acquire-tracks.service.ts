@@ -41,9 +41,6 @@ export class AcquireTracksService extends AcquireTracksMicroServicesClient {
     const { trackInfo, albumArt } =
       await this.spotifyService.getTrackInfo(spotifyId);
 
-    const artistId = trackInfo.artists[0].id;
-    const artistName = trackInfo.artists[0].name;
-
     let duration: number;
 
     if (trackDuration === null) {
@@ -64,8 +61,8 @@ export class AcquireTracksService extends AcquireTracksMicroServicesClient {
         trackInstrument,
       },
       artist: {
-        spotifyUri: artistId,
-        name: artistName,
+        spotifyUri: trackInfo.artistId,
+        name: trackInfo.artistName,
       },
       trackMeta: {
         spotifyUri: spotifyId,
@@ -75,7 +72,7 @@ export class AcquireTracksService extends AcquireTracksMicroServicesClient {
     });
 
     // TODO: cleanup files if this fails
-    return `track acquired: id: ${resourceId} user: ${userId} title: ${trackInfo.name} aritst: ${artistName}`;
+    return `track acquired: id: ${resourceId} user: ${userId} title: ${trackInfo.name} aritst: ${trackInfo.artistName}`;
   }
 
   async getYouTubeVideoInfo(url: string) {
@@ -99,10 +96,6 @@ export class AcquireTracksService extends AcquireTracksMicroServicesClient {
     const { trackInfo, albumArt } =
       await this.spotifyService.getTrackInfo(spotifyId);
 
-    // TODO do this in spotify service itself.
-    const artistId = trackInfo.artists[0].id;
-    const artistName = trackInfo.artists[0].name;
-
     await this.ytdlQueueService.addYtdlJob({
       userId,
       ytUrl: url,
@@ -112,8 +105,8 @@ export class AcquireTracksService extends AcquireTracksMicroServicesClient {
           trackUri: spotifyId,
           trackName: trackInfo.name,
           trackDuration: trackInfo.duration_ms / 1000,
-          artistUri: artistId,
-          artistName: artistName,
+          artistUri: trackInfo.artistId,
+          artistName: trackInfo.artistName,
           albumArt,
         },
         trackType,
@@ -145,7 +138,7 @@ export class AcquireTracksService extends AcquireTracksMicroServicesClient {
       spotifyId,
       trackType,
       trackInstrument,
-      trackDuration,
+      trackDuration ?? null,
     );
     console.log(newTrackInfo);
   }

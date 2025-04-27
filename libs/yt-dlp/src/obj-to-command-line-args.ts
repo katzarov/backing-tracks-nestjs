@@ -3,10 +3,10 @@ import { IArgs } from './yt-dlp.args.interface';
 // based on https://github.com/sindresorhus/dargs/blob/main/index.js
 export const objToCommandLineArgs = (object: Partial<IArgs>) => {
   const arguments_: string[] = [];
-  let extraArguments = [];
-  let separatedArguments = [];
+  let extraArguments: Array<unknown> = [];
+  let separatedArguments: Array<unknown> = [];
 
-  const makeArguments = (key: string, value: string) => {
+  const makeArguments = (key: string, value: string | undefined) => {
     const prefix = key.length === 1 ? '-' : '--';
     const kebabCaseKey = key.replace(/[A-Z]/g, '-$&').toLowerCase();
 

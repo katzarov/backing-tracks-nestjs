@@ -86,11 +86,20 @@ const parseProgressData = (
 ) => {
   const splitData = data.split(splitToken);
   const matchDownloadingTrackStep =
-    splitData[0].trim() === downloadingTrackProgressKey;
+    splitData[0]?.trim() === downloadingTrackProgressKey;
 
   if (matchDownloadingTrackStep) {
     try {
-      const dto = JSON.parse(splitData[1].trim());
+      const downloadingTrackProgressValue = splitData[1];
+
+      const tempateErrorMsg =
+        'DTO Validation error: progress template is likely broken, check the latest yt-dlp lib updates';
+
+      if (downloadingTrackProgressValue === undefined) {
+        throw new Error(tempateErrorMsg);
+      }
+
+      const dto = JSON.parse(downloadingTrackProgressValue.trim());
 
       const transformed = plainToInstance(ProgressDataDto, dto);
 
@@ -98,9 +107,7 @@ const parseProgressData = (
       const errors = validateSync(transformed);
 
       if (errors.length > 0) {
-        throw new Error(
-          'DTO Validation error: progress template is likely broken, check the latest yt-dlp lib updates',
-        );
+        throw new Error(tempateErrorMsg);
       }
 
       onProgressDataParsedCb(transformed);

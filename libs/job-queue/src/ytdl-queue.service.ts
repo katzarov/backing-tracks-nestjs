@@ -7,6 +7,7 @@ import {
   YtdlJob,
   YtdlJobData,
   YtdlJobFormatted,
+  YtdlJobProgress,
   YtdlQueue,
 } from './ytdl-queue.interface';
 
@@ -34,7 +35,9 @@ export class YtdlQueueService {
       id: job.id,
       data: job.data,
       state: jobState,
-      progress: job.progress,
+      // TODO do patch package to fix the types of the lib.. ts module augmentation would not work in this case
+      // TODO ideally bullmq exposes this as a generic.. should do it myself.. easy first issue
+      progress: job.progress as YtdlJobProgress, // see above todos
       returnvalue: job.returnvalue,
       timestamp: job.timestamp,
       finishedOn: job.finishedOn,
@@ -53,8 +56,14 @@ export class YtdlQueueService {
     return addedJob;
   }
 
+  // TODO err handle all of these and where it is consumed as well
   async getJobById(jobId: string) {
     const job = await this.ytdlQueue.getJob(jobId);
+
+    if (!job) {
+      return null;
+    }
+
     const jobState = await job.getState();
     const formattedJob = this.formatJobData(job, jobState);
 

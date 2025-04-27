@@ -4,6 +4,7 @@ import type {
   MaxInt,
   PartialSearchResult,
   Track,
+  Image,
 } from '@spotify/web-api-ts-sdk';
 import { SpotifyApi } from '@spotify/web-api-ts-sdk';
 
@@ -26,7 +27,11 @@ export class SpotifyService {
   }
 
   private buildAlbumArtImageObject(track: Track) {
-    const images = {
+    const images: {
+      small: null | Image;
+      medium: null | Image;
+      large: null | Image;
+    } = {
       small: null,
       medium: null,
       large: null,
@@ -51,25 +56,41 @@ export class SpotifyService {
   private buildResponseForClient(
     res: Required<Pick<PartialSearchResult, 'tracks'>>,
   ) {
-    // TODO: handle multiple artists.
-    return res.tracks.items.map((item) => ({
-      id: item.id,
-      track: {
-        uri: item.uri,
-        name: item.name,
-      },
-      album: {
-        uri: item.album.uri,
-        name: item.album.name,
-        // spotify's docs say the image order is from largest in size to smallest. For search results, we just need the smallest.
-        image: item.album.images.at(-1).url,
-      },
-      artist: {
-        uri: item.artists[0].uri,
-        name: item.artists[0].name,
-      },
-    }));
+    return res.tracks.items.map((item) => {
+      // spotify's docs say the image order is from largest in size to smallest. For search results, we just need the smallest.
+      // assume track may not have an image
+      const smallestImage = item.album.images.at(-1)
+        ? item.album.images.at(-1)!.url
+        : null;
+
+      // TODO: handle multiple artists.
+      const firstArtist = item.artists[0]!; // assume artist => cannot have track without artist.
+
+      return {
+        id: item.id,
+        track: {
+          uri: item.uri,
+          name: item.name,
+        },
+        album: {
+          uri: item.album.uri,
+          name: item.album.name,
+          image: smallestImage,
+        },
+        artist: {
+          uri: firstArtist.uri,
+          name: firstArtist.name,
+        },
+      };
+    });
   }
+
+  // TODO-validation shape of all spotify responses. We want to immediately know when if/when their api changes. And be able to fix it fast!
+  // That being said, we are using their sdk. Need to check if they already do some validation and how/if they pass the results of that to us.
+
+  // TODO catch and handle all spotify errs at this level. And from here on either:
+  // - directly throw http errs for client
+  // - or app errs.. and e.g and later decide in endpoint service that use this, what client http err to return.
 
   async search(query: string, limit?: MaxInt<10>, offset?: number) {
     const defaultLimit = 10;
@@ -95,6 +116,10 @@ export class SpotifyService {
 
     const albumArt = this.buildAlbumArtImageObject(trackInfo);
 
-    return { trackInfo, albumArt };
+    // assume artist => cannot have track without artist.
+    const artistId = trackInfo.artists[0]!.id;
+    const artistName = trackInfo.artists[0]!.name;
+
+    return { trackInfo: { ...trackInfo, artistId, artistName }, albumArt };
   }
 }

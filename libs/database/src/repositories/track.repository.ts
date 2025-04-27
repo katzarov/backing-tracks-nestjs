@@ -83,7 +83,7 @@ export class TrackRepository {
     trackId: number,
     newPlaylistsOfTrack: Array<{ id: number }>,
   ) {
-    const track = await this.trackRepository.findOne({
+    const track = await this.trackRepository.findOneOrFail({
       where: { user: Equal(userId), id: Equal(trackId) },
     });
 

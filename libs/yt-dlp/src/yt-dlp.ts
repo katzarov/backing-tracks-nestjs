@@ -50,8 +50,8 @@ export class YtDlp {
 
   // no multiple constructors in JS, but can remove that static methods and define a couple of TS overloads here... not sure what I prefer.
   private constructor(
-    private userOptions: IYtDlpUserOptions,
-    private systemOptions: IYtDlpSystemOptions,
+    protected userOptions: IYtDlpUserOptions,
+    protected systemOptions: IYtDlpSystemOptions,
   ) {}
 
   static YtDlpFactory({ userOptions, systemOptions }: IYtDlpFactory) {
@@ -65,10 +65,12 @@ export class YtDlp {
     return new YtDlp(userOptions, systemOptions);
   }
 
-  private isCookiesEnabled(
-    systemOptions: IYtDlpSystemOptions,
-  ): systemOptions is Required<IYtDlpSystemOptions> {
-    return systemOptions.cookiesEnabled;
+  private isCookiesEnabled(): this is YtDlp & {
+    systemOptions: IYtDlpSystemOptions & { cookiesTxtPath: string };
+  } {
+    return Boolean(
+      this.systemOptions.cookiesEnabled && this.systemOptions.cookiesTxtPath,
+    );
   }
 
   /**
@@ -113,7 +115,7 @@ export class YtDlp {
       dumpSingleJson: true,
       sleepInterval: this.systemOptions.sleepInterval,
       sleepRequests: this.systemOptions.sleepRequests,
-      ...(this.isCookiesEnabled(this.systemOptions) && {
+      ...(this.isCookiesEnabled() && {
         cookies: this.systemOptions.cookiesTxtPath,
       }),
     });
@@ -131,6 +133,8 @@ export class YtDlp {
         this.getInfo.name,
         error,
       );
+
+      throw error;
     }
   }
 
@@ -156,7 +160,7 @@ export class YtDlp {
       output: `${uri}.%(ext)s`, // `%(title)s-%(id)s-${uri}.%(ext)s`,
       outputNaPlaceholder: 'null',
       progressTemplate: getProgressTemplate(uri),
-      ...(this.isCookiesEnabled(this.systemOptions) && {
+      ...(this.isCookiesEnabled() && {
         cookies: this.systemOptions.cookiesTxtPath,
       }),
     });
@@ -176,6 +180,8 @@ export class YtDlp {
         this.download.name,
         error,
       );
+
+      throw error;
     }
   }
 }

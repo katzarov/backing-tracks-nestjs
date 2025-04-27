@@ -25,7 +25,7 @@ export const YtDlpOptionsFactory = (configService: ConfigService) => {
     return {
       ...noCookiesConfig,
       cookies: configService.getOrThrow<string>('ytdl.ytDlp.cookies'),
-    } satisfies YtDlpOptions;
+    } satisfies YtDlpOptions & Required<Pick<YtDlpOptions, 'cookies'>>;
   }
 
   return noCookiesConfig;

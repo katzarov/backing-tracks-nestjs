@@ -15,7 +15,7 @@ export class TrackFile {
   uri: string;
   diskDriver: DiskDriver;
   s3IsEnabled: boolean;
-  s3Driver?: S3Driver;
+  s3Driver: S3Driver | undefined;
 
   /**
    * Creates track file object with random uuid as uri.
@@ -40,7 +40,7 @@ export class TrackFile {
     this.diskDriver = options.diskDriver;
     this.s3IsEnabled = options.s3IsEnabled;
 
-    if (options.s3IsEnabled) {
+    if (this.s3IsEnabled) {
       this.s3Driver = options.s3Driver;
     }
   }
@@ -81,10 +81,17 @@ export class TrackFile {
     );
   }
 
-  saveTrackToS3(stream: Readable) {
+  private assertS3IsEnabled(): asserts this is TrackFile & {
+    s3Driver: S3Driver;
+  } {
     if (!this.s3IsEnabled) {
       throw new Error("Client shouldn't call when s3 feature is disabled.");
     }
+  }
+
+  saveTrackToS3(stream: Readable) {
+    this.assertS3IsEnabled();
+
     return this.s3Driver.uploadObject(
       stream,
       `${this.uri}.${FiLE_EXTENSIONS.MP3}`,
@@ -92,9 +99,8 @@ export class TrackFile {
   }
 
   getTrackPresignedUrlFromS3() {
-    if (!this.s3IsEnabled) {
-      throw new Error("Client shouldn't call when s3 feature is disabled.");
-    }
+    this.assertS3IsEnabled();
+
     return this.s3Driver.createPresignedUrl(
       `${this.uri}.${FiLE_EXTENSIONS.MP3}`,
     );

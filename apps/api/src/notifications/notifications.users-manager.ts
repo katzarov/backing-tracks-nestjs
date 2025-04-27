@@ -81,7 +81,7 @@ export class NotificationsUsersManager
       this.connectedUsers.set(userId, { clients: [res] });
     } else {
       // add client to existing user
-      const value = this.connectedUsers.get(userId);
+      const value = this.connectedUsers.get(userId)!; // in this branch, we do have the value since we already checked... maybe TS will support this case in the future, so ill leave it for now.
       value.clients.push(res);
     }
     // TODO would be cool to see all the current open TCP connections on the system of this node process.
@@ -94,8 +94,13 @@ export class NotificationsUsersManager
 
   protected setClientSocketCloseCb(userId: number, res: Response) {
     res.on('close', () => {
-      // remove client of user | assume userId exists
-      const value = this.connectedUsers.get(userId);
+      // remove client of user
+      if (!this.connectedUsers.has(userId)) {
+        this.logger.warn('should not happen');
+        return;
+      }
+
+      const value = this.connectedUsers.get(userId)!;
       const newClients = value.clients.filter((client) => client !== res);
 
       if (newClients.length === 0) {

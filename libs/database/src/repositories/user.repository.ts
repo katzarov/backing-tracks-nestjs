@@ -16,7 +16,7 @@ export class UserRepository {
   }
 
   findOneById(id: number) {
-    return this.userRepository.findOneBy({ id });
+    return this.userRepository.findOneByOrFail({ id });
   }
 
   findOneByAuth0Id(auth0Id: string) {

@@ -12,48 +12,28 @@
     "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
-    "strictNullChecks": false,
-    "noImplicitAny": false,
-    "strictBindCallApply": false,
+    "strict": true, // https://www.typescriptlang.org/tsconfig/#strict
+    "strictNullChecks": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": false, // just for TypeOrm! Remove it once we move to another ORM.
+    "noUncheckedIndexedAccess": true,
+    "noImplicitAny": false, // TODO => true
+    // "exactOptionalPropertyTypes": true, // TODO
     "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false,
+    "noFallthroughCasesInSwitch": true,
     "paths": {
-      "@app/track-storage": [
-        "libs/track-storage/src"
-      ],
-      "@app/track-storage/*": [
-        "libs/track-storage/src/*"
-      ],
-      "@app/database": [
-        "libs/database/src"
-      ],
-      "@app/database/*": [
-        "libs/database/src/*"
-      ],
-      "@app/shared": [
-        "libs/shared/src"
-      ],
-      "@app/shared/*": [
-        "libs/shared/src/*"
-      ],
-      "@app/yt-dlp": [
-        "libs/yt-dlp/src"
-      ],
-      "@app/yt-dlp/*": [
-        "libs/yt-dlp/src/*"
-      ],
-      "@app/yt-dlp-nestjs-module": [
-        "libs/yt-dlp-nestjs-module/src"
-      ],
-      "@app/yt-dlp-nestjs-module/*": [
-        "libs/yt-dlp-nestjs-module/src/*"
-      ],
-      "@app/job-queue": [
-        "libs/job-queue/src"
-      ],
-      "@app/job-queue/*": [
-        "libs/job-queue/src/*"
-      ]
+      "@app/track-storage": ["libs/track-storage/src"],
+      "@app/track-storage/*": ["libs/track-storage/src/*"],
+      "@app/database": ["libs/database/src"],
+      "@app/database/*": ["libs/database/src/*"],
+      "@app/shared": ["libs/shared/src"],
+      "@app/shared/*": ["libs/shared/src/*"],
+      "@app/yt-dlp": ["libs/yt-dlp/src"],
+      "@app/yt-dlp/*": ["libs/yt-dlp/src/*"],
+      "@app/yt-dlp-nestjs-module": ["libs/yt-dlp-nestjs-module/src"],
+      "@app/yt-dlp-nestjs-module/*": ["libs/yt-dlp-nestjs-module/src/*"],
+      "@app/job-queue": ["libs/job-queue/src"],
+      "@app/job-queue/*": ["libs/job-queue/src/*"]
     }
   }
 }

@@ -33,7 +33,10 @@ export class AcquireTracksOnYtdlQueueEvents implements OnApplicationBootstrap {
 
     let duration: number;
 
-    if (returnvalue.ffProbeTrackDuration !== null) {
+    if (
+      returnvalue.ffProbeTrackDuration !== null &&
+      returnvalue.ffProbeTrackDuration !== undefined
+    ) {
       duration = returnvalue.ffProbeTrackDuration;
     } else {
       duration = data.meta.spotify.trackDuration / 1000;

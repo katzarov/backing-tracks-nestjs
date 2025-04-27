@@ -6,7 +6,6 @@ import {
 import type { QueueEventsListener as QueueEventsListenerType } from 'bullmq';
 import { EventsService, JobQueueEvents } from '@app/shared/events';
 import { YtdlQueueConfig } from '@app/job-queue/ytdl-queue.config';
-import { YtdlProgressEvent } from './ytdl-queue.interface';
 import { YtdlQueueService } from './ytdl-queue.service';
 
 // https://api.docs.bullmq.io/interfaces/v5.QueueEventsListener.html
@@ -38,13 +37,25 @@ export class YtdlQueueEventsListener
   async onAdded({ jobId }) {
     const job = await this.ytdlQueueService.getJobById(jobId);
 
+    if (!job) {
+      // err already handled and logged in ytdlQueueService
+      return;
+    }
+
     this.eventsService.emit(JobQueueEvents.ytdlAny, job);
   }
 
   @OnQueueEvent('progress')
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async onProgress({ jobId }: YtdlProgressEvent, timestamp: string) {
+  async onProgress({ jobId }, timestamp: string) {
+    // TODO-validation we should validate the shape of the obj!
+
     const job = await this.ytdlQueueService.getJobById(jobId);
+
+    if (!job) {
+      // err already handled and logged in ytdlQueueService
+      return;
+    }
 
     this.eventsService.emit(JobQueueEvents.ytdlProgress, job);
   }
@@ -53,6 +64,11 @@ export class YtdlQueueEventsListener
   @OnQueueEvent('completed')
   async onCompleted({ jobId }) {
     const job = await this.ytdlQueueService.getJobById(jobId);
+
+    if (!job) {
+      // err already handled and logged in ytdlQueueService
+      return;
+    }
 
     this.eventsService.emit(JobQueueEvents.ytdlCompleted, job);
   }

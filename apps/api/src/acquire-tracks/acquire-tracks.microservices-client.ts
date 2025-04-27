@@ -12,6 +12,7 @@ import { lastValueFrom } from 'rxjs';
 import {
   BadGatewayException,
   InternalServerErrorException,
+  Logger,
 } from '@nestjs/common';
 
 /**
@@ -21,6 +22,8 @@ import {
 // NOTE: send() method returns a "cold observable", which means that you have to explicitly subscribe to it before the message will be sent.
 // NOTE: lastValueFrom() subscribes & converts the observables to promises. And it will return a rejected promise if the observable doesn't emit any values.
 export class AcquireTracksMicroServicesClient {
+  private readonly logger = new Logger(AcquireTracksMicroServicesClient.name);
+
   constructor(private ytdlService: ClientProxy) {}
 
   /**
@@ -43,22 +46,21 @@ export class AcquireTracksMicroServicesClient {
         payload,
       );
 
-    let error: InternalServerErrorException;
     try {
       const result = await lastValueFrom(observable);
 
       if (result.status === TCPStatusCodes.Failure) {
-        error = new InternalServerErrorException('Youtube service is broken.');
-        throw error;
+        throw new InternalServerErrorException('Youtube service is broken.');
       }
 
       return result;
-    } catch (e) {
-      if (e === error) {
-        console.log('Error: YTDL lib may have stopped working.');
-        throw e;
+    } catch (error) {
+      if (error instanceof InternalServerErrorException) {
+        this.logger.error('YTDL microservice broken:', error);
+        throw error;
       }
-      console.log('Error: YTDL microservice communication error:', e);
+
+      this.logger.error('YTDL microservice communication error:', error);
       throw new BadGatewayException('Youtube service is down.');
     }
   }
@@ -83,32 +85,22 @@ export class AcquireTracksMicroServicesClient {
         payload,
       );
 
-    let internalMsError: InternalServerErrorException;
-
     try {
       const result = await lastValueFrom(observable);
 
       if (result.status === TCPStatusCodes.Failure) {
-        internalMsError = new InternalServerErrorException(
-          'Error: Ffmpeg lib/service may be broken.',
-        );
-        throw internalMsError;
+        throw new InternalServerErrorException('Ffmpeg service is broken.');
       }
 
       return result;
-    } catch (e) {
-      if (e === internalMsError) {
-        console.log(internalMsError.message);
-        throw e;
+    } catch (error) {
+      if (error instanceof InternalServerErrorException) {
+        this.logger.error('YTDL microservice broken:', error);
+        throw error;
       }
 
-      const msCommunicationError = new BadGatewayException(
-        'Error: YTDL microservice communication error.',
-      );
-
-      console.log(msCommunicationError.message, e);
-
-      throw msCommunicationError;
+      this.logger.error('YTDL microservice communication error:', error);
+      throw new BadGatewayException('Ffmpeg service is down.');
     }
   }
 }

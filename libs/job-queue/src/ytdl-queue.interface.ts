@@ -43,7 +43,7 @@ export type YtDownloadDataType = YtdlJobData;
  */
 export interface YtDownloadReturnType {
   success: boolean;
-  ffProbeTrackDuration: number | null;
+  ffProbeTrackDuration: number | null | undefined; // TODO
 }
 
 /**
@@ -69,10 +69,12 @@ export type YtdlQueue = Queue<
  * job.progress
  * @defaultValue 0
  */
-export interface YtdlJobProgress {
-  percent: string;
-  eta: number | null;
-}
+export type YtdlJobProgress =
+  | number
+  | {
+      percent: string;
+      eta: number | null;
+    };
 
 export interface YtdlProgressEvent {
   data: YtdlJobProgress;
@@ -81,13 +83,13 @@ export interface YtdlProgressEvent {
 
 export interface YtdlJobFormatted {
   name: 'yt_download';
-  id: string;
+  id?: string;
   data: YtdlJobData;
   state: JobState | 'unknown';
-  progress: number | object;
+  progress: YtdlJobProgress;
   returnvalue: YtDownloadReturnType;
   timestamp: number; // when job was created
-  finishedOn: number;
+  finishedOn?: number;
   // processedOn: number;
   // failedReason: string;
   // stacktrace: string[];

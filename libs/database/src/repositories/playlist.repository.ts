@@ -13,7 +13,7 @@ export class PlaylistRepository {
   ) {}
 
   async create(userId: number, name: string, description?: string) {
-    const user = await this.userRepository.findOneBy({ id: userId });
+    const user = await this.userRepository.findOneByOrFail({ id: userId });
     const playlist = new Playlist({ name, description });
     playlist.user = user;
     try {

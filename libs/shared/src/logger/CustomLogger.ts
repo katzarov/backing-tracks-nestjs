@@ -12,9 +12,9 @@ enum slackMessageType {
 
 @Injectable()
 export class CustomLogger extends ConsoleLogger {
-  private slackLoggingEnabled: boolean;
-  private slackGeneralChannelUrl: string | undefined;
-  private slackErrorChannelUrl: string | undefined;
+  protected slackLoggingEnabled: boolean;
+  protected slackGeneralChannelUrl: string | undefined;
+  protected slackErrorChannelUrl: string | undefined;
 
   // When logs are buffered, timestamp during boot seems not correct ?
   constructor(context: string, configService: ConfigService) {
@@ -35,15 +35,33 @@ export class CustomLogger extends ConsoleLogger {
     }
   }
 
+  private assertSlackIsConfigured(): asserts this is CustomLogger & {
+    slackLoggingEnabled: true;
+    slackGeneralChannelUrl: string;
+    slackErrorChannelUrl: string;
+  } {
+    if (!this.slackLoggingEnabled) {
+      throw new Error('Slack logging is not enabled.');
+    }
+    if (!this.slackGeneralChannelUrl || !this.slackErrorChannelUrl) {
+      throw new Error(
+        'Slack channel URLs must be provided when slackLoggingEnabled is true.',
+      );
+    }
+  }
+
   private [formatObjectSymbol](message: unknown) {
     return typeof message === 'object'
       ? inspect(message, { showHidden: false, depth: 2 })
       : message;
   }
 
+  // TODO lets make it more prod-like by using sentry or something similar.
   private async sendSlackMessage(message: unknown, type: slackMessageType) {
     try {
-      let url: string;
+      this.assertSlackIsConfigured();
+
+      let url: string | undefined;
 
       switch (type) {
         case slackMessageType.error:
