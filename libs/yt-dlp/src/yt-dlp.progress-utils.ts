@@ -1,17 +1,9 @@
-import { plainToInstance, Transform } from 'class-transformer';
-import {
-  IsEnum,
-  IsInt,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  IsUUID,
-  validateSync,
-} from 'class-validator';
+import { z } from 'zod';
 
 // TODO might need to also parse converting / ffmpeg / other stages from stdout.
 const downloadingTrackProgressKey = '[downloading-track]';
 const splitToken = '__SPLIT_TOKEN__';
+export const NotAvailablePlaceholder = 'null';
 
 export const getProgressTemplate = (uri: string) =>
   `download:${downloadingTrackProgressKey}`.concat(splitToken).concat(
@@ -31,58 +23,48 @@ export const getProgressTemplate = (uri: string) =>
       total_bytes: '%(progress.total_bytes)s',
       // total_bytes_str: '%(progress._total_bytes_str)s',
       // total_bytes_estimate_str: '%(progress._total_bytes_estimate_str)s',
-      // progress: '%(progress)s',
+      // progress: '%(progress)s', // uncomment to check all that we have on the progress object. TODO we should just always print this for debugging purposes.
       // https://github.com/yt-dlp/yt-dlp/blob/master/yt_dlp/downloader/common.py#L401
       // https://github.com/yt-dlp/yt-dlp/blob/master/yt_dlp/downloader/common.py#L379
     }),
   );
 
-enum progressStatusEnum {
-  DOWNLOADING = 'downloading',
-  FINISHED = 'finished',
-}
+const stringToIntOrNull = z
+  .string()
+  .trim()
+  .min(1, { message: 'Progress template is likely broken.' })
+  .transform((value, ctx) => {
+    if (value === NotAvailablePlaceholder) {
+      return null;
+    }
 
-// TODO: for all fields transform from 'null' to null
-export class ProgressDataDto {
-  @IsUUID(4)
-  uri: string;
+    // also handles percent "4.5%" => 4
+    const number = Number.parseInt(value);
 
-  @IsString()
-  youtube_id: string;
+    if (!Number.isInteger(number)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Cannot parse as number. Progress template is likely broken.',
+      });
+      // Special symbol to return early from the transform function. Has type `never` so it does not affect the inferred return type.
+      return z.NEVER;
+    }
 
-  @IsEnum(progressStatusEnum)
-  status: string;
+    return number;
+  });
 
-  @Transform(({ value }) => toNumber(value), { toClassOnly: true })
-  @IsInt()
-  speed: number | null;
+// This is a shape-checking/validating schema for external incoming data. So will stick to the 'Dto' naming convention.
+export const YtDlpProgressDto = z.object({
+  uri: z.string().trim().uuid(),
+  eta: stringToIntOrNull,
+  percent_str: stringToIntOrNull,
+});
 
-  @Transform(({ value }) => toNumber(value), { toClassOnly: true })
-  @IsInt()
-  elapsed: number | null;
-
-  @Transform(({ value }) => toNumber(value), { toClassOnly: true })
-  @IsInt()
-  @IsOptional()
-  eta: number | null;
-
-  @IsNotEmpty()
-  @IsString()
-  @Transform(({ value }) => value.trim(), { toClassOnly: true })
-  percent_str: string;
-
-  @Transform(({ value }) => toNumber(value), { toClassOnly: true })
-  @IsInt()
-  downloaded_bytes: number | null;
-
-  @Transform(({ value }) => toNumber(value), { toClassOnly: true })
-  @IsInt()
-  total_bytes: number | null;
-}
+export type IYtDlpProgress = z.infer<typeof YtDlpProgressDto>;
 
 const parseProgressData = (
   data: string,
-  onProgressDataParsedCb: (data: ProgressDataDto) => void,
+  onProgressDataParsedCb: (data: IYtDlpProgress) => void,
 ) => {
   const splitData = data.split(splitToken);
   const matchDownloadingTrackStep =
@@ -101,30 +83,16 @@ const parseProgressData = (
 
       const dto = JSON.parse(downloadingTrackProgressValue.trim());
 
-      const transformed = plainToInstance(ProgressDataDto, dto);
+      const parsed = YtDlpProgressDto.parse(dto);
 
-      // Note that validateSync ignores async validations
-      const errors = validateSync(transformed);
-
-      if (errors.length > 0) {
-        throw new Error(tempateErrorMsg);
-      }
-
-      onProgressDataParsedCb(transformed);
+      onProgressDataParsedCb(parsed);
     } catch (e) {
+      // TODO use logger
       console.log('Error parsing', e);
     }
   }
 };
 
 export const getParseAndCallClientCb =
-  (clientCb: (data: ProgressDataDto) => void) => (data: string) =>
+  (clientCb: (data: IYtDlpProgress) => void) => (data: string) =>
     parseProgressData(data, clientCb);
-
-function toNumber(value: string): number | null {
-  if (value === 'null' || Number.isNaN(value)) {
-    return null;
-  }
-
-  return Number.parseInt(value);
-}

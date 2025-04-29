@@ -72,7 +72,7 @@ export type YtdlQueue = Queue<
 export type YtdlJobProgress =
   | number
   | {
-      percent: string;
+      percent: number | null;
       eta: number | null;
     };
 

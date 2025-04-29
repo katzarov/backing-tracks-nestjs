@@ -3,7 +3,8 @@ import { YtdlJobProgress, YtdlJob } from '@app/job-queue/ytdl-queue.interface';
 import { YtDlpService } from '@app/yt-dlp-nestjs-module';
 import { Injectable } from '@nestjs/common';
 import { FfmpegService } from './ffmpeg.service';
-import { ProgressDataDto } from '@app/yt-dlp';
+import type { IYtDlpProgress } from '@app/yt-dlp';
+
 import { Logger } from '@nestjs/common';
 
 @Injectable()
@@ -22,7 +23,7 @@ export class YtdlQueueProcessor extends AbstractYtdlQueueProcessor {
     try {
       const ytdlp = this.ytDlpService.YtDlp(ytUrl);
 
-      const onProgressCb = async (data: ProgressDataDto) => {
+      const onProgressCb = async (data: IYtDlpProgress) => {
         await job.updateProgress({
           percent: data.percent_str,
           eta: data.eta,

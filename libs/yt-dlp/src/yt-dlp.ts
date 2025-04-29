@@ -7,8 +7,9 @@ import { IDumpSingleJson } from './yt-dlp.json_response.interface';
 import {
   getParseAndCallClientCb,
   getProgressTemplate,
-  ProgressDataDto,
+  NotAvailablePlaceholder,
 } from './yt-dlp.progress-utils';
+import type { IYtDlpProgress } from './yt-dlp.progress-utils';
 import { Logger } from '@nestjs/common';
 
 interface IYtDlpUserOptions {
@@ -144,7 +145,7 @@ export class YtDlp {
    */
   async download(
     uri: string,
-    onProgressUpdateHandler: (data: ProgressDataDto) => void,
+    onProgressUpdateHandler: (data: IYtDlpProgress) => void,
   ) {
     const args = this.buildYtDlpArgs({
       sleepInterval: this.systemOptions.sleepInterval,
@@ -158,7 +159,7 @@ export class YtDlp {
         `temp:/usr/src/app/${this.systemOptions.downloadsPath}`,
       ],
       output: `${uri}.%(ext)s`, // `%(title)s-%(id)s-${uri}.%(ext)s`,
-      outputNaPlaceholder: 'null',
+      outputNaPlaceholder: NotAvailablePlaceholder,
       progressTemplate: getProgressTemplate(uri),
       ...(this.isCookiesEnabled() && {
         cookies: this.systemOptions.cookiesTxtPath,
