@@ -1,4 +1,4 @@
-import { PassThrough, Readable } from 'node:stream';
+import { Readable } from 'node:stream';
 import { Buffer } from 'node:buffer';
 import { randomUUID } from 'node:crypto';
 import { FiLE_EXTENSIONS } from './constants';

@@ -1,4 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnApplicationShutdown,
+  Scope,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type {
   MaxInt,
@@ -10,9 +15,11 @@ import { SpotifyApi } from '@spotify/web-api-ts-sdk';
 
 const spotifyMarket = 'US';
 
-@Injectable()
-export class SpotifyService {
+@Injectable({ scope: Scope.DEFAULT })
+// default = singleton, explicitly calling it here since this is the only scope that should ever be used for this provider!
+export class SpotifyService implements OnApplicationShutdown {
   private readonly spotifyApi: SpotifyApi; // If I do the "syntatic sugar" in the constructor - for initializing this as a (private) class var, Nest will want to inject SpotifyApi.
+  private readonly logger = new Logger(SpotifyService.name);
 
   constructor(configService: ConfigService) {
     const spotifyClientId =
@@ -24,6 +31,11 @@ export class SpotifyService {
       spotifyClientId,
       spotifySecret,
     );
+  }
+
+  onApplicationShutdown(signal: string) {
+    this.logger.log('Spotify client destroyed on: ', signal);
+    this.spotifyApi.logOut();
   }
 
   private buildAlbumArtImageObject(track: Track) {

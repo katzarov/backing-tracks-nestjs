@@ -2,6 +2,7 @@ import {
   Injectable,
   MessageEvent,
   OnApplicationBootstrap,
+  Scope,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { AppEvents, EventsService, JobQueueEvents } from '@app/shared/events';
@@ -18,7 +19,8 @@ enum sseMessageType {
 // TODO strip userId from data before send to client!!!
 // use the full obj here, and format it just for client
 
-@Injectable()
+@Injectable({ scope: Scope.DEFAULT })
+// default = singleton, explicitly calling it here since this is the only scope that should ever be used for this provider!
 export class NotificationsService
   extends NotificationsUsersManager
   implements OnApplicationBootstrap

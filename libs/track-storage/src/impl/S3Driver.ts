@@ -19,6 +19,10 @@ export class S3Driver {
     this.urlExpiration = urlExpiration;
   }
 
+  destroy() {
+    this.s3Client.destroy();
+  }
+
   async uploadObject(stream: Readable, key: string) {
     const uploadParams = {
       Bucket: this.bucket,
@@ -49,7 +53,4 @@ export class S3Driver {
       expiresIn: this.urlExpiration,
     });
   }
-
-  // TODO: consider ? allowing users to upload straight to s3, again with a presigned url
-  // TODO: react app / browser needs to trust downloads from s3 ? and auto start the download w/o user interaction.
 }
