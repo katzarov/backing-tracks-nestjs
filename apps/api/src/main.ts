@@ -1,7 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
 import { CustomLogger } from '@app/shared/logger';
 
@@ -16,14 +15,6 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
 
   app.use(helmet());
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      // disableErrorMessages: true, // for prod
-      enableDebugMessages: true,
-    }),
-  );
 
   const allowedOrigins =
     configService.getOrThrow<Array<string>>('api.allowedOrigins');

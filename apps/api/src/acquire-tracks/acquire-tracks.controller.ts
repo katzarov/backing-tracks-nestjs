@@ -15,12 +15,12 @@ import {
 import { AcquireTracksService } from './acquire-tracks.service';
 import { AddYouTubeDownloadJobDto } from './dto/add-youtube-download-job.dto';
 import { AuthenticatedUser } from '../auth/authenticated-user.decorator';
-import { GetYoutubeVideoInfoDto } from './dto/get-youtube-video-info.dto';
 import { SpotifyService } from './spotify.service';
 import { SeachForTrackInSpotifyDto } from './dto/search-for-track-in-spotify.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileMagicNumberValidator } from './dto/utils/file-magic-number.validator';
 import { UploadTrackDto } from './dto/upload-track.dto';
+import { GetYoutubeVideoInfoRequestDto } from './acquire-tracks.dto';
 
 // TODO: Rate limit this whole controller
 @Controller('acquire-tracks')
@@ -31,7 +31,7 @@ export class AcquireTracksController {
   ) {}
 
   @Get('youtube/info/:url')
-  getYouTubeVideoInfo(@Param() { url }: GetYoutubeVideoInfoDto) {
+  getYouTubeVideoInfo(@Param() { url }: GetYoutubeVideoInfoRequestDto) {
     return this.acquireTracksService.getYouTubeVideoInfo(url);
   }
 

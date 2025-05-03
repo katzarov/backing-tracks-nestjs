@@ -1,5 +1,7 @@
-import { Module } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
+import { Module, ValidationPipe } from '@nestjs/common';
+import { ZodSerializerInterceptor, ZodValidationPipe } from 'nestjs-zod';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
+import { HttpExceptionFilter } from './http-exception.filter';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BullModule } from '@nestjs/bullmq';
 import {
@@ -62,6 +64,20 @@ import { CustomLoggerModule } from '@app/shared/logger';
       // TODO: Put in a separate module & import the UserRepositoryModule there
       provide: APP_GUARD,
       useClass: AuthGuard,
+    },
+    {
+      provide: APP_PIPE,
+      useClass: ZodValidationPipe,
+    },
+    // TODO-zod: remove ValidationPipe once we fully replace class-transform/validation. https://github.com/nestjs/nest/issues/812
+    {
+      provide: APP_PIPE,
+      useClass: ValidationPipe,
+    },
+    { provide: APP_INTERCEPTOR, useClass: ZodSerializerInterceptor },
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
     },
   ],
 })
