@@ -11,6 +11,10 @@ import {
 import { Track } from './track.entity';
 import { User } from './user.entity';
 
+type PlaylistConstructor = Pick<Playlist, 'name'> & {
+  description?: string | null | undefined;
+};
+
 // TODO create a default playlist for all tracks of user
 @Entity()
 export class Playlist {
@@ -26,8 +30,9 @@ export class Playlist {
   @Column({ unique: true })
   name: string;
 
-  @Column({ nullable: true })
-  description?: string;
+  // NOTE: When I tell TS that prop is string | null, typeorm cannot infer what the column type is, so we need to specify it! Otherwise it fails silently and wastes your time!!!
+  @Column('varchar', { nullable: true })
+  description: string | null;
 
   @ManyToOne(() => User, (user) => user.playlists)
   user: User;
@@ -37,12 +42,7 @@ export class Playlist {
   @JoinTable({ name: 'playlist_tracks' })
   tracks: Track[];
 
-  constructor(
-    entity: Omit<
-      Playlist,
-      'id' | 'createdDate' | 'updatedDate' | 'user' | 'tracks'
-    >,
-  ) {
+  constructor(entity: PlaylistConstructor) {
     Object.assign(this, entity);
   }
 }

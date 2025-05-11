@@ -10,6 +10,7 @@ import {
 import { Track } from './track.entity';
 import { Artist } from './artist.entity';
 
+// TODO-z remove export
 export interface IAlbumArtImage {
   url: string;
   width: number;

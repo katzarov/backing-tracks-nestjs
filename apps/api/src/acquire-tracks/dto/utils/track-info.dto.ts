@@ -1,14 +1,19 @@
 import { IsNotEmpty, IsString, IsEnum } from 'class-validator';
-import { TrackType, TrackInstrument } from '@app/database/entities';
+import {
+  TrackTypeEnum,
+  TrackInstrumentEnum,
+  ITrackType,
+  ITrackInstrument,
+} from 'backing-tracks-isomorphic';
 
 export class TrackInfoDto {
   @IsNotEmpty()
   @IsString()
   spotifyId: string;
 
-  @IsEnum(TrackType)
-  trackType: TrackType;
+  @IsEnum(TrackTypeEnum)
+  trackType: ITrackType;
 
-  @IsEnum(TrackInstrument)
-  trackInstrument: TrackInstrument;
+  @IsEnum(TrackInstrumentEnum)
+  trackInstrument: ITrackInstrument;
 }

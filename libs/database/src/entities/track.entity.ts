@@ -12,15 +12,27 @@ import { User } from './user.entity';
 import { TrackMeta } from './trackMeta.entity';
 import { Playlist } from './playlist.entity';
 
-export enum TrackType {
-  BACKING = 'BACKING',
-  JAM = 'JAM',
+const _TrackTypes = ['BACKING', 'JAM'] as const;
+const TrackTypes = [..._TrackTypes];
+type ITrackType = (typeof TrackTypes)[number];
+
+const _TrackInstruments = ['GUITAR', 'BASS'] as const;
+const TrackInstruments = [..._TrackInstruments];
+type ITrackInstrument = (typeof TrackInstruments)[number];
+
+interface ITrackRegion {
+  id: string;
+  start: number;
+  end: number;
+  name: string;
 }
 
-export enum TrackInstrument {
-  GUITAR = 'GUITAR',
-  BASS = 'BASS',
-}
+type ITrackRegions = Array<ITrackRegion>;
+
+type TrackConstructor = Omit<
+  Track,
+  'id' | 'createdDate' | 'updatedDate' | 'user' | 'regions'
+>;
 
 // TODO the YT URL itself should also be a column
 // TODO take into account track versioning https://typeorm.io/decorator-reference#generated https://github.com/typeorm/typeorm/issues/1517
@@ -50,19 +62,24 @@ export class Track {
 
   @Column({
     type: 'enum',
-    enum: TrackType,
+    enum: TrackTypes,
   })
-  trackType: TrackType;
+  trackType: ITrackType;
 
   @Column({
     type: 'enum',
-    enum: TrackInstrument,
+    enum: TrackInstruments,
   })
-  trackInstrument: TrackInstrument;
+  trackInstrument: ITrackInstrument;
 
   // TODO figure out what precision we actually need
   @Column({ type: 'double precision' })
   duration: number;
+
+  @Column('jsonb', {
+    default: [],
+  })
+  regions: ITrackRegions;
 
   @ManyToOne(() => TrackMeta, (meta) => meta.tracks)
   meta: TrackMeta;
@@ -75,10 +92,9 @@ export class Track {
     onDelete: 'CASCADE',
   })
   playlists?: Playlist[];
+  // TODO playlists? or playlists or playlists: Playlist[] = [];
 
-  constructor(
-    entity: Omit<Track, 'id' | 'createdDate' | 'updatedDate' | 'user'>,
-  ) {
+  constructor(entity: TrackConstructor) {
     Object.assign(this, entity);
   }
 }

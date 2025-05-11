@@ -1,8 +1,5 @@
-import {
-  IAlbumArtImage,
-  TrackInstrument,
-  TrackType,
-} from '@app/database/entities';
+import { IAlbumArtImage } from '@app/database/entities';
+import { ITrackType, ITrackInstrument } from 'backing-tracks-isomorphic';
 import type { Job, JobState, Queue } from 'bullmq';
 
 export interface YtdlJobData {
@@ -24,8 +21,8 @@ export interface YtdlJobData {
         large: IAlbumArtImage | null;
       };
     };
-    trackType: TrackType;
-    trackInstrument: TrackInstrument;
+    trackType: ITrackType;
+    trackInstrument: ITrackInstrument;
   };
 }
 

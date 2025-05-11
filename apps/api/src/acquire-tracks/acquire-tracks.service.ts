@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { SpotifyService } from './spotify.service';
 import { AddYouTubeDownloadJobDto } from './dto/add-youtube-download-job.dto';
-import { TrackInstrument, TrackType } from '@app/database/entities';
+import { ITrackType, ITrackInstrument } from 'backing-tracks-isomorphic';
 import { UploadTrackDto } from './dto/upload-track.dto';
 import { TrackStorageService } from '@app/track-storage';
 import { ConfigService } from '@nestjs/config';
@@ -34,8 +34,8 @@ export class AcquireTracksService extends AcquireTracksMicroServicesClient {
     userId: number,
     resourceId: string,
     spotifyId: string,
-    trackType: TrackType,
-    trackInstrument: TrackInstrument,
+    trackType: ITrackType,
+    trackInstrument: ITrackInstrument,
     trackDuration: number | null,
   ) {
     const { trackInfo, albumArt } =

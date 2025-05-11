@@ -16,10 +16,13 @@
     "strictNullChecks": true,
     "strictBindCallApply": true,
     "strictPropertyInitialization": false, // just for TypeOrm! Remove it once we move to another ORM.
+    // "noUnusedLocals": true, // TODO
+    // "noUnusedParameters": true, // TODO maybe
     "noUncheckedIndexedAccess": true,
     "noImplicitAny": false, // TODO => true
-    // "exactOptionalPropertyTypes": true, // TODO
+    // "exactOptionalPropertyTypes": true, // TODO-z
     "forceConsistentCasingInFileNames": false,
+    "noErrorTruncation": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {
       "@app/track-storage": ["libs/track-storage/src"],
