@@ -31,7 +31,7 @@ type ITrackRegions = Array<ITrackRegion>;
 
 type TrackConstructor = Omit<
   Track,
-  'id' | 'createdDate' | 'updatedDate' | 'user' | 'regions'
+  'id' | 'createdDate' | 'updatedDate' | 'user' | 'regions' | 'update'
 >;
 
 // TODO the YT URL itself should also be a column
@@ -93,6 +93,17 @@ export class Track {
   })
   playlists?: Playlist[];
   // TODO playlists? or playlists or playlists: Playlist[] = [];
+
+  /**
+   * Update only the provided (non-undefined) fields on this entity.
+   * If a value is undefined, typeorm won't do anything to that field. https://github.com/typeorm/typeorm/issues/2934
+   *
+   */
+  update(
+    fields: Partial<Pick<Track, 'trackInstrument' | 'trackType' | 'regions'>>,
+  ) {
+    Object.assign(this, fields);
+  }
 
   constructor(entity: TrackConstructor) {
     Object.assign(this, entity);

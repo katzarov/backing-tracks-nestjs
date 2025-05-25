@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, StreamableFile } from '@nestjs/common';
 import { TrackStorageService } from '@app/track-storage';
 import { TrackRepository } from '@app/database/repositories';
+import { UpdateTrackRequestDto } from './tracks.dto';
 
 @Injectable()
 export class TracksService {
@@ -21,6 +22,14 @@ export class TracksService {
     }
 
     return result;
+  }
+
+  update(
+    userId: number,
+    trackId: number,
+    updateTrackDto: UpdateTrackRequestDto,
+  ) {
+    return this.trackRepository.update(userId, trackId, updateTrackDto);
   }
 
   findAllPlaylists(userId: number, trackId: number) {

@@ -11,9 +11,9 @@ Check the frontend repository for general project description [frontend reposito
 ## App Stack
 
 - NestJS
-- TypeORM - I don't like it, never liked it. And now It also seems dead. I'd check out Prisma again - they have done some major rearchitecting that might solve the previous pain points.
+- TypeORM - I don't like it, never liked it. And now it also seems dead. I'd check out Prisma again - they have done some major rearchitecting that might solve the previous pain points... like it can finally do joins at the db level, need to check if its still too big for a Lambda and how it performs there. If all good - will switch to it.. Also, same as with class-validator<->Zod, I caught myself having slightly wrong TS type.. instead of the TS types just being infered/autogen-ed for me based on the schema.
 - Class Validator - I like it but inferring the TS types from the schema is just plain better - so will be replacing this with Zod.
-- Postgres => we are moving to DynamoDB cause its the only serverless pay per request db that AWS offers. And works great with a bunch of lambdas.
+- Postgres => we are moving to DynamoDB cause its the only serverless pay per request db that AWS offers. And works great with a bunch of lambdas. Actually, kinda wrong, and first we are gonna try Neon/Prisma Postgres/Aurora serverless v2 (it can finally scale down to 0, but is unusable for our use case cause of 15s cold start). We will still use DynamoDB, but for now, just for the queue/notificaion system/and maybe for collectiing some user data that we can later use to build a recommendataion engine for.
 - BullMQ (queue system built on top of Redis). I like it but now I need to rebuild the system using AWS event driven arch(EDA) primitives.
 - ffmpeg, yt-dlp
 
@@ -34,6 +34,10 @@ This is a NestJS monorepo:
 - `libs/database` - all database related stuff: entity/schema definitions, repositories.
 - `libs/job-queue` - all BullMQ related stuff. Mainly a thin wrapper for publishing youtube download jobs, some common read operations on the queue, and some queue event listeners.
 - `libs` - in general, a lot of (core) code lives there.
+
+## Important READMEs
+
+[Database/TypeORM README](/libs/database/README.md)
 
 ## Installation
 
@@ -82,7 +86,13 @@ TODO
 
   - Open a new private browsing/incognito window and log into YouTube
   - Open a new tab and then close the YouTube tab
-  - Export youtube.com cookies from the browser
+  - Export youtube.com cookies from the browser ("export cookies from this container")
   - Close the private browsing/incognito window so the session is never opened in the browser again.
 
 - TODO: This looks like something new that we'd want to setup ? https://github.com/yt-dlp/yt-dlp/wiki/PO-Token-Guide
+
+### Making sure yt-dlp works
+
+- need to keep yt-dlp updated (and its corresponding ffmpeg version)
+- need to give it new cookies every X days - when google logs you out - 6 months ?. Need to update the value in AWS Secrets manager. Then we can do "force new deployment" on the same ecs task - the container will get the latest value from SM. TODO maybe make some cli script to do that.
+- need to make sure progress template is up to date and make it more fail proof

@@ -78,6 +78,22 @@ export class TrackRepository {
     });
   }
 
+  async update(
+    userId: Track['user']['id'],
+    trackId: Track['id'],
+    newFields: Partial<
+      Pick<Track, 'trackInstrument' | 'trackType' | 'regions'>
+    >,
+  ) {
+    const track = await this.trackRepository.findOneOrFail({
+      where: { user: Equal(userId), id: Equal(trackId) },
+    });
+
+    track.update(newFields);
+
+    return this.trackRepository.save(track);
+  }
+
   async updatePlaylists(
     userId: number,
     trackId: number,
