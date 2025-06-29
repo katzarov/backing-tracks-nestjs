@@ -2,7 +2,7 @@
 # yt-dlp even distributes their own ffmpeg builds where they fix some issues they experience, but for now, this ffmpeg pkg also works.. need to check if it's official actually, TODO.
 FROM node:20.19-bookworm-slim AS base_with_ffmpeg
 RUN \
-    --mount=type=cache,target=/var/cache/apt \
+    --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
     apt-get update && \
     apt-get install -y tini ffmpeg
 ENTRYPOINT ["/usr/bin/tini", "-v", "-e", "143", "--"]
@@ -13,7 +13,7 @@ ENTRYPOINT ["/usr/bin/tini", "-v", "-e", "143", "--"]
 # it seems we get into a locking issue since both images are seemingly building in parallel, and both are doing the apt-get update and reading/updating the cache that is mounted.
 FROM base_with_ffmpeg AS temp_yt-dlp
 RUN \
-    --mount=type=cache,target=/var/cache/apt \
+    --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
     apt-get update && \
     apt-get install -y curl
 RUN \
@@ -64,7 +64,7 @@ CMD ["node", "dist/apps/ytdl/main"]
 FROM base_with_ffmpeg_and_yt-dlp AS dev
 # our base image is lacking procps which is needed for the nest dev-server
 RUN \
-    --mount=type=cache,target=/var/cache/apt \
+    --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
     apt-get update && \
     apt-get install -y procps
 WORKDIR /usr/src/app

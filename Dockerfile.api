@@ -2,7 +2,7 @@ FROM node:20.19-bookworm-slim AS base
 WORKDIR /usr/src/app
 # https://docs.docker.com/build/cache/#use-the-dedicated-run-cache
 RUN \
-    --mount=type=cache,target=/var/cache/apt \
+    --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
     apt-get update && \
     apt-get install tini -y
 # node is not designed to be pid 1
