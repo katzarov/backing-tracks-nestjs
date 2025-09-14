@@ -11,7 +11,7 @@ import {
   storageConfig,
   redisConfig,
   loggerConfig,
-} from 'config';
+} from '../../../config';
 import { DatabaseModule } from '@app/database'; // keep this above all other user modules
 import { UserRepositoryModule } from '@app/database/modules'; // needed for the global auth guard, which uses the userRepository
 import { AcquireTracksModule } from './acquire-tracks/acquire-tracks.module';
@@ -63,8 +63,9 @@ import { CustomLoggerModule } from '@app/shared/logger';
     {
       // TODO: Put in a separate module & import the UserRepositoryModule there
       provide: APP_GUARD,
-      useClass: AuthGuard,
+      useExisting: AuthGuard,
     },
+    AuthGuard,
     {
       provide: APP_PIPE,
       useClass: ZodValidationPipe,

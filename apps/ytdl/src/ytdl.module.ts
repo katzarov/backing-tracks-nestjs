@@ -4,7 +4,12 @@ import { YtdlController } from './ytdl.controller';
 import { YoutubeDownloaderService } from './youtube-downloader.service';
 import { FfmpegService } from './ffmpeg.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ytdlConfig, storageConfig, redisConfig, loggerConfig } from 'config';
+import {
+  ytdlConfig,
+  storageConfig,
+  redisConfig,
+  loggerConfig,
+} from '../../../config';
 import { TrackStorageModule } from '@app/track-storage';
 import { StorageConfigFactory } from '@app/track-storage/storage-config.provider';
 import { YtDlpModule } from '@app/yt-dlp-nestjs-module';

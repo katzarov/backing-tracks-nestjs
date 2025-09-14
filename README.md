@@ -101,3 +101,8 @@ TODO
 ## Docker
 
 - `docker sytem prune -a` clean all unused objects
+
+## Redis
+
+- connect to instance via `make redis-debug`
+- `CLIENT LIST` - to see open conns
