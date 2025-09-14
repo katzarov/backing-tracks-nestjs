@@ -30,8 +30,10 @@ dev-server-clean:	loadDevServerEnv	make-scripts-executable
 	- docker	volume	rm	${COMPOSE_PROJECT_NAME}_nodemodules
 	./scripts/isLocalBTI.js && echo "BTI already symlinked" || $(MAKE) bti-local
 
-dev-server:
+dev-server-build:
 	docker-compose	-f docker-compose.dev-server.yml --env-file .env.nest build
+
+dev-server:
 	docker-compose	-f docker-compose.dev-server.yml --env-file .env.nest up
 
 dev-server-db:	loadDevServerEnv

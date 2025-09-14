@@ -39,7 +39,7 @@ This is a NestJS monorepo:
 
 [Database/TypeORM README](/libs/database/README.md)
 
-## Installation
+## Installation & Maintenance
 
 ### Working with the containerized dev-server
 
@@ -56,10 +56,11 @@ This is a NestJS monorepo:
 
 Checklist:
 
-1. package\*.json changed due to new dep, update, etc. => delete current container, image and volume. (script makes sure BTI is a symlink) `make dev-server-clean`
-2. package\*.json changed due to changing BTI from local to registry or vice versa ? => delete current container, image and volume. (script makes sure BTI is a symlink) `make dev-server-clean`
-3. BTI src changed ? => No need to rebuild image. Just restart nest dev-server by making some file change.
-4. Run the dev server with `make dev-server`.
+- package\*.json changed due to new dep, update, etc. => delete current container, image and volume. (script makes sure BTI is a symlink) `make dev-server-clean`
+- package\*.json changed due to changing BTI from local to registry or vice versa ? => delete current container, image and volume. (script makes sure BTI is a symlink) `make dev-server-clean`
+- BTI src changed ? => No need to rebuild image. Just restart nest dev-server by making some file change.
+- Build `make dev-server-build`.
+- Run the dev server with `make dev-server`.
 
 ### Working with the containerized staging build
 
@@ -96,3 +97,7 @@ TODO
 - need to keep yt-dlp updated (and its corresponding ffmpeg version)
 - need to give it new cookies every X days - when google logs you out - 6 months ?. Need to update the value in AWS Secrets manager. Then we can do "force new deployment" on the same ecs task - the container will get the latest value from SM. TODO maybe make some cli script to do that.
 - need to make sure progress template is up to date and make it more fail proof
+
+## Docker
+
+- `docker sytem prune -a` clean all unused objects
