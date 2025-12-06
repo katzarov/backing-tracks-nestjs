@@ -20,7 +20,7 @@
   },
   "engines": {
     "npm": ">=10.2.3 <11.0.0",
-    "node": ">=20.19.0 <21.0.0"
+    "node": ">=22.21.0 <23.0.0"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.511.0",
@@ -35,11 +35,11 @@
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/typeorm": "^10.0.2",
     "@spotify/web-api-ts-sdk": "^1.2.0",
-    "backing-tracks-isomorphic": "^1.0.4",
+    "backing-tracks-isomorphic": "^1.0.5",
     "bullmq": "^5.29.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
-    "express-oauth2-jwt-bearer": "^1.6.0",
+    "express-oauth2-jwt-bearer": "~1.6.1",
     "file-type": "^16.5.4",
     "fluent-ffmpeg": "^2.1.2",
     "helmet": "^7.1.0",
