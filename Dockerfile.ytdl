@@ -11,19 +11,23 @@ ENTRYPOINT ["/usr/bin/tini", "-v", "-e", "143", "--"]
 # we need curl to get the yt-dlp binary but we don't want curl be in the final image
 # side note: wanted to start image from the same node base image as above but..
 # it seems we get into a locking issue since both images are seemingly building in parallel, and both are doing the apt-get update and reading/updating the cache that is mounted.
-FROM base_with_ffmpeg AS temp_yt-dlp
-RUN \
-    --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
-    apt-get update && \
-    apt-get install -y curl
-RUN \
-    curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/bin/yt-dlp
-# this binary also includes an auto-updater, need to think what I want to do.. But an auto-updater might come in handy for sure, given this is a constant battle with youtube, and given I might not deploy new build that often.
 
+# FROM base_with_ffmpeg AS temp_yt-dlp
+# RUN \
+#     --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
+#     apt-get update && \
+#     apt-get install -y curl
+# RUN \
+#     curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/bin/yt-dlp
+
+# TODO-YTDLP
+# - this binary also includes an auto-updater, need to think what I want to do.. But an auto-updater might come in handy for sure, given this is a constant battle with youtube, and given I might not deploy new build that often.
+# - Right now I am disabling it due to 2 reasons: security and too much maintenance. Maybe can open source my nest js microservice or node ytdlp wrapper so other ppl can aslo maintaitn it but idk now.
 
 # u+rx => octal => 500
-FROM base_with_ffmpeg AS base_with_ffmpeg_and_yt-dlp
-COPY --chown=node:node --chmod=500 --from=temp_yt-dlp /usr/bin/yt-dlp /usr/bin/yt-dlp
+
+# FROM base_with_ffmpeg AS base_with_ffmpeg_and_yt-dlp
+# COPY --chown=node:node --chmod=500 --from=temp_yt-dlp /usr/bin/yt-dlp /usr/bin/yt-dlp
 
 
 FROM node:20.19-bookworm-slim AS temp_prod_node_deps
@@ -43,7 +47,7 @@ COPY . .
 RUN npm run build:ytdl
 
 
-FROM base_with_ffmpeg_and_yt-dlp AS prod
+FROM base_with_ffmpeg AS prod
 ARG DOWNLOADED_TRACKS_PATH
 ARG CONVERTED_TRACKS_PATH
 WORKDIR /usr/src/app
@@ -61,7 +65,7 @@ COPY --chown=node:node --from=temp_prod_node_deps /usr/src/app/node_modules /usr
 CMD ["node", "dist/apps/ytdl/main"]
 
 
-FROM base_with_ffmpeg_and_yt-dlp AS dev
+FROM base_with_ffmpeg AS dev
 # our base image is lacking procps which is needed for the nest dev-server
 RUN \
     --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
