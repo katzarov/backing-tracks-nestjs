@@ -19,8 +19,9 @@
     "test:e2e": "jest --testRegex .e2e-spec.ts$"
   },
   "engines": {
-    "npm": ">=10.2.3 <11.0.0",
-    "node": ">=22.21.0 <23.0.0"
+    "node": ">=22.21.1 <23.0.0",
+    "npm": ">=10.9.4 <11.0.0",
+    "pnpm": "please-use-npm"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.511.0",

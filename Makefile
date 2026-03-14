@@ -6,22 +6,28 @@ define	setup_env
     $(eval export sed 's/=.*//' $(1))
 endef
 
+.PHONY: loadDevServerEnv
 loadDevServerEnv:
 	$(call setup_env, .env.nest)
 
+.PHONY: loadStagingEnv
 loadStagingEnv:
 	$(call setup_env, .env.staging)
 
+.PHONY: make-scripts-executable
 make-scripts-executable:
 	chmod +x ./scripts/isLocalBTI.js
 
+.PHONY: bti-local
 bti-local:
 	npm i file:../backing-tracks-isomorphic
 
+.PHONY: bti-reg
 bti-reg:
 	npm i backing-tracks-isomorphic@latest
 
 # Leading dash (- docker ...) means “run the command, but do not stop the Make process if there’s an error.” Useful cause we can just run this script even if this is our first time and we don't have those images yet.
+.PHONY: dev-server-clean
 dev-server-clean:	loadDevServerEnv	make-scripts-executable
 	- docker	rm	-f	${COMPOSE_PROJECT_NAME}-api
 	- docker	rmi	-f	${COMPOSE_PROJECT_NAME}-api
@@ -30,15 +36,19 @@ dev-server-clean:	loadDevServerEnv	make-scripts-executable
 	- docker	volume	rm	${COMPOSE_PROJECT_NAME}_nodemodules
 	./scripts/isLocalBTI.js && echo "BTI already symlinked" || $(MAKE) bti-local
 
+.PHONY: dev-server-build
 dev-server-build:
 	docker-compose	-f docker-compose.dev-server.yml --env-file .env.nest build
 
+.PHONY: dev-server
 dev-server:
 	docker-compose	-f docker-compose.dev-server.yml --env-file .env.nest up
 
+.PHONY: dev-server-db
 dev-server-db:	loadDevServerEnv
 	docker	start	${COMPOSE_PROJECT_NAME}-pg-db
 
+.PHONY: staging-clean
 staging-clean:	loadStagingEnv	make-scripts-executable
 	- docker	rm	-f	${COMPOSE_PROJECT_NAME}-api
 	- docker	rmi	-f	${COMPOSE_PROJECT_NAME}-api
@@ -47,11 +57,17 @@ staging-clean:	loadStagingEnv	make-scripts-executable
 	./scripts/isLocalBTI.js && $(MAKE) bti-reg || echo "BTI registry pkg already installed."
 
 # Big diff compared to our dev-server script - here we always first clean the older builds.
+.PHONY: staging
 staging:
 	$(MAKE) staging-clean
 	docker-compose	-f docker-compose.staging.yml --env-file .env.staging	build
 	docker-compose	-f docker-compose.staging.yml --env-file .env.staging	up
 
 # todo check out docker debug https://docs.docker.com/reference/cli/docker/debug/ 
+.PHONY: redis-debug
 redis-debug:	loadDevServerEnv
 	docker exec -it ${COMPOSE_PROJECT_NAME}-redis redis-cli
+
+.PHONY: docker-clean
+docker-clean:
+	docker system prune -a

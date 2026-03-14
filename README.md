@@ -41,6 +41,17 @@ This is a NestJS monorepo:
 
 ## Installation & Maintenance
 
+### NPM hardening
+
+- easiest is to move to pnpm and follow the recipe for supply chain attacks mitigation.
+- but right now I dont feel like moving package managers, so we will harden npm.
+
+- added ignore-scripts to .npmrc. https://docs.npmjs.com/cli/v10/using-npm/config#ignore-scripts
+- when installing deps should always do `npm ci`
+- if adding a new dep, obviously cannot do npm ci, but we can do `npm install express --ignore-scripts --before="$(date -v -14d)"`. Adds a 14d pkg cooldown. https://docs.npmjs.com/cli/v10/using-npm/config#ignore-scripts
+- go through all this -> there is some great advice there https://github.com/katzarov/npm-security-best-practices?tab=readme-ov-file#3-use-npq-for-hardening-package-installs
+
+
 ### Working with the containerized dev-server
 
 - The npm deps installed locally are just for our code editor. You may still start the dev-server locally but some feats might not work.
