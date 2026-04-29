@@ -37,6 +37,7 @@ README.md
 
 .eslintrc.js
 .prettierrc
+# *.env* why not this ? does my app use the .staging ? - 99% just me not knowing what i was doing back then?
 *.env
 .env.secret
 

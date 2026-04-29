@@ -36,8 +36,10 @@ lerna-debug.log*
 
 # auto generated config stops here
 
-.env
-.env.secret
+*.env*
+!.env.secret.sample
+!.env.nest
+!.env.staging
 
 /converted
 /downloads
